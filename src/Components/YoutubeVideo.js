@@ -11,7 +11,7 @@ const YouTubeVideo = ({ videoId }) => {
     },
   };
 
-  return <YouTube videoId={videoId} opts={opts} />;
+  return <YouTube  videoId={videoId} opts={opts} />;
 };
 
 export default YouTubeVideo;

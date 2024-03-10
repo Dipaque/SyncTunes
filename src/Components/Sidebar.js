@@ -1,7 +1,7 @@
 import React from 'react'
 import Icon from '@mdi/react';
 import logo from '../assests/logo.png'
-import { mdiHomeVariant, mdiMagnify, mdiMessageOutline } from '@mdi/js';
+import { mdiHomeVariant, mdiHomeVariantOutline, mdiMagnify, mdiMessageOutline } from '@mdi/js';
 import { db } from '../firebase-config';
 import { addDoc ,getDocs } from 'firebase/firestore';
 import { Link } from 'react-router-dom';
@@ -17,7 +17,7 @@ const Sidebar = () => {
         
         <Link to={'/home'}>
        
-        <Icon path={mdiHomeVariant} color={'white'} size={1} />
+        <Icon path={mdiHomeVariantOutline} color={'white'} size={1} />
         </Link>
         <Link to={'/search'}>
          

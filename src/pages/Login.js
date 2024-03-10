@@ -36,7 +36,7 @@ const Login = () => {
   });
     }
   return (
-    <div className='bg-black flex flex-col justify-center items-center w-screen h-screen'>
+    <div className='bg-black flex flex-col items-center justify-center h-screen '>
         <img src={logo} height={200} width={200} />
         <button 
         className='flex flex-row-reverse justify-around border rounded-lg bg-slate-50 p-3 w-60 text-black'

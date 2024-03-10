@@ -6,16 +6,19 @@ import axios from 'axios'
 import { Row,Col } from 'reactstrap'
 import SongCard from '../Components/SongCard'
 import '../App.css'
+import Homepage from './Homepage'
 const Search = () => {
   const [input,setInput]=useState('')
   const [isLoading,setIsLoading]=useState(false)
   const [data,setData]=useState([])
   const [image,setImage]=useState('')
   const [title,setTitle]=useState('')
+const key = process.env.REACT_APP_YOUTUBE_KEY
+console.log(key)
     const handleSearch=async()=>{
         const options = {
             method: 'GET',
-            url: 'https://youtube-search-and-download.p.rapidapi.com/search',
+            url: "https://youtube-search-and-download.p.rapidapi.com/search",
             params: {
               query: input,
               
@@ -24,7 +27,7 @@ const Search = () => {
               
             },
             headers: {
-              'X-RapidAPI-Key': 'ed3d254bd0msh2d39c9911e8ca0ap1572dbjsn34c74ffd89ca',
+              'X-RapidAPI-Key': process.env.REACT_APP_YOUTUBE_KEY,
               'X-RapidAPI-Host': 'youtube-search-and-download.p.rapidapi.com'
             }
           };
@@ -42,13 +45,12 @@ try {
 }
 
     }
-    console.log(data)
   return (
     <React.Fragment>
-         <Sidebar />
-     <div className="flex gap-0 h-screen    bg-black ">
+      {/* <Homepage /> */}
+     <div className="flex gap-0 h-screen overflow-hidden    bg-black ">
     <div className=''>
-    <div className='text-white ml-5 mt-8 text-3xl flex  items-end   '>
+    <div className='text-white ml-5 text-3xl flex  items-end   '>
       <b>Search</b>
       </div>
       <div className='flex gap-2'>
