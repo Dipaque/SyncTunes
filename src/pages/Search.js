@@ -13,7 +13,8 @@ const Search = () => {
   const [data,setData]=useState([])
   const [image,setImage]=useState('')
   const [title,setTitle]=useState('')
-    const handleSearch=async()=>{
+    const handleSearch=async(e)=>{
+      e.preventDefault();
         const options = {
             method: 'GET',
             url: "https://youtube-search-and-download.p.rapidapi.com/search",
@@ -49,7 +50,7 @@ try {
     <div className='text-white ml-5 text-3xl flex  items-end   '>
       <b>Search</b>
       </div>
-      <div className='flex gap-2'>
+      <form onSubmit={(e)=>e.preventDefault()} className='flex gap-2'>
       <input 
       type='text'
       value={input}
@@ -57,18 +58,18 @@ try {
       className='border pl-2 pr-2 ml-5 mt-8 w-60 bg-slate-50 rounded-lg p-2 outline-none text-black'
       placeholder='Find your track...'
       />
-        <button 
+        <button type='submit'
         className='bg-slate-50 p-2 rounded-lg text-gray-500 mt-8'
-        onClick={()=>handleSearch()}>
-<Icon path={mdiMagnify} size={1} />
+        onClick={(e)=>handleSearch(e)} >
+          <Icon path={mdiMagnify} size={1} />
         </button>
-      </div>
+      </form>
       <div className=' mt-10 ml-5 mb-10'>
         <div className='flex flex-row overflow-hidden overflow-x-scroll  ' style={{width:'80rem'}} >
         {
             isLoading && data.length>0 ?(data.map((obj,index)=>(
                 'video' in obj ?(
-<SongCard image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} />
+<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} />
                 ):(
                     <></>
                 )  
