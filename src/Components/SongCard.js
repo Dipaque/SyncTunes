@@ -10,9 +10,7 @@ const SongCard = ({image,title,id}) => {
     const nav=useNavigate()
  const handlePlay=async()=>{
   setVideoId(id)
-await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:id}).then(()=>{
-    nav('/home')
-    console.log('updated')}).catch(err=>console.log(err))
+await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:id}).catch(err=>console.log(err))
  
  }
   return (

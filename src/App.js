@@ -11,13 +11,16 @@ function App() {
   document.body.style.backgroundColor='black'
   return (
     <React.Fragment> 
-      <div className='bg-black mx-auto '>
-      <Homepage /> 
-      </div>
+      {
+        document.location.pathname!=='/' ? (<div className='bg-black mx-auto '>
+        <Homepage /> 
+        </div>):(<></>)
+      }
+      
       
       <Routes>
       <Route path='/' element={<Login  />} />
-        {/* <Route path='/home' element={<></>} /> */}
+        <Route path='/home' element={<Index />} />
         <Route path='/search' element={<Search  />} />
         <Route path='/chat' element={<Chat  />} />
       </Routes>

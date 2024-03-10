@@ -13,8 +13,6 @@ const Search = () => {
   const [data,setData]=useState([])
   const [image,setImage]=useState('')
   const [title,setTitle]=useState('')
-const key = process.env.REACT_APP_YOUTUBE_KEY
-console.log(key)
     const handleSearch=async()=>{
         const options = {
             method: 'GET',
@@ -35,10 +33,8 @@ console.log(key)
 try {
 	const response = await axios.request(options);
 	setData(response.data.contents)
-    console.log(response.data.contents[0].video.thumbnails[0].url)
     setImage(response.data.contents[0].video.thumbnails[0].url)
     setTitle(response.data.contents[0].video.title)
-    console.log(response.data.contents[0].video)
     setIsLoading(true)
 } catch (error) {
 	console.error(error);
