@@ -4,10 +4,14 @@ import YouTube from 'react-youtube';
 const YouTubeVideo = ({ videoId }) => {
   const opts = {
     height: '200',
-    width: '300',
+    width: window.screen,
     playerVars: {
-      // https://developers.google.com/youtube/player_parameters
       autoplay: 1,
+      fs:0,
+      rel: 0,
+      // Disable the "more" option on the player
+      showinfo: 0,
+      
     },
   };
 

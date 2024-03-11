@@ -38,14 +38,14 @@ const Chat = () => {
                 {
                     messages.map((data,index)=>(
                         (data.sender===Cookies.get('name'))?((index==messages.length-1)?(<div className='block'>
-                        <div key={index} className='bg-black relative right-3 rounded-lg text-white  w-40 p-3
+                        <div key={index} className='bg-black relative right-0 rounded-lg text-white  w-40 p-3
                         ml-40 mt-3 mb-32  '>
                         <b>{'You'}</b>
                         <p>{data.data}</p>
                         </div>
                         </div>):(
                             <div className='block'>
-                            <div key={index} className='bg-black relative right-3 rounded-lg text-white  w-40 p-3
+                            <div key={index} className='bg-black  rounded-lg text-white  w-40 p-3
                             ml-40 mt-3 mr-3 '>
                             <b>{'You'}</b>
                             <p>{data.data}</p>
@@ -55,14 +55,14 @@ const Chat = () => {
                             
                         ):((index===messages.length-1)?(
                             <div className='block'>
-                            <div key={index} className='bg-black relative left-3  rounded-lg text-white  w-52 p-3 ms-3 mt-3  mb-32'>
+                            <div key={index} className='bg-black relative left-0  rounded-lg text-white  w-52 p-3  mt-3  mb-32'>
                             <b>{data.sender}</b>
                             <p>{data.data}</p>
                             </div>
                             </div>
                         ):(
                             <div className='block'>
-                            <div key={index} className='bg-black relative left-3  rounded-lg text-white  w-52 p-3 ms-3 mt-3  '>
+                            <div key={index} className='bg-black relative left-0  rounded-lg text-white  w-52 p-3  mt-3  '>
                             <b>{data.sender}</b>
                             <p>{data.data}</p>
                             </div>

@@ -54,7 +54,7 @@ const Homepage = () => {
       </div>
       {
 
-        sessionStorage.getItem('roomCode') && currentSong.length>0 ?( <div className='mt-20 flex justify-center flex-col '>
+        sessionStorage.getItem('roomCode') && currentSong.length>0 ?( <div className='mt-20 flex items-center m-2 justify-center flex-col '>
             <YouTubeVideo videoId={currentSong[0].currentSong} />
             <button className='border-white border-2 pl-2 pr-2 w-40 mt-5 mx-auto   p-2 rounded-lg text-white flex flex-row justify-center items-center gap-2'
             type='buttom'
