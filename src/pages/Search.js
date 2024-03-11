@@ -6,7 +6,8 @@ import axios from 'axios'
 import { Row,Col } from 'reactstrap'
 import SongCard from '../Components/SongCard'
 import '../App.css'
-import Homepage from './Homepage'
+import  loading  from '../assests/loading.png'
+import Shimmer from '../Components/Shimmer'
 const Search = () => {
   const [input,setInput]=useState('')
   const [isLoading,setIsLoading]=useState(false)
@@ -15,6 +16,7 @@ const Search = () => {
   const [title,setTitle]=useState('')
     const handleSearch=async(e)=>{
       e.preventDefault();
+      setIsLoading(true)
         const options = {
             method: 'GET',
             url: "https://youtube-search-and-download.p.rapidapi.com/search",
@@ -36,7 +38,7 @@ try {
 	setData(response.data.contents)
     setImage(response.data.contents[0].video.thumbnails[0].url)
     setTitle(response.data.contents[0].video.title)
-    setIsLoading(true)
+    setIsLoading(false)
 } catch (error) {
 	console.error(error);
 }
@@ -47,7 +49,7 @@ try {
       {/* <Homepage /> */}
      <div className="flex gap-0 h-screen overflow-hidden    bg-black ">
     <div className=''>
-    <div className='text-white ml-5 text-3xl flex  items-end   '>
+    <div className='text-white ml-5 text-xl flex  items-end   '>
       <b>Search</b>
       </div>
       <form onSubmit={(e)=>e.preventDefault()} className='flex gap-2'>
@@ -55,7 +57,7 @@ try {
       type='text'
       value={input}
       onChange={(e)=>setInput(e.target.value)}
-      className='border pl-2 pr-2 ml-5 mt-8 w-60 bg-slate-50 rounded-lg p-2 outline-none text-black'
+      className='border pl-2 pr-2 ml-5 mt-8 w-60 bg-slate-50 rounded-lg text-sm p-2 outline-none text-black'
       placeholder='Find your track...'
       />
         <button type='submit'
@@ -67,13 +69,15 @@ try {
       <div className=' mt-10 ml-5 mb-10'>
         <div className='flex flex-row overflow-hidden overflow-x-scroll  ' style={{width:'80rem'}} >
         {
-            isLoading && data.length>0 ?(data.map((obj,index)=>(
+            !isLoading && data.length>0 ?(data.map((obj,index)=>(
                 'video' in obj ?(
 <SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} />
                 ):(
-                    <></>
+                  <div className='mx-auto my-auto'>
+                  <img src={loading} height={100} width={100} />
+                  </div>
                 )  
-            ))):(<div className='text-white m-8'></div>)
+            ))):(isLoading && <Shimmer />)
         }
         </div>
       

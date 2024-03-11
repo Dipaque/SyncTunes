@@ -6,18 +6,33 @@ import { mdiAccountCircleOutline, mdiDoorOpen, mdiLogout } from '@mdi/js';
 import Cookies from 'js-cookie';
 import YouTubeVideo from '../Components/YoutubeVideo';
 import { useStateContext } from '../Context/ContextProvider';
-import { db } from '../firebase-config';
+import { db,auth } from '../firebase-config';
 import CreateRoom from '../Components/CreateRoom';
 import JoinRoom from '../Components/JoinRoom';
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import Index from './index';
+import { BiPowerOff } from 'react-icons/bi';
+import { useNavigate } from 'react-router-dom';
 import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs,} from 'firebase/firestore'
 const Homepage = () => {
+  const nav = useNavigate()
     // const [greeting,setGreetings]=useState('')
     const [currentSong,setCurrentSong,]=useState([])
     const [isPlaying,setIsPlaying]=useState('')
     const {videoId,modal_backdrop,setmodal_backdrop,joineeSong,setJoineeSong,setmodal_backdrop1} =useStateContext()
    const name = Cookies.get('name').split(' ')
    const [song,setSong]=useState('')
+   const [dropdownOpen, setDropdownOpen] = useState(false);
+   const signOut=()=>{
+     signOut(auth).then(() => {
+       nav('/')
+     }).catch((error) => {
+       console.log(error)
+     });
+   }
+   
+   const toggle = () => setDropdownOpen((prevState) => !prevState);
+   
     useEffect(()=>{
         const getData=()=>{
             if(sessionStorage.getItem('roomCode')){
@@ -45,35 +60,21 @@ const Homepage = () => {
      <JoinRoom />
     
     <div className=' m-3 mb-5  rounded-lg w-96 '>
-      <div className='text-white  mt-8 text-2xl flex  justify-around mr-4   '>
-      <b className='relative left-0 w-52'>{'Welcome '+name[0]}</b>
-      {
-        Cookies.get('photoUrl') ? <div className='h-9 relative right-1'> <img src={Cookies.get('photoUrl')} className='rounded-full h-9' /></div>:<Icon className='' path={mdiAccountCircleOutline} color={'white'} size={1.4} />
-      }
+      <div className='text-white  mt-3 text-xl ml-2 flex justify-around items-center   '>
+      <b className=' '>{'Welcome '+name[0]}</b>
       
       </div>
       {
 
-        sessionStorage.getItem('roomCode') && currentSong.length>0 ?( <div className='mt-20 flex items-center m-2 justify-center flex-col '>
+        sessionStorage.getItem('roomCode') && currentSong.length>0 && ( <div className=' flex items-center  justify-center flex-col '>
             <YouTubeVideo videoId={currentSong[0].currentSong} />
-            <button className='border-white border-2 pl-2 pr-2 w-40 mt-5 mx-auto   p-2 rounded-lg text-white flex flex-row justify-center items-center gap-2'
+            <button className='border-white border-2 pl-2 pr-2  mt-5 mx-auto   p-2 rounded-lg text-white flex flex-row justify-center items-center gap-2'
             type='buttom'
              onClick={()=>handleLeaveRoom()}>
                 Leave Room
                 <Icon path={mdiLogout} size={0.9}/>
             </button>
-            </div>) :(
-            !sessionStorage.getItem('roomCode') && joineeSong &&(
-            <div className='mt-20 flex justify-center flex-col '>
-                
-                <button className=' border-white border-2 mx-auto pl-2 pr-2 w-40 mt-5  p-2 rounded-lg text-white flex flex-row justify-center items-center gap-2'
-                type='button'
-                 onClick={()=>handleLeaveRoom()}>Leave Room
-                <Icon path={mdiDoorOpen} size={0.9}/>
-                </button>
-            </div>
-            )
-            )
+            </div>) 
           
 }
 </div>

@@ -20,12 +20,12 @@ const Index = () => {
    {
     !sessionStorage.getItem('roomCode') && (
       <div className=' flex justify-center gap-2  mx-auto mt-20'>
-      <button className='border pl-2 pr-2 bg-slate-50 w-32  p-2 rounded-lg text-black' type='button' onClick={()=>{
+      <button className='border pl-2 pr-2 bg-slate-50   p-2 rounded-lg text-black' type='button' onClick={()=>{
         setmodal_backdrop(true)
       }}>
         New Room
       </button>
-      <button className='border-zinc-500 border-2 pl-2 pr-2 w-36   p-2 rounded-lg text-white' onClick={()=>{
+      <button className='border-zinc-500 border-1 pl-2 pr-2    p-2 rounded-lg text-white' onClick={()=>{
         setmodal_backdrop1(true)
       }}>
         Join with a code

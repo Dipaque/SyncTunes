@@ -7,14 +7,21 @@ import Search from './pages/Search';
 import Login from './pages/Login';
 import Chat from './pages/Chat';
 import Homepage from './pages/Homepage';
+import styled from 'styled-components'; // or import { css } from '@emotion/react';
+
+// Define a styled component using the imported font
+const StyledText = styled.div`
+font-family: "Poppins", 'sans-serif'
+`;
 function App() {
   document.body.style.backgroundColor='black'
   return (
     <React.Fragment> 
+      <StyledText>
       {
-        document.location.pathname!=='/' ? (<div className='bg-black mx-auto '>
+        document.location.pathname!=='/' && (<div className='bg-black mx-auto '>
         <Homepage /> 
-        </div>):(<></>)
+        </div>)
       }
       
       
@@ -24,7 +31,7 @@ function App() {
         <Route path='/search' element={<Search  />} />
         <Route path='/chat' element={<Chat  />} />
       </Routes>
-      
+      </StyledText>
     </React.Fragment>
   );
 }

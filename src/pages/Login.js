@@ -1,10 +1,17 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import logo from '../assests/logo.png'
 import { auth } from '../firebase-config'
-import { GoogleAuthProvider,signInWithPopup } from 'firebase/auth'
+import { GoogleAuthProvider,onAuthStateChanged,signInWithPopup } from 'firebase/auth'
 import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
 const Login = () => {
+  useEffect(()=>{
+    onAuthStateChanged(auth,(user)=>{
+      if(user){
+        nav('/home')
+      }
+    })
+  },[])
     const nav = useNavigate()
     const provider = new GoogleAuthProvider();
     const handleLogin=()=>{
@@ -36,13 +43,13 @@ const Login = () => {
   });
     }
   return (
-    <div className='bg-black flex flex-col items-center justify-center h-screen '>
-        <img src={logo} height={200} width={200} />
+    <div className='bg-black flex flex-col items-center gap-2 justify-center h-screen '>
+        <img src={logo} height={100} width={100} />
         <button 
-        className='flex flex-row-reverse justify-around border rounded-lg bg-slate-50 p-3 w-60 text-black'
+        className='flex flex-row-reverse gap-2 justify-around border rounded-lg bg-slate-50 p-3  text-black'
         type='button'
         onClick={()=>handleLogin()}>
-            <b>Continue with Google</b>
+            Continue with Google
             <img src='https://fonts.gstatic.com/s/i/productlogos/googleg/v6/24px.svg' />
         </button>
     </div>

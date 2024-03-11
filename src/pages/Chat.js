@@ -19,14 +19,14 @@ const Chat = () => {
         }
         getData()
         
-    },[])
+    },[sessionStorage.getItem('roomCode')])
     const sendMsg=async()=>{
         await addDoc(collection(db,'room',sessionStorage.getItem('roomCode'),'messages'),{data:myMsg,sender:Cookies.get('name'),timestamp:Timestamp.now()}).then(()=>{
             setMyMsg('')
         }).catch(err=>console.log(err))
     }
   return (<>
-   <div className='text-white ml-5 text-3xl flex  items-end   '>
+   <div className='text-white ml-5 text-xl flex  items-end   '>
       <b>Chat</b>
       </div>
   <div className="flex gap-0 h-screen  overflow-hidden overflow-y-scroll w-screen  bg-black ">
@@ -91,7 +91,7 @@ const Chat = () => {
         </div>
         ):(
             <div className='my-auto mx-auto text-white'>
-<p><b>Please join the room to chat </b></p>
+                <p><b>Please join the room to chat </b></p>
             </div>
         )
     }
