@@ -21,13 +21,16 @@ const Chat = () => {
         getData()
         
     },[sessionStorage.getItem('roomCode')])
+    messages.map((data)=>{
+        console.log(data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes())
+    })
     const sendMsg=async()=>{
         await addDoc(collection(db,'room',sessionStorage.getItem('roomCode'),'messages'),{data:myMsg,sender:Cookies.get('name'),timestamp:Timestamp.now()}).then(()=>{
             setMyMsg('')
         }).catch(err=>console.log(err))
     }
     const findMin=(data)=>{
-        const seconds    = data.timestamp?.seconds
+        const seconds   = data.timestamp?.seconds
         const nanoseconds = data.timestamp?.nanoseconds
         const timestampInMilliseconds = seconds * 1000 + Math.floor(nanoseconds / 1e6);
           const dateObject = new Date(timestampInMilliseconds);
@@ -53,8 +56,8 @@ const Chat = () => {
                         ml-40 mt-3 mb-32  '>
                         <b>{'You'}</b>
                         <p>{data.data}</p>
-                        <div className='flex flex-row'>
-                            <BiTimeFive /> {findMin(data.timestamp)}
+                        <div className='flex flex-row items-center text-xs'>
+                            <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
                         </div>
                         </div>):(
@@ -63,8 +66,8 @@ const Chat = () => {
                             ml-40 mt-3 mr-3 '>
                             <b>{'You'}</b>
                             <p>{data.data}</p>
-                            <div className='flex flex-row'>
-                            <BiTimeFive /> {findMin(data)}
+                            <div className='flex flex-row items-center text-xs'>
+                            <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
                             </div>
                             </div>
@@ -75,8 +78,8 @@ const Chat = () => {
                             <div key={index} className='bg-black relative left-0  rounded-lg text-white  w-52 p-3  mt-3  mb-32'>
                             <b>{data.sender}</b>
                             <p>{data.data}</p>
-                            <div className='flex flex-row'>
-                            <BiTimeFive /> {findMin(data.timestamp)}
+                            <div className='flex flex-row items-center text-xs'>
+                            <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
                             </div>
                             </div>
@@ -85,8 +88,8 @@ const Chat = () => {
                             <div key={index} className='bg-black relative left-0  rounded-lg text-white  w-52 p-3  mt-3  '>
                             <b>{data.sender}</b>
                             <p>{data.data}</p>
-                            <div className='flex flex-row'>
-                            <BiTimeFive /> {findMin(data.timestamp)}
+                            <div className='flex flex-row items-center text-xs'>
+                            <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
                             </div>
                             </div>
