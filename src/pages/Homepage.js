@@ -18,9 +18,7 @@ const Homepage = () => {
   const nav = useNavigate()
     // const [greeting,setGreetings]=useState('')
     const [currentSong,setCurrentSong,]=useState([])
-    const [isPlaying,setIsPlaying]=useState('')
     const {videoId,modal_backdrop,setmodal_backdrop,joineeSong,setJoineeSong,setmodal_backdrop1} =useStateContext()
-   const name = Cookies.get('name').split(' ')
    const [song,setSong]=useState('')
    const [dropdownOpen, setDropdownOpen] = useState(false);
    const signOut=()=>{
@@ -61,7 +59,7 @@ const Homepage = () => {
     
     <div className=' m-3 mb-5  rounded-lg w-96 '>
       <div className='text-white  mt-3 text-xl ml-2 flex justify-start items-center   '>
-      <b className=' '>{'Welcome '+name[0]}</b>
+      <b className=' '>{'Welcome '+Cookies.get('name').split(' ')[0]}</b>
       
       </div>
       {
