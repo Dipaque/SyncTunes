@@ -1,13 +1,23 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import logo from '../assests/logo.png'
 import { auth } from '../firebase-config'
 import { GoogleAuthProvider,onAuthStateChanged,signInWithPopup } from 'firebase/auth'
 import Cookies from 'js-cookie'
 import { useNavigate } from 'react-router-dom'
+import { useStateContext } from '../Context/ContextProvider'
 const Login = () => {
+  const [user,setUser]= useState('')
+  const {setPathName} = useStateContext()
   useEffect(()=>{
     onAuthStateChanged(auth,(user)=>{
       if(user){
+        setUser(user)
+        Cookies.set('name',user.displayName)
+        Cookies.set('email',user.email)
+        Cookies.set('phone',user.phoneNumber)
+        Cookies.set('photoUrl',user.photoURL)
+        Cookies.set('uid',user.uid)
+        setPathName('/home')
         nav('/home')
       }
     })
@@ -44,7 +54,8 @@ const Login = () => {
     }
   return (
     <div className='bg-black flex flex-col items-center gap-2 justify-center h-screen '>
-        <img src={logo} height={100} width={100} />
+      
+<img src={logo} height={100} width={100} />
         <button 
         className='flex flex-row-reverse gap-2 justify-around border rounded-lg bg-slate-50 p-3  text-black'
         type='button'

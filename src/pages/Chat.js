@@ -5,6 +5,7 @@ import { mdiSend } from '@mdi/js'
 import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs, addDoc, Timestamp,} from 'firebase/firestore'
 import Cookies from 'js-cookie'
 import { db } from '../firebase-config'
+import { BiTimeFive } from 'react-icons/bi'
 const Chat = () => {
     const [messages,setMessages]=useState([])
     const [myMsg,setMyMsg]=useState('')
@@ -25,6 +26,16 @@ const Chat = () => {
             setMyMsg('')
         }).catch(err=>console.log(err))
     }
+    const findMin=(data)=>{
+        const seconds    = data.timestamp?.seconds
+        const nanoseconds = data.timestamp?.nanoseconds
+        const timestampInMilliseconds = seconds * 1000 + Math.floor(nanoseconds / 1e6);
+          const dateObject = new Date(timestampInMilliseconds);
+          const today =new Date()
+          const timeDiff = today - dateObject
+          const minsDiff = Math.floor(timeDiff/(1000 * 60))
+          return minsDiff
+      }
   return (<>
    <div className='text-white ml-5 text-xl flex  items-end   '>
       <b>Chat</b>
@@ -42,6 +53,9 @@ const Chat = () => {
                         ml-40 mt-3 mb-32  '>
                         <b>{'You'}</b>
                         <p>{data.data}</p>
+                        <div className='flex flex-row'>
+                            <BiTimeFive /> {findMin(data.timestamp)}
+                                </div>
                         </div>
                         </div>):(
                             <div className='block'>
@@ -49,6 +63,9 @@ const Chat = () => {
                             ml-40 mt-3 mr-3 '>
                             <b>{'You'}</b>
                             <p>{data.data}</p>
+                            <div className='flex flex-row'>
+                            <BiTimeFive /> {findMin(data)}
+                                </div>
                             </div>
                             </div>
                         )
@@ -58,6 +75,9 @@ const Chat = () => {
                             <div key={index} className='bg-black relative left-0  rounded-lg text-white  w-52 p-3  mt-3  mb-32'>
                             <b>{data.sender}</b>
                             <p>{data.data}</p>
+                            <div className='flex flex-row'>
+                            <BiTimeFive /> {findMin(data.timestamp)}
+                                </div>
                             </div>
                             </div>
                         ):(
@@ -65,6 +85,9 @@ const Chat = () => {
                             <div key={index} className='bg-black relative left-0  rounded-lg text-white  w-52 p-3  mt-3  '>
                             <b>{data.sender}</b>
                             <p>{data.data}</p>
+                            <div className='flex flex-row'>
+                            <BiTimeFive /> {findMin(data.timestamp)}
+                                </div>
                             </div>
                             </div>
                         )

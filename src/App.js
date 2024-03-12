@@ -8,18 +8,30 @@ import Login from './pages/Login';
 import Chat from './pages/Chat';
 import Homepage from './pages/Homepage';
 import styled from 'styled-components'; // or import { css } from '@emotion/react';
-
+import { useStateContext } from './Context/ContextProvider';
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
 `;
 function App() {
+  const {pathName,setPathName}=useStateContext()
+  useEffect(()=>{
+    const getPathName=()=>{
+      if(document.location.pathname==='/'){
+        setPathName('login')
+      }else{
+        setPathName(document.location.pathname)
+      }
+    }
+   getPathName()
+  },[pathName])
+ console.log(pathName)
   document.body.style.backgroundColor='black'
   return (
     <React.Fragment> 
       <StyledText>
       {
-        document.location.pathname!=='/' && (<div className='bg-black mx-auto '>
+        pathName!=='login' &&(<div className='bg-black mx-auto '>
         <Homepage /> 
         </div>)
       }

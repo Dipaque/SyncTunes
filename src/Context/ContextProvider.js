@@ -5,7 +5,8 @@ export const ContextProvider=({children})=>{
     const [modal_backdrop,setmodal_backdrop]=useState(false)
     const [modal_backdrop1,setmodal_backdrop1]=useState(false)
     const [joineeSong,setJoineeSong]=useState('')
-    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong}}>
+    const [pathName,setPathName]=useState('')
+    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName}}>
         {children}
     </StateContext.Provider>)
 }

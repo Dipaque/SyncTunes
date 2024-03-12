@@ -21,7 +21,7 @@ const Search = () => {
             method: 'GET',
             url: "https://youtube-search-and-download.p.rapidapi.com/search",
             params: {
-              query: input,
+              query: input+" songs",
               
               hl: 'en',
               gl: 'IN',
@@ -44,12 +44,13 @@ try {
 }
 
     }
+    const shimmerArr=[1,2,3,4,5]
   return (
     <React.Fragment>
       {/* <Homepage /> */}
      <div className="flex gap-0 h-screen overflow-hidden    bg-black ">
     <div className=''>
-    <div className='text-white ml-5 text-xl flex  items-end   '>
+    <div className='text-white ml-5 text-xl flex justify-start  items-end   '>
       <b>Search</b>
       </div>
       <form onSubmit={(e)=>e.preventDefault()} className='flex gap-2'>
@@ -77,7 +78,7 @@ try {
                   <img src={loading} height={100} width={100} />
                   </div>
                 )  
-            ))):(isLoading && <Shimmer />)
+            ))):(isLoading && (shimmerArr.map((data,index)=>(<Shimmer />))))
         }
         </div>
       
