@@ -59,7 +59,7 @@ const Homepage = () => {
     
     <div className=' m-3 mb-5  rounded-lg w-96 '>
       <div className='text-white  mt-3 text-xl ml-2 flex justify-start items-center   '>
-      <b className=' '>{'Welcome '+Cookies.get('name').split(' ')[0]}</b>
+      <b className=' '>{'Welcome '+Cookies.get('name')}</b>
       
       </div>
       {
