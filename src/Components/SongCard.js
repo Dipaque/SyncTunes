@@ -8,7 +8,9 @@ import { mdiPlay } from '@mdi/js'
 const SongCard = ({image,title,id}) => {
     const {setVideoId}=useStateContext()
     const nav=useNavigate()
+   
  const handlePlay=async()=>{
+  console.log(id)
   setVideoId(id)
 await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:id}).catch(err=>console.log(err))
  

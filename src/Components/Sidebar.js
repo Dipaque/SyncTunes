@@ -10,10 +10,12 @@ import Cookies from 'js-cookie';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
 import { mdiPowerOff } from '@mdi/js';
+import { GoHome, GoSearch, GoCommentDiscussion } from "react-icons/go";
 import { useStateContext } from '../Context/ContextProvider';
+import { RxMagnifyingGlass } from 'react-icons/rx'
 const Sidebar = () => {
   const nav = useNavigate()
-  const {setPathName}=useStateContext()
+  const {path,setPathName}=useStateContext()
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const signOutUser=()=>{
     signOut(auth).then(() => {
@@ -33,16 +35,15 @@ const Sidebar = () => {
 <         div className='bg-zinc-900 flex flex-row justify-around p-3 items-center'>
         
             <Link to={'/home'}>
-           
-            <Icon path={mdiHomeVariantOutline} color={'white'} size={1} />
+              <GoHome size={25} color='white' />
             </Link>
-            <Link to={'/search'} >
-             
-              <Icon path={mdiMagnify} color={'white'} size={1} />
+            <Link to={'/search'}  >
+            <RxMagnifyingGlass color='white' size={25} />
+            {/* <GoSearch size={25} color='white' /> */}
             </Link>
             <Link to={'/chat'}>
               
-              <Icon path={mdiMessageOutline} color={'white'} size={1} />
+            <GoCommentDiscussion size={25} color='white' />
             </Link>
             {
               Cookies.get('photoUrl') ? ( 

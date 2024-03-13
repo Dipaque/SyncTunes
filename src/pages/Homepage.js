@@ -58,13 +58,13 @@ const Homepage = () => {
      <JoinRoom />
     
     <div className=' m-3 mb-5  rounded-lg w-96 '>
-      <div className='text-white  mt-3 text-xl ml-2 flex justify-start items-center   '>
+      <div className='text-white  mt-3 text-lg ml-3 flex justify-start  items-center   '>
       <b className=' '>{'Welcome '+Cookies.get('name')}</b>
       
       </div>
       {
 
-        sessionStorage.getItem('roomCode') && currentSong.length>0 && ( <div className=' flex items-center  justify-center flex-col '>
+        sessionStorage.getItem('roomCode') && currentSong.length>0 && ( <div className=' flex items-center  justify-center flex-col mt-5 '>
             <YouTubeVideo videoId={currentSong[0].currentSong} />
             <button className='border-white border-2 pl-2 pr-2  mt-5 mx-auto   p-2 rounded-lg text-white flex flex-row justify-center items-center gap-2'
             type='buttom'

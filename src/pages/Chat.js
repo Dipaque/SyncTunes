@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import Sidebar from '../Components/Sidebar'
-import Icon from '@mdi/react'
-import { mdiSend } from '@mdi/js'
 import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs, addDoc, Timestamp,} from 'firebase/firestore'
 import Cookies from 'js-cookie'
 import { db } from '../firebase-config'
 import { BiTimeFive } from 'react-icons/bi'
+import { GoChevronUp, GoPaperAirplane } from 'react-icons/go'
+import { Link } from 'react-router-dom'
 const Chat = () => {
     const [messages,setMessages]=useState([])
     const [myMsg,setMyMsg]=useState('')
@@ -21,76 +20,79 @@ const Chat = () => {
         getData()
         
     },[sessionStorage.getItem('roomCode')])
-    messages.map((data)=>{
-        console.log(data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes())
-    })
+    const scrollToElement = (id) => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
     const sendMsg=async()=>{
-        await addDoc(collection(db,'room',sessionStorage.getItem('roomCode'),'messages'),{data:myMsg,sender:Cookies.get('name'),timestamp:Timestamp.now()}).then(()=>{
+        await addDoc(collection(db,'room',sessionStorage.getItem('roomCode'),'messages'),{data:myMsg,sender:Cookies.get('name'),timestamp:Timestamp.now(),status:'unread'}).then(()=>{
             setMyMsg('')
         }).catch(err=>console.log(err))
     }
-    const findMin=(data)=>{
-        const seconds   = data.timestamp?.seconds
-        const nanoseconds = data.timestamp?.nanoseconds
-        const timestampInMilliseconds = seconds * 1000 + Math.floor(nanoseconds / 1e6);
-          const dateObject = new Date(timestampInMilliseconds);
-          const today =new Date()
-          const timeDiff = today - dateObject
-          const minsDiff = Math.floor(timeDiff/(1000 * 60))
-          return minsDiff
-      }
-  return (<>
-   <div className='text-white ml-5 text-xl flex  items-end   '>
+  return (<div className='bg-black'>
+     <div id='top'>
+    </div>
+   <div className='text-white ml-5 text-xl flex  items-end' >
       <b>Chat</b>
       </div>
+     
   <div className="flex gap-0 h-screen  overflow-hidden overflow-y-scroll w-screen  bg-black ">
 
     {
         sessionStorage.getItem('roomCode')?(
-            <div className=' bg-zinc-900 w-screen m-3  overflow-hidden overflow-y-scroll  flex justify-center   rounded-lg  '>
+            <div className=' bg-zinc-900 w-screen m-3  overflow-hidden overflow-y-scroll  flex justify-center   rounded-lg text-sm '>
             <div className='flex flex-col '>
+                  
                 {
                     messages.map((data,index)=>(
                         (data.sender===Cookies.get('name'))?((index==messages.length-1)?(<div className='block'>
-                        <div key={index} className='bg-black relative right-0 rounded-lg text-white  w-40 p-3
-                        ml-40 mt-3 mb-32  '>
-                        <b>{'You'}</b>
+                        <div key={index} className=' chat chat-end text-white p-2  '>
+                            <div className=" bg-black chat-bubble">
+                            <b>{'You'}</b>
                         <p>{data.data}</p>
                         <div className='flex flex-row items-center text-xs'>
                             <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
+                            </div>
                         </div>
                         </div>):(
                             <div className='block'>
-                            <div key={index} className='bg-black  rounded-lg text-white  w-40 p-3
-                            ml-40 mt-3 mr-3 '>
+                            <div key={index} className=' chat chat-end text-white p-2'>
+                            <div className="bg-black chat-bubble">
                             <b>{'You'}</b>
-                            <p>{data.data}</p>
-                            <div className='flex flex-row items-center text-xs'>
+                        <p>{data.data}</p>
+                        <div className='flex flex-row items-center text-xs'>
                             <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
+                            </div>
                             </div>
                             </div>
                         )
                             
                         ):((index===messages.length-1)?(
                             <div className='block'>
-                            <div key={index} className='bg-black relative left-0  rounded-lg text-white  w-52 p-3  mt-3  mb-32'>
+                            <div key={index} className=' chat chat-start text-white p-2'>
+                            <div className="bg-black chat-bubble">
                             <b>{data.sender}</b>
-                            <p>{data.data}</p>
-                            <div className='flex flex-row items-center text-xs'>
+                        <p>{data.data}</p>
+                        <div className='flex flex-row items-center text-xs'>
                             <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
+                            </div>
                             </div>
                             </div>
                         ):(
                             <div className='block'>
-                            <div key={index} className='bg-black relative left-0  rounded-lg text-white  w-52 p-3  mt-3  '>
+                            <div key={index} className=' chat chat-start text-white p-2'>
+                            <div className="bg-black chat-bubble">
                             <b>{data.sender}</b>
-                            <p>{data.data}</p>
-                            <div className='flex flex-row items-center text-xs'>
+                        <p>{data.data}</p>
+                        <div className='flex flex-row items-center text-xs'>
                             <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
+                            </div>
                             </div>
                             </div>
                         )
@@ -99,6 +101,9 @@ const Chat = () => {
                        
                     ))
                 }
+                <button className=' bg-white bg-opacity-10 w-6 p-2  rounded-full backdrop-filter backdrop-blur fixed right-7 bottom-20' onClick={()=>scrollToElement('top')} >
+                <GoChevronUp className='mx-auto' color='white' size={15} />
+                </button> 
             </div>
             <div className=' pt-5 flex flex-row fixed bottom-8 gap-2  justify-items-center '>
             <input 
@@ -110,8 +115,9 @@ const Chat = () => {
         }} 
         placeholder='Type here...'
         />
-        <button className='bg-slate-50 rounded-full  p-2  text-center' onClick={()=>sendMsg()}>
-            <Icon path={mdiSend} size={1} />
+        <button className='bg-slate-50 rounded-full  p-2 w-10  text-center ' onClick={()=>sendMsg()}>
+            {/* <Icon path={mdiSend} size={1} /> */}
+            <GoPaperAirplane className='mx-auto' color='black' size={18} />
         </button>
             </div>
         </div>
@@ -121,10 +127,8 @@ const Chat = () => {
             </div>
         )
     }
-    
-   
     </div>
-  </>
+  </div>
     
   )
 }

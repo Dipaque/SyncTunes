@@ -8,8 +8,8 @@ const Shimmer = () => {
     <div class="animate-pulse relative bg-gray-900 h-32 mx-4 -mt-6 overflow-hidden bg-gradient-to-r from-blue-gray-300 to-blue-gray-400 rounded-xl">
     </div>
     <div class="p-3">
-      <div class="animate-pulse  block mb-2 font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
-       Loading...
+      <div class="animate-pulse  block mb-2 font-sans w-45 text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
+      
       </div>
     </div>
     <div class="p-6 pt-0">
