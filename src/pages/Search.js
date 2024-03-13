@@ -6,7 +6,7 @@ import axios from 'axios'
 import { Row,Col } from 'reactstrap'
 import SongCard from '../Components/SongCard'
 import '../App.css'
-import  loading  from '../assests/loading.png'
+import  Loading  from '../assests/loading.png'
 import Shimmer from '../Components/Shimmer'
 const Search = () => {
   const [input,setInput]=useState('')
@@ -74,11 +74,13 @@ try {
                 'video' in obj ?(
 <SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} />
                 ):(
-                  <div className='mx-auto my-auto'>
-                  <img src={loading} height={100} width={100} />
-                  </div>
+                 <>
+                 </>
                 )  
-            ))):(isLoading && (shimmerArr.map((data,index)=>(<Shimmer />))))
+            ))):(isLoading ? (shimmerArr.map((data,index)=>(<Shimmer />))):(<div className='mx-auto my-auto'>
+            <img src={require('../assests/loading.png')}  />
+            
+            </div>) )
         }
         </div>
       

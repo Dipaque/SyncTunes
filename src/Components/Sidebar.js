@@ -15,7 +15,7 @@ import { useStateContext } from '../Context/ContextProvider';
 import { RxMagnifyingGlass } from 'react-icons/rx'
 const Sidebar = () => {
   const nav = useNavigate()
-  const {path,setPathName}=useStateContext()
+  const {path,setPathName,notification}=useStateContext()
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const signOutUser=()=>{
     signOut(auth).then(() => {
@@ -42,7 +42,9 @@ const Sidebar = () => {
             {/* <GoSearch size={25} color='white' /> */}
             </Link>
             <Link to={'/chat'}>
-              
+           {
+            notification > 0 && <div className="badge badge-white text-black badge-full ">{notification}</div>
+           } 
             <GoCommentDiscussion size={25} color='white' />
             </Link>
             {

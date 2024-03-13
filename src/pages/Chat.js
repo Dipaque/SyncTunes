@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
-import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs, addDoc, Timestamp,} from 'firebase/firestore'
+import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs, addDoc, Timestamp, updateDoc,} from 'firebase/firestore'
 import Cookies from 'js-cookie'
 import { db } from '../firebase-config'
 import { BiTimeFive } from 'react-icons/bi'
 import { GoChevronUp, GoPaperAirplane } from 'react-icons/go'
 import { Link } from 'react-router-dom'
+import { useStateContext } from '../Context/ContextProvider'
 const Chat = () => {
+    const {setNotification} = useStateContext()
     const [messages,setMessages]=useState([])
     const [myMsg,setMyMsg]=useState('')
     useEffect(()=>{
@@ -15,6 +17,12 @@ const Chat = () => {
                 onSnapshot(filteredUsersQuery,((data) => {
                   setMessages(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
                 }))
+              const unReadMsg =  messages.filter(data=>data.status==='unread' && data.sender!==Cookies.get('name'))
+              setNotification(unReadMsg.length)
+              unReadMsg.map(async(data)=>{
+                await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode'),'messages',data.id),{status:'read'})
+              })
+              
             }
         }
         getData()
@@ -47,9 +55,9 @@ const Chat = () => {
                   
                 {
                     messages.map((data,index)=>(
-                        (data.sender===Cookies.get('name'))?((index==messages.length-1)?(<div className='block'>
-                        <div key={index} className=' chat chat-end text-white p-2  '>
-                            <div className=" bg-black chat-bubble">
+                        (data.sender===Cookies.get('name'))?((index==messages.length-1)?(
+                        <div key={index} className=' chat chat-end text-white  p-2 mb-28  '>
+                            <div className=" bg-black chat-bubble w-64">
                             <b>{'You'}</b>
                         <p>{data.data}</p>
                         <div className='flex flex-row items-center text-xs'>
@@ -57,10 +65,10 @@ const Chat = () => {
                                 </div>
                             </div>
                         </div>
-                        </div>):(
-                            <div className='block'>
-                            <div key={index} className=' chat chat-end text-white p-2'>
-                            <div className="bg-black chat-bubble">
+                        ):(
+                            
+                            <div key={index} className=' chat chat-end text-white p-2 '>
+                            <div className="bg-black chat-bubble w-64">
                             <b>{'You'}</b>
                         <p>{data.data}</p>
                         <div className='flex flex-row items-center text-xs'>
@@ -68,31 +76,27 @@ const Chat = () => {
                                 </div>
                             </div>
                             </div>
-                            </div>
+                          
                         )
                             
                         ):((index===messages.length-1)?(
-                            <div className='block'>
-                            <div key={index} className=' chat chat-start text-white p-2'>
-                            <div className="bg-black chat-bubble">
+                            <div key={index} className=' chat chat-start text-white p-2 mb-28 '>
+                            <div className="bg-black chat-bubble w-64">
                             <b>{data.sender}</b>
                         <p>{data.data}</p>
                         <div className='flex flex-row items-center text-xs'>
                             <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
-                            </div>
                             </div>
                             </div>
                         ):(
-                            <div className='block'>
-                            <div key={index} className=' chat chat-start text-white p-2'>
-                            <div className="bg-black chat-bubble">
+                            <div key={index} className=' chat chat-start text-white p-2 '>
+                            <div className="bg-black chat-bubble w-64">
                             <b>{data.sender}</b>
                         <p>{data.data}</p>
                         <div className='flex flex-row items-center text-xs'>
                             <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
-                            </div>
                             </div>
                             </div>
                         )
@@ -101,7 +105,7 @@ const Chat = () => {
                        
                     ))
                 }
-                <button className=' bg-white bg-opacity-10 w-6 p-2  rounded-full backdrop-filter backdrop-blur fixed right-7 bottom-20' onClick={()=>scrollToElement('top')} >
+                <button className=' bg-white bg-opacity-10 w-8 p-2  rounded-full backdrop-filter backdrop-blur fixed right-7 bottom-20' onClick={()=>scrollToElement('top')} >
                 <GoChevronUp className='mx-auto' color='white' size={15} />
                 </button> 
             </div>

@@ -30,6 +30,8 @@ function JoinRoom() {
     setJoineeSong(data.data().currentSong)
    await updateDoc(doc(db,'room',roomCode),{members:[...data.data().members,Cookies.get('name')]})
    setmodal_backdrop1(!modal_backdrop1)
+   }else{
+    setMsg('Room code is incorrect')
    }
   }
 
@@ -43,7 +45,7 @@ function JoinRoom() {
         onChange={(e)=>setRoomCode(e.target.value)}
         placeholder="Enter your room code..."
       />
-      <p className='text-green-700' id='msg'></p>
+      <p className='text-red-600 text-center mt-3' id='msg'>{msg}</p>
     </ModalBody>
     <ModalFooter>
       <Button color="dark" onClick={()=>handleJoinRoom()}>
