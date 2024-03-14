@@ -31,7 +31,6 @@ const SongCard = ({image,title,id,playList}) => {
 await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[...songs],currentPlaying:id}).catch(err=>console.log(err))
  
  }
- console.log('videoIds',videoIds)
   return (
     <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 p-4'>
   <div class=" flex  flex-col mt-6 text-gray-700 bg-white shadow-md bg-clip-border rounded-xl w-72">

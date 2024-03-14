@@ -6,13 +6,11 @@ import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 const YouTubeVideo = ({ videoIds }) => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [currentPlaying,setCurrentPlaying]=useState('')
-console.log(videoIds)
   const onVideoEnd = () => {
     // setCurrentVideoIndex(prevIndex => prevIndex + 1);
     videoIds.splice(0,1)
     updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[0]})
   };
-console.log(currentVideoIndex)
   useEffect(() => {
     const getData=()=>{
       if (currentVideoIndex >= videoIds.length) {

@@ -45,7 +45,6 @@ const Homepage = () => {
         }
       getData()  
     },[sessionStorage.getItem('roomCode')])
-    console.log(videoIds)
     const handleLeaveRoom=()=>{
         sessionStorage.removeItem('roomCode')
         setJoineeSong('')

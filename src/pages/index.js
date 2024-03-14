@@ -14,7 +14,7 @@ const Index = () => {
 
    
     const {videoId,modal_backdrop,setmodal_backdrop,joineeSong,setJoineeSong,setmodal_backdrop1} =useStateContext()
-    // console.log(isPlaying,currentSong.length)
+
   return (
    <>
    {
