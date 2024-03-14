@@ -10,6 +10,18 @@ const Chat = () => {
     const {setNotification} = useStateContext()
     const [messages,setMessages]=useState([])
     const [myMsg,setMyMsg]=useState('')
+    const [isVisible, setIsVisible] = useState(false);
+    useEffect(() => {
+      const handleScroll = () => {
+        const scrollY = window.scrollY;
+        setIsVisible(scrollY > 100);
+      };
+      window.addEventListener('scroll', handleScroll);
+  
+      return () => {
+        window.removeEventListener('scroll', handleScroll);
+      };
+    }, []);
     useEffect(()=>{
         const getData=()=>{
             if(sessionStorage.getItem('roomCode')){
@@ -40,8 +52,8 @@ const Chat = () => {
         }).catch(err=>console.log(err))
     }
   return (<div className='bg-black'>
-     <div id='top'>
-    </div>
+     {/* <div id='top'>
+    </div> */}
    <div className='text-white ml-5 text-xl flex  items-end' >
       <b>Chat</b>
       </div>
@@ -80,7 +92,7 @@ const Chat = () => {
                         )
                             
                         ):((index===messages.length-1)?(
-                            <div key={index} className=' chat chat-start text-white p-2 mb-28 '>
+                            <div key={index} className=' chat chat-start start-0 text-white p-2 mb-28 '>
                             <div className="bg-black chat-bubble w-64">
                             <b>{data.sender}</b>
                         <p>{data.data}</p>
@@ -90,7 +102,7 @@ const Chat = () => {
                             </div>
                             </div>
                         ):(
-                            <div key={index} className=' chat chat-start text-white p-2 '>
+                            <div key={index} className=' chat chat-start  text-white p-2 '>
                             <div className="bg-black chat-bubble w-64">
                             <b>{data.sender}</b>
                         <p>{data.data}</p>
@@ -105,7 +117,7 @@ const Chat = () => {
                        
                     ))
                 }
-                <button className=' bg-white bg-opacity-10 w-8 p-2  rounded-full backdrop-filter backdrop-blur fixed right-7 bottom-20' onClick={()=>scrollToElement('top')} >
+                <button className={` bg-white bg-opacity-10 w-8 p-2  rounded-full backdrop-filter backdrop-blur fixed right-7 bottom-20 transition-opacity ${isVisible ? 'opacity-100' : 'opacity-0'}` } onClick={()=>scrollToElement('top')} >
                 <GoChevronUp className='mx-auto' color='white' size={15} />
                 </button> 
             </div>

@@ -3,11 +3,10 @@ import Sidebar from '../Components/Sidebar'
 import Icon from '@mdi/react'
 import { mdiMagnify } from '@mdi/js'
 import axios from 'axios'
-import { Row,Col } from 'reactstrap'
 import SongCard from '../Components/SongCard'
 import '../App.css'
-import  Loading  from '../assests/loading.png'
 import Shimmer from '../Components/Shimmer'
+import { GoChevronRight, GoChevronUp } from 'react-icons/go'
 const Search = () => {
   const [input,setInput]=useState('')
   const [isLoading,setIsLoading]=useState(false)
@@ -45,6 +44,7 @@ try {
 
     }
     const shimmerArr=[1,2,3,4,5]
+    console.log(data)
   return (
     <React.Fragment>
       {/* <Homepage /> */}
@@ -67,12 +67,17 @@ try {
           <Icon path={mdiMagnify} size={1} />
         </button>
       </form>
-      <div className=' mt-10 ml-5 mb-10'>
-        <div className='flex flex-row overflow-hidden overflow-x-scroll  ' style={{width:'80rem'}} >
+      <div className=' mt-10 mx-auto mb-10 '>
+     {
+data.length>0&& <button className=' bg-white bg-opacity-10 w-8 p-2  rounded-full backdrop-filter backdrop-blur fixed right-7 bottom-40'  >
+<GoChevronRight className='mx-auto' color='white' size={15} />
+</button>
+     } 
+        <div className='flex flex-row overflow-hidden overflow-x-scroll ' style={{width:window.innerWidth}} >
         {
             !isLoading && data.length>0 ?(data.map((obj,index)=>(
                 'video' in obj ?(
-<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} />
+<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} playList={data} />
                 ):(
                  <>
                  </>

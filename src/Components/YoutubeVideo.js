@@ -3,22 +3,49 @@ import YouTube from 'react-youtube';
 import { db } from '../firebase-config';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 
-const YouTubeVideo = ({ videoId }) => {
+const YouTubeVideo = ({ videoIds }) => {
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [currentPlaying,setCurrentPlaying]=useState('')
+console.log(videoIds)
+  const onVideoEnd = () => {
+    // setCurrentVideoIndex(prevIndex => prevIndex + 1);
+    videoIds.splice(0,1)
+    updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[0]})
+  };
+console.log(currentVideoIndex)
+  useEffect(() => {
+    const getData=()=>{
+      if (currentVideoIndex >= videoIds.length) {
+        setCurrentVideoIndex(0);
+      }
+      const docRef = doc(db,'room',sessionStorage.getItem('roomCode'))
+    onSnapshot(docRef,(doc)=>{
+        if(doc.exists){
+          setCurrentPlaying(doc.data().currentPlaying)
+        }
+      })
+    }
+   getData()
+   
+ 
+  }, []);
   const opts = {
     height: '200',
-    width: '100%', // Use window.screen.width for width
+    width: '100%', 
     playerVars: {
       autoplay: 1,
       fs: 0,
       rel: 0,
       showinfo: 0,
+      loop:1,
     },
   };
   return (
     <div>
       <YouTube
-        videoId={videoId}
+        videoId={videoIds[0]}
         opts={opts}
+        onEnd={onVideoEnd}
       />
     </div>
   );
