@@ -13,9 +13,6 @@ const YouTubeVideo = ({ videoIds }) => {
   };
   useEffect(() => {
     const getData=()=>{
-      if (currentVideoIndex >= videoIds.length) {
-        setCurrentVideoIndex(0);
-      }
       const docRef = doc(db,'room',sessionStorage.getItem('roomCode'))
     onSnapshot(docRef,(doc)=>{
         if(doc.exists){
@@ -40,11 +37,15 @@ const YouTubeVideo = ({ videoIds }) => {
   };
   return (
     <div>
-      <YouTube
+     {
+      videoIds && (
+<YouTube
         videoId={videoIds[0]}
         opts={opts}
         onEnd={onVideoEnd}
       />
+      )
+     } 
     </div>
   );
 };
