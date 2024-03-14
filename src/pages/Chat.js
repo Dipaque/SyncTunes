@@ -68,6 +68,8 @@ const Chat = () => {
                 {
                     messages.map((data,index)=>(
                         (data.sender===Cookies.get('name'))?((index==messages.length-1)?(
+                            <div className='mb-36'>
+
                         <div key={index} className=' chat chat-end text-white  p-2 mb-28  '>
                             <div className=" bg-black chat-bubble w-64">
                             <b>{'You'}</b>
@@ -76,6 +78,7 @@ const Chat = () => {
                             <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
                             </div>
+                        </div>
                         </div>
                         ):(
                             
@@ -92,13 +95,15 @@ const Chat = () => {
                         )
                             
                         ):((index===messages.length-1)?(
-                            <div key={index} className=' chat chat-start start-0 text-white p-2 mb-28 '>
+                            <div className="m-36">
+                            <div key={index} className=' chat chat-start start-0 text-white p-2 mb-36 '>
                             <div className="bg-black chat-bubble w-64">
                             <b>{data.sender}</b>
                         <p>{data.data}</p>
                         <div className='flex flex-row items-center text-xs'>
                             <BiTimeFive /> {data.timestamp.toDate().getHours()+':'+data.timestamp.toDate().getMinutes()}
                                 </div>
+                            </div>
                             </div>
                             </div>
                         ):(
