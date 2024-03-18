@@ -7,6 +7,7 @@ import SongCard from '../Components/SongCard'
 import '../App.css'
 import Shimmer from '../Components/Shimmer'
 import { GoChevronRight, GoChevronUp } from 'react-icons/go'
+import Toast from '../Components/Toast'
 const Search = () => {
   const [input,setInput]=useState('')
   const [isLoading,setIsLoading]=useState(false)
@@ -46,7 +47,6 @@ try {
     const shimmerArr=[1,2,3,4,5]
   return (
     <React.Fragment>
-      {/* <Homepage /> */}
      <div className="flex gap-0 h-screen overflow-hidden    bg-black ">
     <div className=''>
     <div className='text-white ml-5 text-xl flex justify-start  items-end   '>
@@ -76,7 +76,7 @@ data.length>0&& <button className=' bg-white bg-opacity-10 w-8 p-2  rounded-full
         {
             !isLoading && data.length>0 ?(data.map((obj,index)=>(
                 'video' in obj ?(
-<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} playList={data} />
+<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId}  />
                 ):(
                  <>
                  </>
@@ -92,6 +92,7 @@ data.length>0&& <button className=' bg-white bg-opacity-10 w-8 p-2  rounded-full
       </div>
       
     </div>
+    <Toast message={'Added to Queue'} color={'success'} />
     </div>
     </React.Fragment>
   )

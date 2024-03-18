@@ -5,31 +5,23 @@ import { db } from '../firebase-config'
 import {  doc, updateDoc } from 'firebase/firestore'
 import Icon from '@mdi/react'
 import { HiOutlineQueueList, HiOutlineHeart } from "react-icons/hi2";
-import { IoEllipsisVertical, IoPlay, IoRepeatOutline, IoShuffleOutline } from 'react-icons/io5'
+import { IoEllipsisVertical, IoPlay, IoRepeatOutline, IoShuffleOutline,IoPlaySkipForwardOutline } from 'react-icons/io5'
 import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap'
 import addToQueue from '../Functions/addToQueue'
 import shuffule from '../Functions/shuffle'
-const SongCard = ({image,title,id,playList}) => {
+import playNext from '../Functions/playNext'
+const SongCard = ({image,title,id,}) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
     const {setVideoId,videoIds}=useStateContext()
     const nav=useNavigate()
    
  const handlePlay=async()=>{
-  // console.log(playList)
- const newPlayList = playList.filter((data)=>data. videoId!==id)
- const songs = newPlayList.map((data)=>{
-  if(data.video){
-    return data.video.videoId
-  }else if(data.playlist){
-    return data.playlist.playlistId
+  if(videoIds){
+    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[id,...videoIds],currentPlaying:id}).catch(err=>console.log(err))
+  }else{
+    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[id],currentPlaying:id}).catch(err=>console.log(err))
   }
- })
-  setVideoId(id)
-  songs.splice(1,0,id)
-  songs.splice(0,1)
-await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[...songs],currentPlaying:id}).catch(err=>console.log(err))
- 
  }
   return (
     <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 p-4'>
@@ -57,13 +49,16 @@ await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[
 <IoEllipsisVertical color='black' size={22} />
 </DropdownToggle>
 <DropdownMenu className='bg-white text-xs dropdown-menu-end border-white shadow-lg p-2'>
-  <DropdownItem className='d-flex gap-2' onClick={()=>addToQueue(id,videoIds)}>
+<DropdownItem className='d-flex gap-2 pt-3 pb-3' onClick={()=>playNext(id,videoIds)}>
+<IoPlaySkipForwardOutline /> Play Next
+</DropdownItem>
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3' onClick={()=>addToQueue(id,videoIds)}>
   <HiOutlineQueueList color='black' size={16} />  Add to Queue
   </DropdownItem>
-  <DropdownItem className='d-flex gap-2' onClick={()=>addToQueue(id,videoIds)}>
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3' onClick={()=>addToQueue(id,videoIds)}>
   <IoRepeatOutline color='black' size={16} />  Repeat
   </DropdownItem>
-  <DropdownItem className='d-flex gap-2' onClick={()=>shuffule(id,videoIds)}>
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3' onClick={()=>shuffule(id,videoIds)}>
   <IoShuffleOutline color='black' size={16} />  Shuffle
   </DropdownItem>
 </DropdownMenu>

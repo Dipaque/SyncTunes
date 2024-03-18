@@ -13,7 +13,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 're
 import Index from './index';
 import { BiPowerOff } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
-import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs,} from 'firebase/firestore'
+import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs, updateDoc,} from 'firebase/firestore'
 const Homepage = () => {
   const nav = useNavigate()
     // const [greeting,setGreetings]=useState('')
@@ -21,6 +21,7 @@ const Homepage = () => {
     const {setJoineeSong,videoIds,setVideoIds} =useStateContext()
    const [song,setSong]=useState('')
    const [dropdownOpen, setDropdownOpen] = useState(false);
+   const [roomMate,setRoomMate] = useState([])
    const signOut=()=>{
      signOut(auth).then(() => {
        nav('/')
@@ -37,7 +38,10 @@ const Homepage = () => {
             const filteredUsersQuery = query(collection(db, 'room'), where('roomCode', '==', sessionStorage.getItem('roomCode')));
             onSnapshot(filteredUsersQuery,((data) => {
               setCurrentSong(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
-               setVideoIds(data.docs[0].data().currentSong)
+                setVideoIds(data.docs[0].data().currentSong)
+                setRoomMate(data.docs[0].data().members)
+
+              
               
             })) 
            
@@ -45,7 +49,14 @@ const Homepage = () => {
         }
       getData()  
     },[sessionStorage.getItem('roomCode')])
-    const handleLeaveRoom=()=>{
+    const handleLeaveRoom=async()=>{
+if(roomMate.length>0){
+  const index = roomMate.indexOf(Cookies.get('name'))
+  if(index>-1){
+    roomMate.splice(index,1)
+  }
+ await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{members:roomMate})
+}
         sessionStorage.removeItem('roomCode')
         setJoineeSong('')
         setCurrentSong([])
