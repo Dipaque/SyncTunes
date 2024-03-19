@@ -8,7 +8,6 @@ import { Link } from 'react-router-dom'
 import { useStateContext } from '../Context/ContextProvider'
 const Chat = () => {
     const {setNotification,messages,setMessages} = useStateContext()
-    console.log(messages)
     const [myMsg,setMyMsg]=useState('')
     const [isVisible, setIsVisible] = useState(false);
     useEffect(() => {
