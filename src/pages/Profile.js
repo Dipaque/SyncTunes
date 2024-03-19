@@ -36,24 +36,37 @@ const Profile = () => {
       <img src={Cookies.get('photoUrl')} className='rounded-full h-20 w-20 mx-auto' />
       <p className='mx-auto text-sm'>{Cookies.get('name')}</p>
       <p className='mx-auto text-sm'>{Cookies.get('email')}</p>
+      {
+        sessionStorage.getItem('roomCode') ? (<p className='mx-auto text-sm'>{'Current Room : '+sessionStorage.getItem('roomCode')}</p>):(<p className='mx-auto text-sm'>{'No room joined'}</p>)
+      }
+      
       </div>
       </div>
       <div className='text-white ml-8 text-lg flex flex-col justify-start  items-start'>
         <b>
           My Rooms
         </b>
-        <div className="text-sm  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll h-28">
+        <div className="text-sm mt-2  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll h-28">
           
           {
-            myRoom.map((data)=>(
-              <div className='p-1 flex flex-row gap-1'>
-                
-               <GoBookmarkFill color='white' size={14} />
-               {
-                data.roomCode
-               }    
-              </div>
-            ))
+            myRoom.length>0 ?(
+              
+                myRoom.map((data)=>(
+                  <div className='p-1 flex flex-row gap-1'>
+                    
+                   <GoBookmarkFill color='white' size={14} />
+                   {
+                    data.roomCode
+                   }    
+                  </div>
+                ))
+              
+            ) :(
+              <div className='mx-auto mt-5 text-slate-100'>
+                No rooms created yet!
+                </div>
+            )
+           
           }
         </div>
         <button className='text-slate-50 flex flex-row-reverse gap-2 mt-5 mb-5 items-center justify-start text-sm' onClick={()=>signOutUser()}>

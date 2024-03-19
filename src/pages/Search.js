@@ -11,6 +11,8 @@ import Toast from '../Components/Toast'
 const Search = () => {
   const [input,setInput]=useState('')
   const [isLoading,setIsLoading]=useState(false)
+  const [toastMsg,setToastMsg]=useState('')
+  const [toastDisplay,setToastDisplay] = useState(false)
   const [data,setData]=useState([])
   const [image,setImage]=useState('')
   const [title,setTitle]=useState('')
@@ -44,14 +46,16 @@ try {
 }
 
     }
-    const shimmerArr=[1,2,3,4,5]
+    const shimmerArr=[1,2,3,4,5,6,7,8,9,10,11,12,13,14]
   return (
     <React.Fragment>
      <div className="flex gap-0 h-screen overflow-hidden    bg-black ">
     <div className=''>
     <div className='text-white ml-5 text-xl flex justify-start  items-end   '>
       <b>Search</b>
+   
       </div>
+    
       <form onSubmit={(e)=>e.preventDefault()} className='flex gap-2'>
       <input 
       type='text'
@@ -67,32 +71,34 @@ try {
         </button>
       </form>
       <div className=' mt-10 mx-auto mb-10 '>
-     {
-data.length>0&& <button className=' bg-white bg-opacity-10 w-8 p-2  rounded-full backdrop-filter backdrop-blur fixed right-7 bottom-40'  >
-<GoChevronRight className='mx-auto' color='white' size={15} />
-</button>
-     } 
-        <div className='flex flex-row overflow-hidden overflow-x-scroll ' style={{width:window.innerWidth}} >
+   
+        <div className='flex flex-col overflow-hidden  overflow-y-scroll w-screen ' style={{height:window.innerHeight}} >
         {
             !isLoading && data.length>0 ?(data.map((obj,index)=>(
                 'video' in obj ?(
-<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId}  />
+<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} setToastDisplay={setToastDisplay} setToastMsg={setToastMsg}  />
                 ):(
                  <>
                  </>
                 )  
             ))):(isLoading ? (shimmerArr.map((data,index)=>(<Shimmer />))):(<div className='mx-auto my-auto'>
-            <img src={require('../assests/loading.png')}  />
+            
             
             </div>) )
         }
         </div>
+        {
+          toastDisplay && (
+            <div className='flex justify-center'>
+            <Toast message={toastMsg} />
+            </div>
+          )
+        }
       
-       
       </div>
       
     </div>
-    <Toast message={'Added to Queue'} color={'success'} />
+    
     </div>
     </React.Fragment>
   )

@@ -10,7 +10,7 @@ import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap'
 import addToQueue from '../Functions/addToQueue'
 import shuffule from '../Functions/shuffle'
 import playNext from '../Functions/playNext'
-const SongCard = ({image,title,id,}) => {
+const SongCard = ({image,title,id,setToastDisplay,setToastMsg}) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
     const {setVideoId,videoIds}=useStateContext()
@@ -24,49 +24,50 @@ const SongCard = ({image,title,id,}) => {
   }
  }
   return (
-    <div className='w-full sm:w-1/2 md:w-1/3 lg:w-1/4 xl:w-1/4 p-4'>
-  <div class=" flex  flex-col mt-6 text-gray-700 bg-white shadow-md bg-clip-border rounded-xl w-72">
-  <div
-    class="relative h-32 mx-4 -mt-6 overflow-hidden text-white shadow-lg bg-clip-border rounded-xl bg-blue-gray-500 shadow-blue-gray-500/40">
-    <img
-      src={image}
-      alt="card-image" />
-  </div>
-  <div class="p-3">
-    <h5 class="block mb-2 font-sans text-xl antialiased font-semibold leading-snug tracking-normal text-blue-gray-900">
-      {title}
-    </h5>
-  </div>
-  <div class="p-6 pt-0 flex  gap-36  flex-row items-center">
-    
-    <button
-      class="align-middle select-none font-sans font-bold text-center uppercase transition-all disabled:opacity-50 disabled:shadow-none disabled:pointer-events-none text-xs p-3 rounded-full bg-gray-900 text-white shadow-md shadow-gray-900/10 hover:shadow-lg hover:shadow-gray-900/20 focus:opacity-[0.85] focus:shadow-none active:opacity-[0.85] active:shadow-none"
-      type="button" onClick={()=>handlePlay()}>
-      <IoPlay color='white'size={12} />
-    </button>
-    <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={'up'}>
+
+<div  className='flex flex-row m-3 justify-center items-center gap-2 text-white cursor-pointer' >
+  <img src={image} className='rounded-lg h-16 w-16' onClick={()=>handlePlay()} />
+  <p className='w-2/3' onClick={()=>handlePlay()}>{title}</p>
+  <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={'down'}>
 <DropdownToggle className='btn' tag={'button'} >
-<IoEllipsisVertical color='black' size={22} />
+<IoEllipsisVertical color='white' size={18} />
 </DropdownToggle>
-<DropdownMenu className='bg-white text-xs dropdown-menu-end border-white shadow-lg p-2'>
-<DropdownItem className='d-flex gap-2 pt-3 pb-3' onClick={()=>playNext(id,videoIds)}>
-<IoPlaySkipForwardOutline /> Play Next
+<DropdownMenu className='bg-dark  dropdown-menu-end border-dark   shadow-lg p-2'>
+<DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
+  playNext(id,videoIds)
+  setToastDisplay(true)
+  setToastMsg('Added to Play next')
+  setTimeout(()=>setToastDisplay(false),4000)
+  }}>
+<IoPlaySkipForwardOutline color='white' size={16} /> Play Next
 </DropdownItem>
-  <DropdownItem className='d-flex gap-2 pt-3 pb-3' onClick={()=>addToQueue(id,videoIds)}>
-  <HiOutlineQueueList color='black' size={16} />  Add to Queue
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
+    addToQueue(id,videoIds)
+    setToastDisplay(true)
+  setToastMsg('Added to Queue')
+  setTimeout(()=>setToastDisplay(false),4000)
+  }}>
+  <HiOutlineQueueList color='white' size={16} />  Add to Queue
   </DropdownItem>
-  <DropdownItem className='d-flex gap-2 pt-3 pb-3' onClick={()=>addToQueue(id,videoIds)}>
-  <IoRepeatOutline color='black' size={16} />  Repeat
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
+    addToQueue(id,videoIds)
+    setToastDisplay(true)
+  setToastMsg('Added to Repeat')
+  setTimeout(()=>setToastDisplay(false),4000)
+  }}>
+  <IoRepeatOutline color='white' size={16} />  Repeat
   </DropdownItem>
-  <DropdownItem className='d-flex gap-2 pt-3 pb-3' onClick={()=>shuffule(id,videoIds)}>
-  <IoShuffleOutline color='black' size={16} />  Shuffle
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
+    shuffule(id,videoIds)
+    setToastDisplay(true)
+  setToastMsg('Added to Shuffle')
+  setTimeout(()=>setToastDisplay(false),4000)
+  }}>
+  <IoShuffleOutline color='white' size={16} />  Shuffle
   </DropdownItem>
 </DropdownMenu>
     </Dropdown>
-   
-  </div>
 </div>
-    </div>
    
   )
 }
