@@ -28,7 +28,10 @@ function JoinRoom() {
    if(data.exists()){
     sessionStorage.setItem('roomCode',roomCode)
     setJoineeSong(data.data().currentSong)
-   await updateDoc(doc(db,'room',roomCode),{members:[...data.data().members,Cookies.get('name')]})
+    const members=data.data().members
+    if(!members.includes(Cookies.get('name'))){
+      await updateDoc(doc(db,'room',roomCode),{members:[...data.data().members,Cookies.get('name')]})
+    }
    setmodal_backdrop1(!modal_backdrop1)
    }else{
     setMsg('Room code is incorrect')

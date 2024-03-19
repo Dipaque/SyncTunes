@@ -47,21 +47,15 @@ const Sidebar = () => {
            } 
             <GoCommentDiscussion size={25} color='white' />
             </Link>
+            <Link to={'/profile'}>
             {
               Cookies.get('photoUrl') ? ( 
-                <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={'down'}>
-                  <DropdownToggle className=' btn' tag={'button'}>
+             
                   <img src={Cookies.get('photoUrl')} className='rounded-full h-7' />
-                  </DropdownToggle>
-                  <DropdownMenu className='dropdown-menu-end bg-dark' >
-                    <DropdownItem className='bg-dark text-sm text-white d-flex justify-center items-center gap-1' onClick={()=>signOutUser()}>
-                        Log out <BiPowerOff color='white'  size={ 16} />
-                    </DropdownItem>
-                  </DropdownMenu>
-                </Dropdown>
+                 
               ):<Icon className='' path={mdiAccountCircleOutline} color={'white'} size={1.4} />
             }
-          
+            </Link>
             </div>
       </div>
        

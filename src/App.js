@@ -9,6 +9,7 @@ import Chat from './pages/Chat';
 import Homepage from './pages/Homepage';
 import styled from 'styled-components'; // or import { css } from '@emotion/react';
 import { useStateContext } from './Context/ContextProvider';
+import Profile from './pages/Profile';
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
@@ -39,6 +40,7 @@ function App() {
         <Route path='/home' element={<Index />} />
         <Route path='/search' element={<Search  />} />
         <Route path='/chat' element={<Chat  />} />
+        <Route path='/profile' element={<Profile />} />
       </Routes>
       </StyledText>
     </div>
