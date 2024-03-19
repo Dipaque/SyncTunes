@@ -1,4 +1,7 @@
 import React , {useContext,createContext,useState,useEffect} from "react";
+import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs, addDoc, Timestamp, updateDoc,} from 'firebase/firestore'
+import Cookies from 'js-cookie'
+import { db } from '../firebase-config'
 const StateContext=createContext();
 export const ContextProvider=({children})=>{
     const [videoId,setVideoId]=useState('')
@@ -8,7 +11,23 @@ export const ContextProvider=({children})=>{
     const [pathName,setPathName]=useState('')
     const [videoIds,setVideoIds]=useState([])
     const [notification,setNotification]=useState(0)
-    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName,notification,setNotification,videoIds,setVideoIds}}>
+    const [messages,setMessages]=useState([])
+    useEffect(()=>{
+        const getData=()=>{
+            if(sessionStorage.getItem('roomCode')){
+                const filteredUsersQuery = query(collection(db,'room',sessionStorage.getItem('roomCode'),'messages'),orderBy('timestamp','asc'));
+                onSnapshot(filteredUsersQuery,((data) => {
+                  setMessages(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
+                  const unReadMsg =  data.docs.filter((doc)=>(doc.data().status==='unread' && doc.data().sender!==Cookies.get('name')))
+                  setNotification(unReadMsg.length)
+                }
+                ))
+            }
+        }
+        getData()
+        
+    },[sessionStorage.getItem('roomCode')])
+    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName,notification,setNotification,videoIds,setVideoIds,messages,setMessages}}>
         {children}
     </StateContext.Provider>)
 }

@@ -25,6 +25,7 @@ const Sidebar = () => {
       console.log(error)
     });
   }
+  console.log(notification)
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   return (
     <React.Fragment>
@@ -43,7 +44,7 @@ const Sidebar = () => {
             </Link>
             <Link to={'/chat'}>
            {
-            notification > 0 && <div className="badge badge-white text-black badge-full ">{notification}</div>
+            notification > 0 && <div className="badge badge-white text-black badge-full absolute ml-4 -mt-4">{notification}</div>
            } 
             <GoCommentDiscussion size={25} color='white' />
             </Link>
