@@ -14,11 +14,12 @@ import Index from './index';
 import { BiPowerOff } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs, updateDoc,} from 'firebase/firestore'
+import LeaveRoom from '../Components/LeaveRoom';
 const Homepage = () => {
   const nav = useNavigate()
     // const [greeting,setGreetings]=useState('')
     const [currentSong,setCurrentSong,]=useState([])
-    const {setJoineeSong,videoIds,setVideoIds} =useStateContext()
+    const {setJoineeSong,videoIds,setVideoIds,setIsLeaving,isLeaving} =useStateContext()
    const [song,setSong]=useState('')
    const [dropdownOpen, setDropdownOpen] = useState(false);
    const [roomMate,setRoomMate] = useState([])
@@ -49,6 +50,20 @@ const Homepage = () => {
         }
       getData()  
     },[sessionStorage.getItem('roomCode')])
+    // Check if the browser supports the Notification API
+if ('Notification' in window) {
+  // Check if permission has not been granted previously
+  if (Notification.permission !== 'granted') {
+    // Ask for permission
+    Notification.requestPermission().then(function (permission) {
+      if (permission === 'granted') {
+        
+      }
+    });
+  }
+}
+
+
     const handleLeaveRoom=async()=>{
 if(roomMate.length>0){
   const index = roomMate.indexOf(Cookies.get('name'))
@@ -58,8 +73,7 @@ if(roomMate.length>0){
  await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{members:roomMate})
 }
         sessionStorage.removeItem('roomCode')
-        setJoineeSong('')
-        setCurrentSong([])
+       setIsLeaving(!isLeaving)
         
     }
   return (
@@ -68,7 +82,7 @@ if(roomMate.length>0){
      <div className="flex justify-center gap-0 h-full  w-screen  bg-black ">
      <CreateRoom />
      <JoinRoom />
-    
+    <LeaveRoom handleLeaveRoom={handleLeaveRoom} />
     <div className=' m-3 mb-5  rounded-lg w-96 ' id='top'>
       <div className='text-white  mt-3 text-lg ml-3 flex justify-start  items-center   '>
       <b className=' '>{'Welcome '+Cookies.get('name')}</b>
@@ -82,8 +96,8 @@ if(roomMate.length>0){
             
             <button className='border-white border-2 pl-2 pr-2  mt-5 mx-auto   p-2 rounded-lg text-white flex flex-row justify-center items-center gap-2'
             type='buttom'
-             onClick={()=>handleLeaveRoom()}>
-                Leave Room
+             onClick={()=>setIsLeaving(true)}>
+                Exit Room
                 <Icon path={mdiLogout} size={0.9}/>
             </button>
             </div>) 
@@ -94,10 +108,4 @@ if(roomMate.length>0){
 </>
   )
 }
-
-
-
-
-
-
 export default Homepage

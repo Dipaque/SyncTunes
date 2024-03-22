@@ -12,6 +12,7 @@ export const ContextProvider=({children})=>{
     const [videoIds,setVideoIds]=useState([])
     const [notification,setNotification]=useState(0)
     const [messages,setMessages]=useState([])
+    const [isLeaving,setIsLeaving] = useState(false)
     useEffect(()=>{
         const getData=()=>{
             if(sessionStorage.getItem('roomCode')){
@@ -27,7 +28,7 @@ export const ContextProvider=({children})=>{
         getData()
         
     },[sessionStorage.getItem('roomCode')])
-    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName,notification,setNotification,videoIds,setVideoIds,messages,setMessages}}>
+    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName,notification,setNotification,videoIds,setVideoIds,messages,setMessages,isLeaving,setIsLeaving}}>
         {children}
     </StateContext.Provider>)
 }
