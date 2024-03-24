@@ -18,9 +18,9 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
    
  const handlePlay=async()=>{
   if(videoIds){
-    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName},...videoIds],currentPlaying:id}).catch(err=>console.log(err))
+    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName},...videoIds],currentPlaying:{title,id,image,channelName}}).catch(err=>console.log(err))
   }else{
-    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName}],currentPlaying:id}).catch(err=>console.log(err))
+    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName}],currentPlaying:{title,id,image,channelName}}).catch(err=>console.log(err))
   }
  }
   return (
