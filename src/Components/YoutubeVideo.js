@@ -8,8 +8,14 @@ const YouTubeVideo = ({ videoIds }) => {
   const [currentPlaying,setCurrentPlaying]=useState('')
   const onVideoEnd = () => {
     // setCurrentVideoIndex(prevIndex => prevIndex + 1);
-    videoIds.splice(0,1)
-    updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[0]})
+    if(videoIds.length>1){
+      videoIds.splice(0,1)
+      updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[0]}).catch(err=>console.log(err))
+    }
+    else{
+      updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[0]}).catch(err=>console.log(err))
+    }
+   
   };
   useEffect(() => {
     const getData=()=>{

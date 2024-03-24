@@ -43,7 +43,7 @@ const Chat = () => {
    <div className='text-white ml-5 text-xl flex  items-end' >
       <b>Chat</b>
       </div>
-  <div className="flex gap-0 h-screen  overflow-hidden overflow-y-scroll w-screen  bg-black ">
+  <div className="flex gap-0   overflow-hidden overflow-y-scroll w-screen  bg-black ">
 
     {
         sessionStorage.getItem('roomCode')?(

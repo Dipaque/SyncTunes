@@ -38,7 +38,7 @@ function JoinRoom() {
   }
 
   return (
-    <Modal className='flex justify-center w-72' isOpen={modal_backdrop1} toggle={toggle} unmountOnClose={unmountOnClose}>
+    <Modal centered={true} className='flex justify-center w-72' isOpen={modal_backdrop1} toggle={toggle} unmountOnClose={unmountOnClose}>
     <ModalHeader  toggle={toggle}><b>Join the room</b></ModalHeader>
     <ModalBody>
       <Input

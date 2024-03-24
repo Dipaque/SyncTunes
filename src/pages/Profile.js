@@ -46,7 +46,7 @@ const Profile = () => {
         <b>
           My Rooms
         </b>
-        <div className="text-sm mt-2  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll h-28">
+        <div className="text-sm mt-2  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll w-screen h-28">
           
           {
             myRoom.length>0 ?(

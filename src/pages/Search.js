@@ -53,7 +53,6 @@ try {
     <div className=''>
     <div className='text-white ml-5 text-xl flex justify-start  items-end   '>
       <b>Search</b>
-   
       </div>
     
       <form onSubmit={(e)=>e.preventDefault()} className='flex gap-2'>
@@ -72,7 +71,7 @@ try {
       </form>
       <div className=' mt-10 mx-auto mb-10 '>
    
-        <div className='flex flex-col overflow-hidden  overflow-y-scroll w-screen ' style={{height:window.innerHeight}} >
+        <div className='flex flex-col overflow-hidden h-screen  overflow-y-scroll w-screen ' style={{height:window.innerHeight}} >
         {
             !isLoading && data.length>0 ?(data.map((obj,index)=>(
                 'video' in obj ?(
@@ -81,9 +80,11 @@ try {
                  <>
                  </>
                 )  
-            ))):(isLoading ? (shimmerArr.map((data,index)=>(<Shimmer />))):(<div className='mx-auto my-auto'>
+            ))):(isLoading ? (shimmerArr.map((data,index)=>(<Shimmer />))):(<div className='flex flex-col justify-center items-center mt-14 m-3 text-slate-50'>
             
-            
+            <img src={require('../assests/tape.png')} height={200} width={200} />
+            <h5 className='mt-7'><b>Find your favorite tracks here</b></h5>
+            <p className='text-sm text-center'>Listen your loved tracks and artists works with your loved ones together! </p>
             </div>) )
         }
         </div>

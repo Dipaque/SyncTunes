@@ -19,7 +19,7 @@ const Homepage = () => {
   const nav = useNavigate()
     // const [greeting,setGreetings]=useState('')
     const [currentSong,setCurrentSong,]=useState([])
-    const {setJoineeSong,videoIds,setVideoIds,setIsLeaving,isLeaving} =useStateContext()
+    const {setJoineeSong,videoIds,setVideoIds,setIsLeaving,isLeaving,pathName} =useStateContext()
    const [song,setSong]=useState('')
    const [dropdownOpen, setDropdownOpen] = useState(false);
    const [roomMate,setRoomMate] = useState([])
@@ -62,9 +62,7 @@ if ('Notification' in window) {
     });
   }
 }
-
-
-    const handleLeaveRoom=async()=>{
+const handleLeaveRoom=async()=>{
 if(roomMate.length>0){
   const index = roomMate.indexOf(Cookies.get('name'))
   if(index>-1){
@@ -79,14 +77,13 @@ if(roomMate.length>0){
   return (
     <>
     <Sidebar />
-     <div className="flex justify-center gap-0 h-full  w-screen  bg-black ">
+     <div className="flex justify-center gap-0 h-full  w-screen  bg-black " id='top'>
      <CreateRoom />
      <JoinRoom />
     <LeaveRoom handleLeaveRoom={handleLeaveRoom} />
-    <div className=' m-3 mb-5  rounded-lg w-96 ' id='top'>
+    <div className=' m-3 mb-5  rounded-lg w-96 ' >
       <div className='text-white  mt-3 text-lg ml-3 flex justify-start  items-center   '>
       <b className=' '>{'Welcome '+Cookies.get('name')}</b>
-      
       </div>
       {
 

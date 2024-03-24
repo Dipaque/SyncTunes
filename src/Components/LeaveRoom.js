@@ -13,25 +13,19 @@ const LeaveRoom = ({handleLeaveRoom}) => {
 
   const toggle = () => setIsLeaving(!isLeaving);
   return (
-    <Modal className='flex justify-center w-72' isOpen={isLeaving} toggle={toggle} unmountOnClose={unmountOnClose}>
-    {/* <ModalHeader className='text-sm' toggle={toggle}><b>Exit room</b></ModalHeader> */}
-    <ModalBody>
-      <div className='flex justify-start '>
-        <h6>Exit Room</h6>
-      </div>
-      <p className='text-gray-950 text-start m-3' id='msg'>Do you wana miss this listening?</p>
-      <div className='flex justify-end items-center gap-2'>
-      <button className='rounded-md bg-black text-white text-center  w-16 h-9' onClick={()=>handleLeaveRoom()}>
-        Exit
-      </button>
-      <button className='rounded-md border-2 border-black text-black w-16 h-9  ' color="" onClick={toggle}>
-        Cancel
-      </button>
-      </div>
+    <Modal centered={true} className='flex justify-center w-72' isOpen={isLeaving} toggle={toggle} unmountOnClose={unmountOnClose}>
+    <ModalHeader className='text-sm' toggle={toggle}><b>Exit room</b></ModalHeader>
+    <ModalBody className='flex items-center justify-start'>
+      <p className='text-gray-950' id='msg'>Do you wana miss this listening?</p>
     </ModalBody>
-    {/* <ModalFooter>
-     
-    </ModalFooter> */}
+    <ModalFooter>
+    <Button color='dark'  onClick={()=>handleLeaveRoom()}>
+        Exit
+      </Button>
+      <Button color="" onClick={toggle}>
+        Cancel
+      </Button>
+    </ModalFooter>
   </Modal>
   )
 }
