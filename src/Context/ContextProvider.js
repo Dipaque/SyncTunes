@@ -13,6 +13,10 @@ export const ContextProvider=({children})=>{
     const [notification,setNotification]=useState(0)
     const [messages,setMessages]=useState([])
     const [isLeaving,setIsLeaving] = useState(false)
+    const [onReady,setOnReady] = useState()
+    const [title,setTitle] = useState('')
+    const [artist,setArtist]=useState('')
+    const [currentPlaying,setCurrentPlaying] = useState('')
     useEffect(()=>{
         const getData=()=>{
             if(sessionStorage.getItem('roomCode')){
@@ -28,7 +32,7 @@ export const ContextProvider=({children})=>{
         getData()
         
     },[sessionStorage.getItem('roomCode')])
-    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName,notification,setNotification,videoIds,setVideoIds,messages,setMessages,isLeaving,setIsLeaving}}>
+    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName,notification,setNotification,videoIds,setVideoIds,messages,setMessages,isLeaving,setIsLeaving,setOnReady,onReady,title,setTitle,artist,setArtist,currentPlaying,setCurrentPlaying}}>
         {children}
     </StateContext.Provider>)
 }

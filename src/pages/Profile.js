@@ -3,7 +3,7 @@ import Cookies from 'js-cookie'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db,auth } from '../firebase-config'
 import { signOut } from 'firebase/auth';
-import { GoBookmarkFill, GoSignOut } from 'react-icons/go'
+import { GoBookmarkFill, GoKey, GoSignOut } from 'react-icons/go'
 import { useStateContext } from '../Context/ContextProvider'
 import { useNavigate } from 'react-router-dom'
 const Profile = () => {
@@ -52,9 +52,9 @@ const Profile = () => {
             myRoom.length>0 ?(
               
                 myRoom.map((data)=>(
-                  <div className='p-1 flex flex-row gap-1'>
+                  <div className='p-1 flex flex-row items-center gap-1'>
                     
-                   <GoBookmarkFill color='white' size={14} />
+                   <GoKey color='white' size={14} />
                    {
                     data.roomCode
                    }    

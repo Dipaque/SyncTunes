@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import YouTube from 'react-youtube';
 import { db } from '../firebase-config';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
-
+import Marquee from 'react-fast-marquee';
+import { useStateContext } from '../Context/ContextProvider';
 const YouTubeVideo = ({ videoIds }) => {
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
-  const [currentPlaying,setCurrentPlaying]=useState('')
+  const [id,setId]=useState('')
+  const {setOnReady,setTitle,setArtist,setVideoIds,currentPlaying,setCurrentPlaying} = useStateContext()
   const onVideoEnd = () => {
     // setCurrentVideoIndex(prevIndex => prevIndex + 1);
     if(videoIds.length>1){
@@ -21,15 +22,22 @@ const YouTubeVideo = ({ videoIds }) => {
     const getData=()=>{
       const docRef = doc(db,'room',sessionStorage.getItem('roomCode'))
     onSnapshot(docRef,(doc)=>{
-        if(doc.exists){
+        if(doc.exists()){
+          setVideoIds(doc.data().currentSong)
+          setId(doc.data().currentPlaying.id)
           setCurrentPlaying(doc.data().currentPlaying)
+          setTitle(doc.data().currentPlaying.title)
+          setArtist(doc.data().currentPlaying.channelName)
         }
       })
     }
    getData()
-   
- 
-  }, []);
+  }, [id]);
+  console.log(id)
+  
+  const onReady = (event) => {
+    setOnReady(event.target)
+  };
   const opts = {
     height: '200',
     width: '100%', 
@@ -44,16 +52,17 @@ const YouTubeVideo = ({ videoIds }) => {
   return (
     <div>
      {
-      videoIds && (
+      id && (<>
 <YouTube
-        videoId={videoIds[0]}
+        videoId={id}
         opts={opts}
+        onReady={onReady}
         onEnd={onVideoEnd}
       />
+      </>
       )
      } 
     </div>
   );
 };
-
 export default YouTubeVideo;

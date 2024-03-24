@@ -15,6 +15,8 @@ import { BiPowerOff } from 'react-icons/bi';
 import { useNavigate } from 'react-router-dom';
 import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs, updateDoc,} from 'firebase/firestore'
 import LeaveRoom from '../Components/LeaveRoom';
+import { IoPlay, IoPlaySkipBack, IoPlaySkipForward } from 'react-icons/io5';
+import { GoKey } from 'react-icons/go';
 const Homepage = () => {
   const nav = useNavigate()
     // const [greeting,setGreetings]=useState('')
@@ -87,16 +89,17 @@ if(roomMate.length>0){
       </div>
       {
 
-        sessionStorage.getItem('roomCode') && currentSong.length>0 && ( <div className=' flex items-center  justify-center flex-col mt-5 '>{
+        sessionStorage.getItem('roomCode') && currentSong.length>0 && ( <div className=' flex items-center  justify-center flex-col  '>
+          <button className=' mx-auto  text-sm p-2  text-white flex flex-row justify-center items-center gap-2'
+            type='button'
+             onClick={()=>setIsLeaving(true)}>
+                <GoKey color='white' size={16} /> {sessionStorage.getItem('roomCode')}
+            </button>
+          {
             <YouTubeVideo videoIds={currentSong[0].currentSong} />
         }
             
-            <button className='border-white border-2 pl-2 pr-2  mt-5 mx-auto   p-2 rounded-lg text-white flex flex-row justify-center items-center gap-2'
-            type='buttom'
-             onClick={()=>setIsLeaving(true)}>
-                Exit Room
-                <Icon path={mdiLogout} size={0.9}/>
-            </button>
+            
             </div>) 
           
 }

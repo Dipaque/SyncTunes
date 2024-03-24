@@ -1,24 +1,36 @@
 import React, { useEffect, useState } from 'react'
-import Sidebar from '../Components/Sidebar';
-import axios from 'axios';
-import Icon from '@mdi/react';
-import { mdiAccountCircleOutline, mdiDoorOpen, mdiLogout } from '@mdi/js';
-import Cookies from 'js-cookie';
-import YouTubeVideo from '../Components/YoutubeVideo';
 import { useStateContext } from '../Context/ContextProvider';
+import { IoPause, IoPlay, IoPlaySkipBack, IoPlaySkipForward } from 'react-icons/io5';
+import Marquee from 'react-fast-marquee';
+import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase-config';
-import CreateRoom from '../Components/CreateRoom';
-import JoinRoom from '../Components/JoinRoom';
-import {collection,getDoc,query,where,orderBy,onSnapshot,doc,getDocs,} from 'firebase/firestore'
-const Index = () => {
-
-   
-    const {videoId,modal_backdrop,setmodal_backdrop,joineeSong,setJoineeSong,setmodal_backdrop1} =useStateContext()
-
+const Index = () => {   
+    const {videoIds,setmodal_backdrop,onReady,setmodal_backdrop1,title,artist,currentPlaying} =useStateContext()
+const [isPause,setIsPause] = useState(false)
+const handleForward=async()=>{
+ const index = videoIds.findIndex(data=>data.id===currentPlaying.id)
+ if(index!==videoIds.length){
+ await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentPlaying:videoIds[index+1]}).catch(err=>console.log(err))
+ }
+}
+const handleBack=async()=>{
+  const index = videoIds.findIndex(data=>data.id===currentPlaying.id)
+  if(index>-1){
+   await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentPlaying:videoIds[index-1]}).catch(err=>console.log(err))
+  } 
+}
+const handlePause = () =>{
+  onReady.pauseVideo()
+  setIsPause(true)
+}
+const handlePlay=()=>{
+  onReady.playVideo()
+  setIsPause(false)
+}
   return (
    <>
    {
-    !sessionStorage.getItem('roomCode') && (<>
+    !sessionStorage.getItem('roomCode') ? (<>
    
       <div className=' flex justify-center gap-2 mb-5  mx-auto'>
       <button className='border pl-2 pr-2 bg-slate-50   p-2 rounded-lg text-black' type='button' onClick={()=>{
@@ -38,7 +50,43 @@ const Index = () => {
 <p className='text-sm text-center'>Tap on new room to generate your own room code and share it with your friends!</p>
 </div>
 </>
-    )
+    ):(<>
+    <div className='m-3'>
+    <Marquee>
+      <h5 className='text-slate-50 '>
+       <b>
+        {
+          title
+        }
+        </b>
+      </h5>
+     </Marquee>
+    
+      <p className='text-slate-200 m-2'>
+       
+        {
+          artist
+        }
+      
+      </p>
+    </div>
+   
+    <div className='flex justify-center items-center mt-8 gap-8'>
+            <div className='bg-zinc-800 rounded-full p-3 text-center' onClick={()=>handleBack()}>
+<IoPlaySkipBack size={26} color={'white'} />
+</div>
+{
+  isPause ?(<div className='bg-zinc-800 rounded-full p-3 text-center' onClick={()=>handlePlay()}>
+  <IoPlay size={26} color={'white'}  />
+</div>):(<div className='bg-zinc-800 rounded-full p-3 text-center' onClick={()=>handlePause()}>
+    <IoPause size={26} color={'white'}  />
+</div>)
+}
+              
+<div className='bg-zinc-800 rounded-full p-3 text-center' onClick={()=>handleForward()}>
+<IoPlaySkipForward size={26} color={'white'} />
+</div>
+      </div></>)
    }
    </>
        

@@ -128,7 +128,7 @@ const Chat = () => {
             </div>
         </div>
         ):(
-            <div className='my-auto mx-auto text-white'>
+            <div className='mt-14 mx-auto text-white'>
                 <p><b>Please join the room to chat </b></p>
             </div>
         )

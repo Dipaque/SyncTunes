@@ -14,8 +14,6 @@ const Search = () => {
   const [toastMsg,setToastMsg]=useState('')
   const [toastDisplay,setToastDisplay] = useState(false)
   const [data,setData]=useState([])
-  const [image,setImage]=useState('')
-  const [title,setTitle]=useState('')
     const handleSearch=async(e)=>{
       e.preventDefault();
       setIsLoading(true)
@@ -38,8 +36,6 @@ const Search = () => {
 try {
 	const response = await axios.request(options);
 	setData(response.data.contents)
-    setImage(response.data.contents[0].video.thumbnails[0].url)
-    setTitle(response.data.contents[0].video.title)
     setIsLoading(false)
 } catch (error) {
 	console.error(error);
@@ -75,7 +71,7 @@ try {
         {
             !isLoading && data.length>0 ?(data.map((obj,index)=>(
                 'video' in obj ?(
-<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} setToastDisplay={setToastDisplay} setToastMsg={setToastMsg}  />
+<SongCard key={index} image={obj.video.thumbnails[0].url} title={obj.video.title} id={obj.video.videoId} channelName={obj.video.channelName} setToastDisplay={setToastDisplay} setToastMsg={setToastMsg}  />
                 ):(
                  <>
                  </>
