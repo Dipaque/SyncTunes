@@ -46,7 +46,7 @@ const Profile = () => {
         <b>
           My Rooms
         </b>
-        <div className="text-sm mt-2  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll w-screen h-28">
+        <div className="text-sm mt-2  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll w-72 ">
           
           {
             myRoom.length>0 ?(
@@ -69,7 +69,7 @@ const Profile = () => {
            
           }
         </div>
-        <button className='text-slate-50 flex flex-row-reverse gap-2 mt-5 mb-5 items-center justify-start text-sm' onClick={()=>signOutUser()}>
+        <button className='text-slate-50 flex flex-row-reverse gap-2 mt-16  items-center justify-start text-sm' onClick={()=>signOutUser()}>
           <GoSignOut color='white' size={16}  />
           Sign out
         </button>
