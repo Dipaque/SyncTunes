@@ -13,7 +13,7 @@ const LeaveRoom = ({handleLeaveRoom}) => {
 
   const toggle = () => setIsLeaving(!isLeaving);
   return (
-    <Modal centered={true} className='flex justify-center' isOpen={isLeaving} toggle={toggle} unmountOnClose={unmountOnClose}>
+    <Modal centered={true} className='flex justify-center w-72' isOpen={isLeaving} toggle={toggle} unmountOnClose={unmountOnClose}>
     <ModalHeader className='text-sm' toggle={toggle}><b>Exit room</b></ModalHeader>
     <ModalBody className='flex items-center justify-start'>
       <p className='text-gray-950' id='msg'>Do you wana miss this listening?</p>
