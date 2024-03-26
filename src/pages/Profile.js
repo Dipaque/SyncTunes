@@ -69,7 +69,7 @@ const Profile = () => {
            
           }
         </div>
-        <button className='text-slate-50 flex flex-row-reverse gap-2 mt-16  items-center justify-start text-sm' onClick={()=>signOutUser()}>
+        <button className='text-slate-50 flex flex-row-reverse gap-2 mt-12 mb-3  items-center justify-start text-sm' onClick={()=>signOutUser()}>
           <GoSignOut color='white' size={16}  />
           Sign out
         </button>

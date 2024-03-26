@@ -13,7 +13,7 @@ import playNext from '../Functions/playNext'
 const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
-    const {setVideoId,videoIds}=useStateContext()
+    const {setVideoId,videoIds,currentPlaying}=useStateContext()
     const nav=useNavigate()
    
  const handlePlay=async()=>{
@@ -34,7 +34,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
 </DropdownToggle>
 <DropdownMenu className='bg-dark  dropdown-menu-end border-dark   shadow-lg p-2'>
 <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
-  playNext(image,title,id,channelName,videoIds)
+  playNext(image,title,id,channelName,videoIds,currentPlaying)
   setToastDisplay(true)
   setToastMsg('Added to Play next')
   setTimeout(()=>setToastDisplay(false),4000)

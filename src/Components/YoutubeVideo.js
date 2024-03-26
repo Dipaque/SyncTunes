@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import YouTube from 'react-youtube';
 import { db } from '../firebase-config';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import Marquee from 'react-fast-marquee';
 import { useStateContext } from '../Context/ContextProvider';
 const YouTubeVideo = ({ videoIds }) => {
+  const intervalRef=useRef(null)
   const [id,setId]=useState('')
-  const {setOnReady,setTitle,setArtist,setVideoIds,currentPlaying,setCurrentPlaying} = useStateContext()
+  const {setOnReady,setTitle,setArtist,setVideoIds,currentPlaying,setCurrentPlaying,duration,setDuration,currentTime,setCurrentTime,isSeeking,setIsSeeking,seekBarRef,onReady,setProgressBarWidth} = useStateContext()
   const onVideoEnd = () => {
-    // setCurrentVideoIndex(prevIndex => prevIndex + 1);
     if(videoIds.length>1){
       videoIds.splice(0,1)
       updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[0]}).catch(err=>console.log(err))
@@ -32,11 +32,11 @@ const YouTubeVideo = ({ videoIds }) => {
       })
     }
    getData()
-  }, [id]);
-  console.log(id)
-  
-  const onReady = (event) => {
+  }, []);
+ 
+  const onReadyFunc = (event) => {
     setOnReady(event.target)
+    setDuration(event.target.getDuration())
   };
   const opts = {
     height: '200',
@@ -47,8 +47,33 @@ const YouTubeVideo = ({ videoIds }) => {
       rel: 0,
       showinfo: 0,
       loop:1,
+      controls: 0, 
+      disablekb: 1,
+      modestbranding: 1
+      
     },
   };
+  const onStateChange = (event) => {
+    if (event.data === YouTube.PlayerState.PLAYING) {
+      startInterval();
+    } else {
+      clearInterval(intervalRef.current);
+    }
+  };
+
+  const startInterval = () => {
+    clearInterval(intervalRef.current);
+    intervalRef.current = setInterval(() => {
+      setCurrentTime(prevCurrentTime => {
+        const newCurrentTime = onReady.getCurrentTime();
+        if (Math.abs(newCurrentTime - prevCurrentTime) > 1) {
+          return newCurrentTime;
+        }
+        return prevCurrentTime;
+      })
+    }, 500);
+  };
+
   return (
     <div>
      {
@@ -56,7 +81,8 @@ const YouTubeVideo = ({ videoIds }) => {
 <YouTube
         videoId={id}
         opts={opts}
-        onReady={onReady}
+        onReady={onReadyFunc}
+        onStateChange={onStateChange}
         onEnd={onVideoEnd}
       />
       </>
