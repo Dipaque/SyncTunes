@@ -5,7 +5,7 @@ import { db,auth } from '../firebase-config'
 import { signOut } from 'firebase/auth';
 import { GoBookmarkFill, GoKey, GoSignOut } from 'react-icons/go'
 import { useStateContext } from '../Context/ContextProvider'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { IoBookmarksOutline } from 'react-icons/io5';
 const Profile = () => {
   const nav = useNavigate()
@@ -70,10 +70,28 @@ const Profile = () => {
            
           }
         </div>
-        <button className='text-slate-50 flex flex-row-reverse gap-2 mt-12 mb-4  items-center justify-start text-sm' onClick={()=>signOutUser()}>
-          <GoSignOut color='white' size={16}  />
+        <div className='mt-4 mb-4 flex flex-col items-start gap-2'>
+          <h6><b>Others</b></h6>
+          <Link to={'/third-party'} className='no-underline'>
+          <button className='text-slate-50 flex flex-row-reverse gap-2   items-center justify-start text-sm'>
+          Third-party Software
+        </button>
+        </Link>
+          <Link to={'/privacy policy'} className='no-underline'>
+        <button className='text-slate-50 flex flex-row-reverse gap-2   items-center justify-start text-sm'>
+          Privacy Policy
+        </button>
+        </Link>
+        <Link to={'/terms'} className='no-underline'>
+        <button className='text-slate-50 flex flex-row-reverse gap-2  items-center justify-start text-sm '>
+          Terms and Conditions
+        </button>
+        </Link>
+        <button className='text-slate-50 flex flex-row-reverse gap-2  items-center justify-start text-sm' onClick={()=>signOutUser()}>
+          {/* <GoSignOut color='white' size={16}  /> */}
           Log out
         </button>
+        </div>
       </div>
     </div>
   )

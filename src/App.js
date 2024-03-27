@@ -11,6 +11,9 @@ import styled from 'styled-components'; // or import { css } from '@emotion/reac
 import { useStateContext } from './Context/ContextProvider';
 import Profile from './pages/Profile';
 import Cookies from 'js-cookie';
+import Privacypolicy from './pages/Privacypolicy';
+import Terms from './pages/Terms';
+import Thirdparty from './pages/Thirdparty';
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
@@ -43,6 +46,9 @@ function App() {
         <Route path='/search' element={<Search  />} />
         <Route path='/chat' element={<Chat  />} />
         <Route path='/profile' element={<Profile />} />
+        <Route path='/privacy policy' element={<Privacypolicy />} />
+        <Route path='/terms' element={<Terms />} />
+        <Route path='/third-party' element={<Thirdparty />} />
       </Routes>
       </StyledText>
     </div>
