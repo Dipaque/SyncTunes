@@ -1,7 +1,11 @@
 export const secondsToMinutes=(seconds)=>{
     const min = Math.floor(seconds/60) 
     const sec=seconds%60
-    return min+":"+sec.toFixed(0)
+    if(sec<=9){
+        return min+":"+'0'+sec.toFixed(0)
+    }else{
+        return min+":"+sec.toFixed(0)
+    }
 }
 
 export const seekBarStyle = {

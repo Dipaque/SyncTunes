@@ -6,6 +6,7 @@ import { signOut } from 'firebase/auth';
 import { GoBookmarkFill, GoKey, GoSignOut } from 'react-icons/go'
 import { useStateContext } from '../Context/ContextProvider'
 import { useNavigate } from 'react-router-dom'
+import { IoBookmarksOutline } from 'react-icons/io5';
 const Profile = () => {
   const nav = useNavigate()
   const [myRoom,setMyRoom]=useState([])
@@ -54,7 +55,7 @@ const Profile = () => {
                 myRoom.map((data)=>(
                   <div className='p-1 flex flex-row items-center gap-1'>
                     
-                   <GoKey color='white' size={14} />
+                   <IoBookmarksOutline color='white' size={14} />
                    {
                     data.roomCode
                    }    
@@ -69,9 +70,9 @@ const Profile = () => {
            
           }
         </div>
-        <button className='text-slate-50 flex flex-row-reverse gap-2 mt-12 mb-3  items-center justify-start text-sm' onClick={()=>signOutUser()}>
+        <button className='text-slate-50 flex flex-row-reverse gap-2 mt-12 mb-4  items-center justify-start text-sm' onClick={()=>signOutUser()}>
           <GoSignOut color='white' size={16}  />
-          Sign out
+          Log out
         </button>
       </div>
     </div>

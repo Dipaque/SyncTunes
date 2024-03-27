@@ -5,6 +5,7 @@ import Marquee from 'react-fast-marquee';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase-config';
 import {  secondsToMinutes, seekBarStyle } from '../Functions/secondsToMinutes';
+import Cookies from 'js-cookie';
 const Index = () => {
   const { videoIds, setmodal_backdrop, onReady, setmodal_backdrop1, title, artist, currentPlaying, duration, setDuration, currentTime, setCurrentTime, isSeeking, setIsSeeking, seekBarRef,} = useStateContext()
   const [isPause, setIsPause] = useState(false)
@@ -50,7 +51,8 @@ const Index = () => {
   };
   
   return (
-    <>
+    <div className='bg-black'>
+    
       {
         !sessionStorage.getItem('roomCode') ? (<>
 
@@ -75,10 +77,10 @@ const Index = () => {
         ) : (<>
           <div className='m-3'>
             <Marquee>
-              <h5 className='text-slate-50 '>
+              <h5 className='text-slate-50 bg-black'>
                 <b>
                   {
-                    title
+                    title || 'Song name'
                   }
                 </b>
               </h5>
@@ -86,7 +88,7 @@ const Index = () => {
 
             <p className='text-slate-200 m-2'>
               {
-                artist
+                artist || 'Artist name'
               }
             </p>
           </div>
@@ -106,7 +108,7 @@ const Index = () => {
           </span>
         </div>
 
-          <div className='flex justify-center items-center mt-8 gap-8'>
+          <div className='flex justify-center items-center mt-8 gap-8 mb-5'>
             <div className='bg-zinc-800 rounded-full p-3 text-center' onClick={() => handleBack()}>
               <IoPlaySkipBack size={26} color={'white'} />
             </div>
@@ -122,7 +124,7 @@ const Index = () => {
             </div>
           </div></>)
       }
-    </>
+    </div>
   )
 }
 

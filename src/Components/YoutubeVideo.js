@@ -4,6 +4,7 @@ import { db } from '../firebase-config';
 import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import Marquee from 'react-fast-marquee';
 import { useStateContext } from '../Context/ContextProvider';
+import { HiMusicalNote } from 'react-icons/hi2';
 const YouTubeVideo = ({ videoIds }) => {
   const intervalRef=useRef(null)
   const [id,setId]=useState('')
@@ -26,10 +27,12 @@ const YouTubeVideo = ({ videoIds }) => {
     onSnapshot(docRef,(doc)=>{
         if(doc.exists()){
           setVideoIds(doc.data().currentSong)
-          setId(doc.data().currentPlaying.id)
-          setCurrentPlaying(doc.data().currentPlaying)
-          setTitle(doc.data().currentPlaying.title)
-          setArtist(doc.data().currentPlaying.channelName)
+          if(doc.data().currentPlaying){
+            setCurrentPlaying(doc.data().currentPlaying)
+            setId(doc.data().currentPlaying.id)
+            setTitle(doc.data().currentPlaying.title)
+            setArtist(doc.data().currentPlaying.channelName)
+          }
         }
       })
     }
@@ -80,16 +83,21 @@ const YouTubeVideo = ({ videoIds }) => {
   return (
     <div>
      {
-      id && (<>
+      id ? (<>
 <YouTube
         videoId={id}
+        className=''
         opts={opts}
         onReady={onReadyFunc}
         onStateChange={onStateChange}
         onEnd={onVideoEnd}
       />
       </>
-      )
+      ):(<div className='h-60 w-60 mt-3 bg-zinc-800 rounded-lg flex justify-center items-center'>
+          <p>
+            <HiMusicalNote color='black' size={86} />
+          </p>
+      </div>)
      } 
     </div>
   );

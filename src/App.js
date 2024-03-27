@@ -10,11 +10,13 @@ import Homepage from './pages/Homepage';
 import styled from 'styled-components'; // or import { css } from '@emotion/react';
 import { useStateContext } from './Context/ContextProvider';
 import Profile from './pages/Profile';
+import Cookies from 'js-cookie';
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
 `;
 function App() {
+  document.body.style.backgroundColor='#0000'
   const {pathName,setPathName}=useStateContext()
   useEffect(()=>{
     const getPathName=()=>{
