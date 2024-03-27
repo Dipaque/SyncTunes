@@ -7,11 +7,13 @@ import { useStateContext } from '../Context/ContextProvider';
 const YouTubeVideo = ({ videoIds }) => {
   const intervalRef=useRef(null)
   const [id,setId]=useState('')
-  const {setOnReady,setTitle,setArtist,setVideoIds,currentPlaying,setCurrentPlaying,duration,setDuration,currentTime,setCurrentTime,isSeeking,setIsSeeking,seekBarRef,onReady,setProgressBarWidth} = useStateContext()
+  const {setOnReady,setTitle,setArtist,setVideoIds,currentPlaying,setCurrentPlaying,duration,setDuration,currentTime,setCurrentTime,isSeeking,setIsSeeking,seekBarRef,onReady,} = useStateContext()
   const onVideoEnd = () => {
-    if(videoIds.length>1){
-      videoIds.splice(0,1)
-      updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[0]}).catch(err=>console.log(err))
+    if(videoIds.length>1 ){
+      const index = videoIds.findIndex(data => data.id === currentPlaying.id)
+      if(index<videoIds.length-1){
+        updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[index+1]}).catch(err=>console.log(err))
+      }
     }
     else{
       updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:videoIds,currentPlaying:videoIds[0]}).catch(err=>console.log(err))
@@ -49,7 +51,8 @@ const YouTubeVideo = ({ videoIds }) => {
       loop:1,
       controls: 0, 
       disablekb: 1,
-      modestbranding: 1
+      modestbranding: 1,
+      showRelatedVideos: 0
       
     },
   };
