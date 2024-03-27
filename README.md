@@ -36,9 +36,6 @@ To get started with the project, follow these steps:
 
 Contributions are welcome! If you have any ideas for improvements or new features, feel free to submit a pull request. Please ensure that your code follows the project's coding standards and guidelines.
 
-## License
-
-This project is licensed under the [MIT License](LICENSE). Feel free to use, modify, and distribute the code for personal or commercial purposes.
 
 ## Acknowledgements
 
