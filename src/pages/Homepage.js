@@ -73,7 +73,7 @@ const Homepage = () => {
         <LeaveRoom handleLeaveRoom={handleLeaveRoom} />
         <div className=' m-3 mb-5  rounded-lg w-96 ' >
           {
-            Cookies.get('name') && ( <div className='text-white  mt-3 text-lg ml-3 flex justify-start  items-center   '>
+            Cookies.get('name') && currentSong.length===0 && ( <div className='text-white  mt-3 text-lg ml-3 flex justify-start  items-center   '>
             <b className=' '>{'Welcome ' + Cookies.get('name').split(' ')[0]||Cookies.get('name') }</b>
           </div>)
           }

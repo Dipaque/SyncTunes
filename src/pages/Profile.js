@@ -68,11 +68,6 @@ const Profile = () => {
         </div>
         <div className='mt-4 mb-4 flex flex-col items-start gap-2'>
           <h6><b>Others</b></h6>
-          <p className='text-slate text-sm'>Version</p>
-          <ul className='text-slate-50 flex flex-col -mt-4 -mb-0 -ml-6 items-center justify-start text-sm'>
-            {/* Version */}
-            <li>1.0.0</li>
-          </ul>
           <Link to={'/third-party'} className='no-underline'>
           <button className='text-slate-50 flex flex-row-reverse gap-2   items-center justify-start text-sm'>
           Third-party Software
