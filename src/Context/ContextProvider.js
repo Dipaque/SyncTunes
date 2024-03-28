@@ -20,7 +20,7 @@ export const ContextProvider=({children})=>{
     const [duration, setDuration] = useState(0);
     const [currentTime, setCurrentTime] = useState(0);
     const [isSeeking, setIsSeeking] = useState(false);
-    const [progressBarWidth,setProgressBarWidth]=useState(0)
+    const [playedBy,setPlayedBy] = useState('')
     const seekBarRef = useRef(null);
     useEffect(()=>{
         const getData=()=>{
@@ -37,7 +37,7 @@ export const ContextProvider=({children})=>{
         getData()
         
     },[sessionStorage.getItem('roomCode')])
-    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName,notification,setNotification,videoIds,setVideoIds,messages,setMessages,isLeaving,setIsLeaving,setOnReady,onReady,title,setTitle,artist,setArtist,currentPlaying,setCurrentPlaying,duration,setDuration,currentTime,setCurrentTime,isSeeking,setIsSeeking,seekBarRef,}}>
+    return (<StateContext.Provider value={{videoId,setVideoId,modal_backdrop,setmodal_backdrop,modal_backdrop1,setmodal_backdrop1,joineeSong,setJoineeSong,pathName,setPathName,notification,setNotification,videoIds,setVideoIds,messages,setMessages,isLeaving,setIsLeaving,setOnReady,onReady,title,setTitle,artist,setArtist,currentPlaying,setCurrentPlaying,duration,setDuration,currentTime,setCurrentTime,isSeeking,setIsSeeking,seekBarRef,playedBy,setPlayedBy}}>
         {children}
     </StateContext.Provider>)
 }

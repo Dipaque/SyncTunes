@@ -13,7 +13,7 @@ import { IoBookmarksOutline, } from 'react-icons/io5';
 const Homepage = () => {
   const nav = useNavigate()
   const [currentSong, setCurrentSong,] = useState([])
-  const { setJoineeSong, videoIds, setVideoIds, setIsLeaving, isLeaving, pathName } = useStateContext()
+  const {  setVideoIds, setIsLeaving, isLeaving, playedBy } = useStateContext()
   const [song, setSong] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [roomMate, setRoomMate] = useState([])
@@ -74,19 +74,22 @@ const Homepage = () => {
         <div className=' m-3 mb-5  rounded-lg w-96 ' >
           {
             Cookies.get('name') && ( <div className='text-white  mt-3 text-lg ml-3 flex justify-start  items-center   '>
-            <b className=' '>{'Welcome ' + Cookies.get('name').split(' ')[0]}</b>
+            <b className=' '>{'Welcome ' + Cookies.get('name').split(' ')[0]||Cookies.get('name') }</b>
           </div>)
           }
           {
             sessionStorage.getItem('roomCode') && currentSong.length > 0 && (<div className=' flex items-center  justify-center flex-col  '>
               {
-                admin && (<p className='text-sm text-slate-50  mt-3'>Created by {admin.split(' ')[0]}</p>)
+                admin && (<p className='text-sm text-slate-50  mt-2'>Created by {admin.split(' ')[0]|| admin}</p>)
               }
               <button className=' mx-auto  text-sm   text-white flex flex-row justify-center items-center gap-2'
                 type='button'
                 onClick={() => setIsLeaving(true)}>
                 <IoBookmarksOutline color='white' size={16} />{sessionStorage.getItem('roomCode')}
               </button>
+              {
+                playedBy && (<p className='text-sm text-slate-50  mt-2'>Played by {playedBy.split(' ')[0]||playedBy}</p>)
+              }
               {
                 <YouTubeVideo videoIds={currentSong[0].currentSong} />
               }

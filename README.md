@@ -36,10 +36,18 @@ To get started with the project, follow these steps:
 
 Contributions are welcome! If you have any ideas for improvements or new features, feel free to submit a pull request. Please ensure that your code follows the project's coding standards and guidelines.
 
-### License
+## License
 
 This project is licensed under the MIT License. Feel free to use, modify, and distribute the code for personal or commercial purposes.
 
 ## Acknowledgements
 
 Special thanks to the developers of React.js, YouTube API, Firestore, and Firebase Authentication for providing the tools and resources necessary to build this project.
+
+This is a research project developed for learning about API, React.js and Firebase.
+
+## Disclaimer
+
+This project and its contents are not affiliated with, funded, authorized, endorsed by, or in any way associated with YouTube, Google LLC or any of its affiliates and subsidiaries.
+
+Any trademark, service mark, trade name, or other intellectual property rights used in this project are owned by the respective owners

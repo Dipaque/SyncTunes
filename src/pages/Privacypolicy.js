@@ -2,7 +2,8 @@ import React from 'react'
 
 const Privacypolicy = () => {
   return (
-    <div className='text-white m-3 bg-black h-64 overflow-hidden overflow-y-scroll'>
+    <div className='bg-black  overflow-hidden overflow-y-scroll'>
+    <div className='text-white m-3 '>
        <b>Privacy policy</b> 
        <div className='mt-2 text-sm'>
        <h6 class="text-sm">We are committed to protecting your privacy. This Privacy Policy describes how we collect, use, and disclose your personal information when you use our application.</h6>
@@ -10,7 +11,7 @@ const Privacypolicy = () => {
   <h6 class="text-sm">Use of Information:</h6>
   <p>Any information we collect is used solely for the purpose of providing and improving our service. We do not sell or share your personal information with third parties.</p>
   <h6 class="text-sm">Notification Permissions:</h6>
-  <p>Our application may request permission to send notifications for playing songs in the background. You can manage your notification preferences in your device settings.</p>
+  <p>Our application may request permission to send notifications for playing songs in the background. You can manage your notification preferences in your browser settings.</p>
   <h6 class="text-sm">Data Retention:</h6>
   <p>We do not store any personal data in our database. Any non-personal information collected is retained for as long as necessary to fulfill the purposes outlined in this Privacy Policy.</p>
   <h6 class="text-sm">Third-Party Services:</h6>
@@ -24,6 +25,7 @@ const Privacypolicy = () => {
   <h6 class="text-sm">Contact Us:</h6>
   <p>If you have any questions or concerns about our Privacy Policy, please contact us at rajadeepak1989@gmail.com.</p>
        </div>
+    </div>
     </div>
   )
 }

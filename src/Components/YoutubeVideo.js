@@ -8,7 +8,7 @@ import { HiMusicalNote } from 'react-icons/hi2';
 const YouTubeVideo = ({ videoIds }) => {
   const intervalRef=useRef(null)
   const [id,setId]=useState('')
-  const {setOnReady,setTitle,setArtist,setVideoIds,currentPlaying,setCurrentPlaying,duration,setDuration,currentTime,setCurrentTime,isSeeking,setIsSeeking,seekBarRef,onReady,} = useStateContext()
+  const {setOnReady,setTitle,setArtist,setVideoIds,currentPlaying,setCurrentPlaying,duration,setDuration,currentTime,setCurrentTime,isSeeking,setIsSeeking,seekBarRef,onReady,setPlayedBy} = useStateContext()
   const onVideoEnd = () => {
     if(videoIds.length>1 ){
       const index = videoIds.findIndex(data => data.id === currentPlaying.id)
@@ -32,6 +32,7 @@ const YouTubeVideo = ({ videoIds }) => {
             setId(doc.data().currentPlaying.id)
             setTitle(doc.data().currentPlaying.title)
             setArtist(doc.data().currentPlaying.channelName)
+            setPlayedBy(doc.data().currentPlaying.playedBy)
           }
         }
       })

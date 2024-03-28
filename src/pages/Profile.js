@@ -40,15 +40,13 @@ const Profile = () => {
       {
         sessionStorage.getItem('roomCode') ? (<p className='mx-auto text-sm'>{'Current Room : '+sessionStorage.getItem('roomCode')}</p>):(<p className='mx-auto text-sm'>{'No room joined'}</p>)
       }
-      
       </div>
       </div>
       <div className='text-white ml-8 text-lg flex flex-col justify-start  items-start'>
         <b>
           My Rooms
         </b>
-        <div className="text-sm mt-2  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll w-72 ">
-          
+        <div className="text-sm mt-2  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll w-72 ">  
           {
             myRoom.length>0 ?(
               
@@ -61,23 +59,26 @@ const Profile = () => {
                    }    
                   </div>
                 ))
-              
             ) :(
               <div className='mx-auto mt-5 text-slate-100'>
                 No rooms created yet!
                 </div>
             )
-           
           }
         </div>
         <div className='mt-4 mb-4 flex flex-col items-start gap-2'>
           <h6><b>Others</b></h6>
+          <p className='text-slate text-sm'>Version</p>
+          <ul className='text-slate-50 flex flex-col -mt-4 -mb-0 -ml-6 items-center justify-start text-sm'>
+            {/* Version */}
+            <li>1.0.0</li>
+          </ul>
           <Link to={'/third-party'} className='no-underline'>
           <button className='text-slate-50 flex flex-row-reverse gap-2   items-center justify-start text-sm'>
           Third-party Software
         </button>
         </Link>
-          <Link to={'/privacy policy'} className='no-underline'>
+          <Link to={'/privacy-policy'} className='no-underline'>
         <button className='text-slate-50 flex flex-row-reverse gap-2   items-center justify-start text-sm'>
           Privacy Policy
         </button>

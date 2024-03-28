@@ -46,7 +46,7 @@ function App() {
         <Route path='/search' element={<Search  />} />
         <Route path='/chat' element={<Chat  />} />
         <Route path='/profile' element={<Profile />} />
-        <Route path='/privacy policy' element={<Privacypolicy />} />
+        <Route path='/privacy-policy' element={<Privacypolicy />} />
         <Route path='/terms' element={<Terms />} />
         <Route path='/third-party' element={<Thirdparty />} />
       </Routes>

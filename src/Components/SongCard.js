@@ -10,6 +10,7 @@ import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap'
 import addToQueue from '../Functions/addToQueue'
 import shuffule from '../Functions/shuffle'
 import playNext from '../Functions/playNext'
+import Cookies from 'js-cookie'
 const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
@@ -18,9 +19,9 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
    
  const handlePlay=async()=>{
   if(videoIds){
-    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName},...videoIds],currentPlaying:{title,id,image,channelName}}).catch(err=>console.log(err))
+    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName,playedBy:Cookies.get('name')},...videoIds],currentPlaying:{title,id,image,channelName,playedBy:Cookies.get('name')}}).catch(err=>console.log(err))
   }else{
-    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName}],currentPlaying:{title,id,image,channelName}}).catch(err=>console.log(err))
+    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName,playedBy:Cookies.get('name')}],currentPlaying:{title,id,image,channelName,playedBy:Cookies.get('name')}}).catch(err=>console.log(err))
   }
  }
   return (
@@ -34,7 +35,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
 </DropdownToggle>
 <DropdownMenu className='bg-dark  dropdown-menu-end border-dark   shadow-lg p-2'>
 <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
-  playNext(image,title,id,channelName,videoIds,currentPlaying)
+  playNext(image,title,id,channelName,videoIds,currentPlaying,Cookies.get('name'))
   setToastDisplay(true)
   setToastMsg('Added to Play next')
   setTimeout(()=>setToastDisplay(false),4000)
@@ -42,7 +43,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
 <IoPlaySkipForwardOutline color='white' size={16} /> Play Next
 </DropdownItem>
   <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
-    addToQueue(image,title,id,channelName,videoIds)
+    addToQueue(image,title,id,channelName,videoIds,Cookies.get('name'))
     setToastDisplay(true)
   setToastMsg('Added to Queue')
   setTimeout(()=>setToastDisplay(false),4000)
@@ -50,7 +51,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   <HiOutlineQueueList color='white' size={16} />  Add to Queue
   </DropdownItem>
   <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
-    addToQueue(image,title,id,channelName,videoIds)
+    addToQueue(image,title,id,channelName,videoIds,Cookies.get('name'))
     setToastDisplay(true)
   setToastMsg('Added to Repeat')
   setTimeout(()=>setToastDisplay(false),4000)
@@ -58,7 +59,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   <IoRepeatOutline color='white' size={16} />  Repeat
   </DropdownItem>
   <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
-    shuffule(image,title,id,channelName,videoIds)
+    shuffule(image,title,id,channelName,videoIds,Cookies.get('name'))
     setToastDisplay(true)
   setToastMsg('Added to Shuffle')
   setTimeout(()=>setToastDisplay(false),4000)
