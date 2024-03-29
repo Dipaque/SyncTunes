@@ -23,14 +23,14 @@ function App() {
   const {pathName,setPathName}=useStateContext()
   useEffect(()=>{
     const getPathName=()=>{
-      if(document.location.pathname==='/'){
+      if(window.location.pathname==='/'){
         setPathName('login')
       }else{
-        setPathName(document.location.pathname)
+        setPathName(window.location.pathname)
       }
     }
    getPathName()
-  },[pathName])
+  },[window.location.pathname])
  
   return (
     <div className='bg-black h-screen'> 

@@ -28,7 +28,7 @@ const Profile = () => {
     getData()
   },[])
   return (
-    <div className='flex gap-0 bg-black flex-col'>
+    <div className='flex gap-0 bg-black flex-col -mt-8'>
         <div className='text-white ml-8 text-xl flex justify-start  items-end   '>
         <b>Profile</b>
       </div>
@@ -46,7 +46,7 @@ const Profile = () => {
         <b>
           My Rooms
         </b>
-        <div className="text-sm mt-2  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll w-72 ">  
+        <div className="text-sm mt-2 h-28  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll w-72 ">  
           {
             myRoom.length>0 ?(
               
@@ -66,7 +66,7 @@ const Profile = () => {
             )
           }
         </div>
-        <div className='mt-4 mb-4 flex flex-col items-start gap-2'>
+        <div className='mt-4 mb-4 flex flex-col justify-end items-start gap-3 absolute bottom-2'>
           <h6><b>Others</b></h6>
           <Link to={'/third-party'} className='no-underline'>
           <button className='text-slate-50 flex flex-row-reverse gap-2   items-center justify-start text-sm'>
@@ -84,7 +84,6 @@ const Profile = () => {
         </button>
         </Link>
         <button className='text-slate-50 flex flex-row-reverse gap-2  items-center justify-start text-sm' onClick={()=>signOutUser()}>
-          {/* <GoSignOut color='white' size={16}  /> */}
           Log out
         </button>
         </div>

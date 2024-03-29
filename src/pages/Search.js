@@ -45,7 +45,7 @@ try {
     const shimmerArr=[1,2,3,4,5,6,7,8,9,10,11,12,13,14]
   return (
     <React.Fragment>
-     <div className="flex gap-0 h-screen overflow-hidden    bg-black ">
+     <div className="flex gap-0 h-screen overflow-hidden -mt-8   bg-black ">
     <div className=''>
     <div className='text-white ml-5 text-xl flex justify-start  items-end   '>
       <b>Search</b>

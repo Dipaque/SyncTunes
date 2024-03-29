@@ -1,30 +1,25 @@
-import React,{useState} from 'react'
+import React,{useEffect, useState} from 'react'
 import Icon from '@mdi/react';
 import logo from '../assests/logo.png'
 import { BiPowerOff } from "react-icons/bi";
-import { mdiHomeVariant, mdiHomeVariantOutline, mdiMagnify, mdiMessageOutline ,mdiAccountCircleOutline} from '@mdi/js';
-import { auth } from '../firebase-config';
-import { addDoc ,getDocs } from 'firebase/firestore';
-import { signOut } from 'firebase/auth';
+import { mdiAccountCircleOutline} from '@mdi/js';
 import Cookies from 'js-cookie';
+import { IoChatbox, IoChatboxOutline } from "react-icons/io5";
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap';
-import { mdiPowerOff } from '@mdi/js';
-import { GoHome, GoSearch, GoCommentDiscussion } from "react-icons/go";
+import { FaMagnifyingGlass } from "react-icons/fa6";
+import { GoHome, GoSearch, GoCommentDiscussion, GoHomeFill, GoPerson } from "react-icons/go";
 import { useStateContext } from '../Context/ContextProvider';
 import { RxMagnifyingGlass } from 'react-icons/rx'
 const Sidebar = () => {
   const nav = useNavigate()
-  const {path,setPathName,notification}=useStateContext()
+  const {pathName,setPathName,notification}=useStateContext()
+  useEffect(()=>{
+    const getPathName=()=>{
+      setPathName(window.location.pathname)
+    }
+    getPathName()
+  },[window.location.pathname])
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const signOutUser=()=>{
-    signOut(auth).then(() => {
-      setPathName('/')
-      nav('/')
-    }).catch((error) => {
-      console.log(error)
-    });
-  }
   const toggle = () => setDropdownOpen((prevState) => !prevState);
   return (
     <React.Fragment>
@@ -35,17 +30,25 @@ const Sidebar = () => {
 <         div className='bg-zinc-900 flex flex-row justify-around p-3 items-center'>
         
             <Link to={'/home'}>
-              <GoHome size={25} color='white' />
+              {
+                pathName.includes('home') ?(<GoHomeFill size={25} color='white' />):(<GoHome size={25} color='white' />)
+              }
+              
             </Link>
             <Link to={'/search'}  >
-            <RxMagnifyingGlass color='white' size={25} />
+              {
+                !pathName.includes('search')?(<RxMagnifyingGlass color='white' size={25} />):(<FaMagnifyingGlass color='white' size={20} />)
+              }
+            
             {/* <GoSearch size={25} color='white' /> */}
             </Link>
             <Link to={'/chat'}>
            {
             notification > 0 && <div className="badge  bg-white text-black badge-full  absolute ml-4 -mt-4">{notification}</div>
            } 
-            <GoCommentDiscussion size={25} color='white' />
+           {
+              pathName.includes('chat')?(<IoChatbox size={25} color='white' />) : (<IoChatboxOutline size={25} color='white' />)
+           }
             </Link>
             <Link to={'/profile'}>
             {
@@ -53,7 +56,7 @@ const Sidebar = () => {
              
                   <img src={Cookies.get('photoUrl')} className='rounded-full h-7' />
                  
-              ):<Icon className='' path={mdiAccountCircleOutline} color={'white'} size={1.4} />
+              ):<GoPerson color='white' size={25} />
             }
             </Link>
             </div>

@@ -39,7 +39,7 @@ const Chat = () => {
             setMyMsg('')
         }).catch(err=>console.log(err))
     }
-  return (<div className='bg-black'>
+  return (<div className='bg-black -mt-8'>
    <div className='text-white ml-5 text-xl flex  items-end' >
       <b>Chat</b>
       </div>

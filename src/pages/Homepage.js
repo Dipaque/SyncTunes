@@ -13,7 +13,7 @@ import { IoBookmarksOutline, } from 'react-icons/io5';
 const Homepage = () => {
   const nav = useNavigate()
   const [currentSong, setCurrentSong,] = useState([])
-  const {  setVideoIds, setIsLeaving, isLeaving, playedBy } = useStateContext()
+  const {  setVideoIds, setIsLeaving, isLeaving, playedBy,pathName } = useStateContext()
   const [song, setSong] = useState('')
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [roomMate, setRoomMate] = useState([])
@@ -67,13 +67,13 @@ const Homepage = () => {
   return (
     <>
       <Sidebar />
-      <div className="flex justify-center gap-0 h-full  w-screen  bg-black " id='top'>
+      <div className="flex justify-center gap-0  w-screen  bg-black " id='top'>
         <CreateRoom />
         <JoinRoom />
         <LeaveRoom handleLeaveRoom={handleLeaveRoom} />
         <div className=' m-3 mb-5  rounded-lg w-96 ' >
           {
-            Cookies.get('name') && currentSong.length===0 && ( <div className='text-white  mt-3 text-lg ml-3 flex justify-start  items-center   '>
+            Cookies.get('name') && !sessionStorage.getItem('roomCode') && pathName.includes('home') &&  ( <div className='text-white  mt-3 text-lg ml-3 flex justify-start  items-center   '>
             <b className=' '>{'Welcome ' + Cookies.get('name').split(' ')[0]||Cookies.get('name') }</b>
           </div>)
           }
