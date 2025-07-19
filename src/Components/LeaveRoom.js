@@ -7,22 +7,21 @@ import {
     ModalBody,
     ModalFooter,
   } from 'reactstrap';
+import { fontFamily } from '../constants';
 const LeaveRoom = ({handleLeaveRoom}) => {
-    const {isLeaving,setIsLeaving} = useStateContext()
-    const [unmountOnClose, setUnmountOnClose] = useState(true);
-
+    const {isLeaving,setIsLeaving,} = useStateContext()
   const toggle = () => setIsLeaving(!isLeaving);
   return (
-    <Modal centered={true} className='flex justify-center w-72' isOpen={isLeaving} toggle={toggle} unmountOnClose={unmountOnClose}>
-    <ModalHeader className='text-sm' toggle={toggle}><b>Exit room</b></ModalHeader>
+    <Modal centered={true} style={{fontFamily:fontFamily}} className='flex justify-center w-72' isOpen={isLeaving} toggle={toggle} unmountOnClose={true}>
+    <ModalHeader className='!text-sm !border-none' toggle={toggle}>Exit room</ModalHeader>
     <ModalBody className='flex items-center justify-start'>
-      <p className='text-gray-950' id='msg'>Do you wana miss this listening?</p>
+      <p className='text-gray-950 text-sm' id='msg'>Do you wana miss this listening?</p>
     </ModalBody>
-    <ModalFooter>
-    <Button color='dark'  onClick={()=>handleLeaveRoom()}>
+    <ModalFooter className='!border-none'>
+    <Button color='dark' className='!text-sm'   onClick={()=>handleLeaveRoom()}>
         Exit
       </Button>
-      <Button color="" onClick={toggle}>
+      <Button color='light' className='!text-sm' onClick={toggle}>
         Cancel
       </Button>
     </ModalFooter>

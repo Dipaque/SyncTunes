@@ -6,14 +6,12 @@ import {
     ModalBody,
     ModalFooter,
     Input,
-    Label,
-    Form,
-    FormGroup,
   } from 'reactstrap';
   import { db } from '../firebase-config';
-  import {setDoc , collection,doc,getDoc, updateDoc} from 'firebase/firestore'
+  import {collection,doc,getDoc, updateDoc} from 'firebase/firestore'
 import { useStateContext } from '../Context/ContextProvider';
 import Cookies from 'js-cookie';
+import { fontFamily } from '../constants';
 function JoinRoom() {
     const [roomCode,setRoomCode]=useState('')
     const [msg,setMsg]=useState('')
@@ -38,8 +36,8 @@ function JoinRoom() {
   }
 
   return (
-    <Modal centered={true} className='flex justify-center w-72' isOpen={modal_backdrop1} toggle={toggle} unmountOnClose={unmountOnClose}>
-    <ModalHeader  toggle={toggle}><b>Join the room</b></ModalHeader>
+    <Modal centered={true} className='flex justify-center w-72' style={{fontFamily:fontFamily}} isOpen={modal_backdrop1} toggle={toggle} unmountOnClose={unmountOnClose}>
+    <ModalHeader className='!border-none' toggle={toggle}><b>Join the room</b></ModalHeader>
     <ModalBody>
       <Input
         type="text"
@@ -49,7 +47,7 @@ function JoinRoom() {
       />
       <p className='text-red-600 text-center mt-3' id='msg'>{msg}</p>
     </ModalBody>
-    <ModalFooter>
+    <ModalFooter className='!border-none'>
       <Button color="dark" onClick={()=>handleJoinRoom()}>
         Join
       </Button>{' '}

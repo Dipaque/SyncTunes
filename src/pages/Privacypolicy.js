@@ -2,7 +2,7 @@ import React from 'react'
 
 const Privacypolicy = () => {
   return (
-    <div className='bg-black  overflow-hidden overflow-y-scroll'>
+    <div className='bg-black h-[calc(100vh-300px)] overflow-hidden overflow-y-scroll'>
     <div className='text-white m-3 '>
        <b>Privacy policy</b> 
        <div className='mt-2 text-sm'>

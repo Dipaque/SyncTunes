@@ -13,12 +13,13 @@ import {
   } from 'reactstrap';
   import Cookies from 'js-cookie';
   import { db } from '../firebase-config';
-  import {setDoc , collection,doc} from 'firebase/firestore'
+  import {setDoc , collection,doc,Timestamp} from 'firebase/firestore'
 import { useStateContext } from '../Context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
 import { IoCopyOutline } from 'react-icons/io5';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import '../App.css'
+import { fontFamily } from '../constants';
 function CreateRoom() {
     const nav = useNavigate()
     const [roomCode,setRoomCode]=useState('')
@@ -28,8 +29,7 @@ function CreateRoom() {
   const [copy,setCopy] = useState(false)
   const toggle = () => setmodal_backdrop(!modal_backdrop);
   const handleCreateRoom=async()=>{
-    const collectionRef=collection(db,'room')
-    await setDoc(doc(db,'room',roomCode),{roomCode:roomCode,roomAdmin:Cookies.get('name'),members:[]}).then(()=>{
+    await setDoc(doc(db,'room',roomCode),{roomCode:roomCode,roomAdmin:Cookies.get('name'),members:[],createdAt:Timestamp.now(),adminEmail:Cookies.get("email")}).then(()=>{
         setMsg(`Please copy your room code ${roomCode}.`)
         sessionStorage.setItem('roomCode',roomCode)
         setTimeout(()=>{
@@ -50,8 +50,8 @@ function CreateRoom() {
   }
 
   return (
-    <Modal centered={true} className='flex justify-center w-72 ' isOpen={modal_backdrop} toggle={toggle} unmountOnClose={unmountOnClose}>
-    <ModalHeader  toggle={toggle}><b>Create a new room</b></ModalHeader>
+    <Modal centered={true} style={{fontFamily:fontFamily}} className='flex justify-center w-72 ' isOpen={modal_backdrop} toggle={toggle} unmountOnClose={unmountOnClose}>
+    <ModalHeader className='!border-none' toggle={toggle}><b>Create a new room</b></ModalHeader>
     <ModalBody>
       {
         msg &&(
@@ -76,7 +76,7 @@ function CreateRoom() {
       <p className=' m-3 mt-6 text-start' id='msg'>{msg}</p>
     </ModalBody>
     
-    <ModalFooter>
+    <ModalFooter className='!border-none'>
       {
         msg ?(<Button color="dark" onClick={toggle}>
         Done

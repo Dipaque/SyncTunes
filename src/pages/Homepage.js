@@ -2,56 +2,54 @@ import React, { useEffect, useState } from 'react'
 import Sidebar from '../Components/Sidebar';
 import Cookies from 'js-cookie';
 import YouTubeVideo from '../Components/YoutubeVideo';
+import { VscSignOut } from "react-icons/vsc";
 import { useStateContext } from '../Context/ContextProvider';
-import { db, auth } from '../firebase-config';
+import { db, } from '../firebase-config';
 import CreateRoom from '../Components/CreateRoom';
 import JoinRoom from '../Components/JoinRoom';
-import { useNavigate } from 'react-router-dom';
-import { collection, query, where,  onSnapshot, doc, getDocs, updateDoc, } from 'firebase/firestore'
+import { collection, query, where,  onSnapshot, doc, updateDoc, } from 'firebase/firestore'
 import LeaveRoom from '../Components/LeaveRoom';
 import { IoBookmarksOutline, } from 'react-icons/io5';
+import LikedUsers from '../Components/LikedUsers';
 const Homepage = () => {
-  const nav = useNavigate()
   const [currentSong, setCurrentSong,] = useState([])
-  const {  setVideoIds, setIsLeaving, isLeaving, playedBy,pathName } = useStateContext()
-  const [song, setSong] = useState('')
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const {  setVideoIds, setIsLeaving, isLeaving, playedBy,pathName, handleClear, songsList,currentPlaying } = useStateContext()
   const [roomMate, setRoomMate] = useState([])
   const [admin, setAdmin] = useState('')
-  const signOut = () => {
-    signOut(auth).then(() => {
-      nav('/')
-    }).catch((error) => {
-      console.log(error)
-    });
-  }
-  const toggle = () => setDropdownOpen((prevState) => !prevState);
 
   useEffect(() => {
     const getData = () => {
       if (sessionStorage.getItem('roomCode')) {
         const filteredUsersQuery = query(collection(db, 'room'), where('roomCode', '==', sessionStorage.getItem('roomCode')));
         onSnapshot(filteredUsersQuery, ((data) => {
-          setCurrentSong(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })))
-          setVideoIds(data.docs[0].data().currentSong)
-          setRoomMate(data.docs[0].data().members)
-          setAdmin(data.docs[0].data().roomAdmin)
+          setCurrentSong(data.docs.map((doc) => ({ ...doc?.data(), id: doc?.id })))
+          setVideoIds(data?.docs[0]?.data()?.currentSong)
+          setRoomMate(data?.docs[0]?.data()?.members)
+          setAdmin(data?.docs[0]?.data()?.roomAdmin)
         }))
       }
     }
     getData()
   }, [sessionStorage.getItem('roomCode')])
-  // Check if the browser supports the Notification API
-  if ('Notification' in window) {
-    // Check if permission has not been granted previously
-    if (Notification.permission !== 'granted') {
-      // Ask for permission
-      Notification.requestPermission().then(function (permission) {
-        if (permission === 'granted') {
-        }
-      });
+
+  const requestPermission = () =>{
+    // Check if the browser supports the Notification API
+    if ('Notification' in window) {
+      // Check if permission has not been granted previously
+      if (Notification.permission !== 'granted') {
+        // Ask for permission
+        Notification.requestPermission().then(function (permission) {
+          if (permission === 'granted') {
+          }
+        });
+      }
     }
   }
+
+  useEffect(()=>{
+    requestPermission()
+  },[])
+
   const handleLeaveRoom = async () => {
     if (roomMate.length > 0) {
 
@@ -61,6 +59,7 @@ const Homepage = () => {
       }
       await updateDoc(doc(db, 'room', sessionStorage.getItem('roomCode')), { members: roomMate })
     } setCurrentSong([])
+    handleClear();
     sessionStorage.removeItem('roomCode')
     setIsLeaving(!isLeaving)
   }
@@ -80,15 +79,18 @@ const Homepage = () => {
           {
             sessionStorage.getItem('roomCode') && currentSong.length > 0 && (<div className=' flex items-center  justify-center flex-col  '>
               {
-                admin && (<p className='text-sm text-slate-50  mt-2'>Created by {admin.split(' ')[0]|| admin}</p>)
+                admin && (<p className='text-xs text-slate-50  mt-2'>Created by {admin.split(' ')[0]|| admin}</p>)
               }
-              <button className=' mx-auto  text-sm   text-white flex flex-row justify-center items-center gap-2'
+              <button className=' mx-auto  text-xs   text-white flex flex-row justify-center items-center gap-2'
                 type='button'
                 onClick={() => setIsLeaving(true)}>
-                <IoBookmarksOutline color='white' size={16} />{sessionStorage.getItem('roomCode')}
+                <VscSignOut color='white' size={18} />{sessionStorage.getItem('roomCode')}
               </button>
               {
-                playedBy && (<p className='text-sm text-slate-50  mt-2'>Played by {playedBy.split(' ')[0]||playedBy}</p>)
+                playedBy && (<p className='text-xs text-slate-50  mt-2'>Played by {playedBy.split(' ')[0]||playedBy}</p>)
+              }
+              {
+                songsList && currentPlaying && pathName.includes("home") && <p className='flex items-center gap-2 text-xs text-slate-200'><LikedUsers /> </p> 
               }
               {
                 <YouTubeVideo videoIds={currentSong[0].currentSong} />

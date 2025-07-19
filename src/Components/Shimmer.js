@@ -1,6 +1,5 @@
 import React from 'react'
-import Icon from '@mdi/react'
-import { IoPlay } from 'react-icons/io5'
+
 const Shimmer = () => {
   return (
     <div className='flex flex-row m-3 justify-center items-center gap-2 text-white cursor-pointer animate-pulse'>

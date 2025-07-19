@@ -2,7 +2,7 @@ import React from 'react'
 
 const Terms = () => {
   return (
-    <div className='bg-black  overflow-hidden overflow-y-scroll'>
+    <div className='bg-black h-[calc(100vh-300px)] overflow-hidden overflow-y-scroll'>
     <div className='text-white m-3 '>
         <b>Terms and Conditions</b>
         <div className='text-sm mt-2'>

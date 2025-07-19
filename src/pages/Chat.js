@@ -21,6 +21,7 @@ const Chat = () => {
         window.removeEventListener('scroll', handleScroll);
       };
     }, []);
+    
    useEffect(()=>{
     const updateRead=()=>{
         const unReadMsg = messages.filter(data=>data.status='unread' && data.name!==Cookies.get('name'))
@@ -39,20 +40,21 @@ const Chat = () => {
             setMyMsg('')
         }).catch(err=>console.log(err))
     }
-  return (<div className='bg-black -mt-8'>
-   <div className='text-white ml-5 text-xl flex  items-end' >
+  return (<div className='bg-black -mt-12'>
+   <div className='text-white ml-5 text-xl  flex  items-end' >
       <b>Chat</b>
       </div>
-  <div className="flex gap-0   overflow-hidden overflow-y-scroll w-screen  bg-black ">
+  <div className="flex  flex-col h-[calc(100vh-410px)] overflow-hidden overflow-y-scroll w-screen  bg-black ">
 
     {
         sessionStorage.getItem('roomCode')?(
-            <div className=' bg-zinc-900 w-screeen m-3  overflow-hidden overflow-y-scroll flex justify-center   rounded-lg text-sm '>
-            <div className='flex flex-col justify-between w-screen gap-0'>
+            <div>
+            <div className=' bg-zinc-900  m-3  overflow-hidden overflow-y-scroll    rounded-lg text-sm '>
+            <div className='flex flex-col justify-between w-[95vw] gap-0'>
                   
                 {
                     messages.map((data,index)=>(
-                        (data.sender===Cookies.get('name'))?((index==messages.length-1)?(
+                        (data.sender===Cookies.get('name'))?((index===messages.length-1)?(
                             <div className=''>
 
                         <div key={index} className=' chat chat-end  text-white  p-2 mb-28  '>
@@ -111,10 +113,12 @@ const Chat = () => {
                 <GoChevronUp className='mx-auto' color='white' size={15} />
                 </button> 
             </div>
-            <div className=' pt-5 flex flex-row fixed bottom-8 gap-2'>
+            </div>
+            <div className=' absolute ms-3 bottom-24'>
+                <div className='flex flex-row gap-2'>
             <input 
         type='text'
-        className='bg-slate-50 h-10 w-56   rounded-full pl-5  outline-none '
+        className='bg-slate-50 h-10 w-[90%]   rounded-full pl-5  outline-none '
         value={myMsg}
         onChange={(e)=>{
     setMyMsg(e.target.value)
@@ -125,7 +129,8 @@ const Chat = () => {
             {/* <Icon path={mdiSend} size={1} /> */}
             <GoPaperAirplane className='mx-auto' color='black' size={18} />
         </button>
-            </div>
+        </div>
+                </div>
         </div>
         ):(
             <div className='mt-14 mx-auto text-white'>
