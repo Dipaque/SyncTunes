@@ -82,7 +82,6 @@ const LikeSong = ({ iconSize, color }) => {
       (user) => user.email !== Cookies.get("email")
     );
   }
-          console.log(likedBy);
         return {
           ...song,
           likedBy: likedBy,
@@ -119,7 +118,6 @@ const LikeSong = ({ iconSize, color }) => {
     await updateDoc(doc(db, "room", roomCode), { currentSong });
     setTimeout(() => setAnimate(false), 300);
   };
-  // console.log(songsList)
   return (
     <React.Fragment>
       {!liked ? (

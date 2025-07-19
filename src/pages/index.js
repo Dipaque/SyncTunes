@@ -1,4 +1,4 @@
-import React  from "react";
+import React from "react";
 import { useStateContext } from "../Context/ContextProvider";
 import {
   IoPause,
@@ -14,7 +14,7 @@ import { secondsToMinutes, seekBarStyle } from "../Functions/secondsToMinutes";
 import PlayerShimmer from "../Components/PlayerShimmer";
 import LikeSong from "../Components/LikeSong";
 import QueueDrawer from "../Components/QueueDrawer";
-import Cookies from "js-cookie"
+import Cookies from "js-cookie";
 const Index = () => {
   const {
     videoIds,
@@ -30,13 +30,11 @@ const Index = () => {
     setIsSeeking,
     seekBarRef,
     isLoading,
-    isPause, 
+    isPause,
     setIsPause,
-    thumbnail,
-    songsList
   } = useStateContext();
 
-  const name = Cookies.get("name")
+  const name = Cookies.get("name");
 
   const handleForward = async () => {
     const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
@@ -76,13 +74,18 @@ const Index = () => {
     setIsSeeking(false);
   };
   const handleSeek = (event) => {
-    if (onReady) {
-      const seekToTime =
-        (event.nativeEvent.offsetX / seekBarRef.current.offsetWidth) * duration;
+    const seekBar = seekBarRef?.current ?? event.currentTarget;
+
+    if (seekBar && onReady) {
+      const seekBarWidth = seekBar.offsetWidth;
+      const offsetX = event.nativeEvent.offsetX;
+      const seekToTime = (offsetX / seekBarWidth) * duration;
+
       onReady.seekTo(seekToTime);
       setCurrentTime(seekToTime);
     }
   };
+
   const progressBarStyle = {
     width: `${(currentTime / duration) * 100}%`,
     height: "100%",
@@ -92,18 +95,16 @@ const Index = () => {
     if (navigator.share) {
       navigator
         .share({
-          title: 'Check out Sync-Tunes 🎶',
-          text: 'A fun way to sync music with your friends!',
-          url: window.location.href, // or your app URL e.g., 'https://sync-tunes.vercel.app'
+          title: "Check out Sync-Tunes 🎶",
+          text: "A fun way to jam music with your friends!",
+          url: "https://sync-tunes.vercel.app", // or your app URL e.g., 'https://sync-tunes.vercel.app'
         })
-        .then(() => console.log('Thanks for sharing!'))
-        .catch((err) => console.error('Error sharing:', err));
+        .then(() => console.log("Thanks for sharing!"))
+        .catch((err) => console.error("Error sharing:", err));
     } else {
-      alert('Sharing is not supported in this browser.');
+      alert("Sharing is not supported in this browser.");
     }
   };
-  
-
 
   return (
     <div className="bg-black">
@@ -155,31 +156,40 @@ const Index = () => {
                   <b>{title || "Song name"}</b>
                 </h5>
               </Marquee>
-             <LikeSong iconSize={38} color={"#f1f5f9"} />
+              <LikeSong iconSize={38} color={"#f1f5f9"} />
             </div>
 
             <p className="text-slate-200 m-2">{artist || "Artist name"}</p>
           </div>
           {/* Seekbar */}
-          <div
-            className=" bg-zinc-800 border-zinc-800 border-2 rounded-full  h-1.5 cursor-pointer mx-auto"
-            ref={seekBarRef}
-            onClick={handleSeek}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            style={seekBarStyle}
-          >
+          {onReady && currentPlaying && currentTime ? (
+            <>
             <div
-              className="seek-bar-progress bg-slate-100 rounded-full "
-              style={progressBarStyle}
-            ></div>
-          </div>
-          <div className="mt-2 flex items-center justify-between  text-slate-50 text-sm m-3">
+              className=" bg-zinc-800 border-zinc-800 border-2 rounded-full  h-1.5 cursor-pointer mx-auto"
+              ref={seekBarRef}
+              onClick={handleSeek}
+              onMouseDown={handleMouseDown}
+              onMouseUp={handleMouseUp}
+              style={seekBarStyle}
+            >
+              <div
+                className="seek-bar-progress bg-slate-100 rounded-full "
+                style={progressBarStyle}
+              ></div>
+            </div>
+            <div className="mt-2 flex items-center justify-between  text-slate-50 text-sm m-3">
             <span>{secondsToMinutes(currentTime)}</span>
             <span>{secondsToMinutes(duration)}</span>
           </div>
+            </>
+          ) : (
+            <div className="bg-zinc-700 border-zinc-800 border-2 rounded-full h-1.5 mx-auto w-[90%] relative overflow-hidden">
+              <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-zinc-600 via-zinc-500 to-zinc-600 rounded-full"></div>
+            </div>
+          )}
+          
 
-            {/* Player control */}
+          {/* Player control */}
           <div className="flex justify-center items-center mt-8 gap-8 pb-12 ">
             <div
               className="bg-zinc-800 rounded-full p-3 text-center"
@@ -192,7 +202,7 @@ const Index = () => {
                 className="bg-zinc-800 rounded-full p-3 text-center"
                 onClick={() => handlePlay()}
               >
-                <IoPlay size={26} color={"white"}  />
+                <IoPlay size={26} color={"white"} />
               </div>
             ) : (
               <div
@@ -211,12 +221,13 @@ const Index = () => {
           </div>
           {/* View Queued Songs */}
           <div className=" flex items-end gap-6 float-right -mt-2 m-3">
-            <HiOutlineShare size={20}
-        cursor={"pointer"}
-        className="text-slate-200 hover:text-slate-400"
-        onClick={handleShare}
-         />
-          <QueueDrawer handlePlay={handlePlay} handlePause={handlePause} />
+            <HiOutlineShare
+              size={20}
+              cursor={"pointer"}
+              className="text-slate-200 hover:text-slate-400"
+              onClick={handleShare}
+            />
+            <QueueDrawer handlePlay={handlePlay} handlePause={handlePause} />
           </div>
         </>
       )}

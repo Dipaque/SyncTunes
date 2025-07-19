@@ -2,20 +2,13 @@ import React, { useState, useEffect } from "react";
 import { useStateContext } from "../Context/ContextProvider";
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from "reactstrap";
 import { HiOutlineQueueList } from "react-icons/hi2";
-import { fetchSongsList } from "../Functions/fetchSongsList";
 import { fontFamily } from "../constants";
-import Marquee from "react-fast-marquee";
 import { getUniqueObjectsById } from "../Functions/removeDupes";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase-config";
-import {
-  IoPause,
-  IoPlay,
-  IoPlaySkipBack,
-  IoPlaySkipForward,
-} from "react-icons/io5";
+import { IoPause, IoPlay } from "react-icons/io5";
 
-const QueueDrawer = (handlePlay,handlePause) => {
+const QueueDrawer = ({ handlePlay, handlePause }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { setSongsList, songsList, currentPlaying, isPause } =
     useStateContext();
@@ -39,7 +32,6 @@ const QueueDrawer = (handlePlay,handlePause) => {
       }
     );
 
-    // Cleanup listener on unmount or when roomCode changes
     return () => unsubscribe();
   }, [roomCode]);
 
@@ -56,16 +48,24 @@ const QueueDrawer = (handlePlay,handlePause) => {
         onClick={handleOpen}
       />
       <Offcanvas
-        className={`!bg-zinc-900 !text-slate-200  ${isOpen?"!animate-drawer":"!animate-slide-down"}`}
+        className={`!bg-zinc-900 !text-slate-200 !h-[50%] ${
+          isOpen ? "!animate-drawer" : "!animate-slide-down"
+        }`}
         direction="bottom"
         toggle={handleOpen}
         isOpen={isOpen}
         unmountOnClose={true}
-        style={{ fontFamily: fontFamily,borderTopLeftRadius:"14px",borderTopRightRadius:"14px" }}
+        style={{
+          fontFamily: fontFamily,
+          borderTopLeftRadius: "14px",
+          borderTopRightRadius: "14px",
+        }}
       >
         <OffcanvasHeader>
           <h6 className="text-sm font-bold">Queue</h6>
-          <p className="text-zinc-700 text-sm">Tracks selected by room members</p>
+          <p className="text-zinc-700 text-sm">
+            Tracks selected by room members
+          </p>
         </OffcanvasHeader>
         <OffcanvasBody>
           {songsList.map((song, i) => (
@@ -93,11 +93,27 @@ const QueueDrawer = (handlePlay,handlePause) => {
                   <p className="text-xs">{song.channelName || "artist"}</p>
                 </div>
               </span>
-            { currentPlaying.id === song.id && <div className="bg-slate-200 rounded-full p-2" onClick={()=>isPause? handlePlay() :handlePause()}>
-                {
-                    isPause ? <IoPlay size={16} color="black"  /> : <IoPause size={16} color="black" />
-                }
-              </div>}
+              {currentPlaying.id === song.id && (
+                <>
+                  {isPause ? (
+                    <div
+                      className="bg-slate-200 rounded-full p-2"
+                      onClick={handlePlay}
+                    >
+                      {" "}
+                      <IoPlay size={16} color="black" />
+                    </div>
+                  ) : (
+                    <div
+                      className="bg-slate-200 rounded-full p-2"
+                      onClick={handlePause}
+                    >
+                      {" "}
+                      <IoPause size={16} color="black" />
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           ))}
         </OffcanvasBody>

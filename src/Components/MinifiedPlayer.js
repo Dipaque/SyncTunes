@@ -36,13 +36,19 @@ const MinifiedPlayer = () => {
     setIsSeeking(false);
   };
   const handleSeek = (event) => {
-    if (onReady) {
-      const seekToTime =
-        (event.nativeEvent.offsetX / seekBarRef.current.offsetWidth) * duration;
+    event.stopPropagation();
+    const seekBar = seekBarRef?.current ?? event.currentTarget;
+  
+    if (seekBar && onReady) {
+      const seekBarWidth = seekBar.offsetWidth;
+      const offsetX = event.nativeEvent.offsetX;
+      const seekToTime = (offsetX / seekBarWidth) * duration;
+  
       onReady.seekTo(seekToTime);
       setCurrentTime(seekToTime);
     }
   };
+  
   const progressBarStyle = {
     width: `${(currentTime / duration) * 100}%`,
     height: "100%",
@@ -57,7 +63,7 @@ const MinifiedPlayer = () => {
           className=" h-8 w-12"
           alt="thumbnail"
         />
-        <div className=" text-slate-100 text-sm">
+        <div className=" text-slate-100 line-clamp-1 text-sm">
           <Marquee>{title || "Song name"}</Marquee>
         </div>
         </div>
@@ -76,7 +82,7 @@ const MinifiedPlayer = () => {
               </div>
             ) : (
               <div
-                className=" rounded-full text-center "
+                className="rounded-full text-center "
                 onClick={(e) =>{ 
                     e.stopPropagation()
                     handlePause()

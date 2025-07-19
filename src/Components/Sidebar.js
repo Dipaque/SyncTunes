@@ -17,7 +17,7 @@ const Sidebar = () => {
   },[window.location.pathname])
   return (
     <React.Fragment>
-     <div className="bg-zinc-900/50 backdrop-blur-md border-t border-white/10 rounded-bl-xl rounded-br-xl  w-full z-50">
+     <div className="bg-zinc-900/50 backdrop-blur-md border-t border-white/10 w-full z-50">
   <div className="flex flex-row justify-between p-3 items-center">
     <Link to="/home">
       {pathName.includes('home') ? (
