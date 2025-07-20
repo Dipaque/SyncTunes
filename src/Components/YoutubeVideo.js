@@ -10,9 +10,9 @@ const YouTubeVideo = ({ videoIds }) => {
   const [id,setId]=useState('')
   const {setOnReady,setTitle,setArtist,setVideoIds,currentPlaying,setCurrentPlaying,setDuration,setCurrentTime,onReady,setPlayedBy,setIsLoading,isLoading,pathName,thumbnail,setThumbnail} = useStateContext()
   const onVideoEnd = () => {
-    if(videoIds.length>1 ){
+    if(videoIds?.length>1 ){
       const index = videoIds.findIndex(data => data.id === currentPlaying.id)
-      if(index<videoIds.length-1){
+      if(index<videoIds?.length-1){
         const uniqueVideoIds = getUniqueObjectsById(videoIds)
         updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:uniqueVideoIds,currentPlaying:videoIds[index+1]}).catch(err=>console.log(err))
       }

@@ -16,7 +16,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
     const {videoIds,currentPlaying}=useStateContext()
    
  const handlePlay=async()=>{
-  if(videoIds.length>0){
+  if(videoIds?.length>0){
     await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[...videoIds,{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()},],currentPlaying:{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()}}).catch(err=>console.log(err))
   }else{
     await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()}],currentPlaying:{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()}}).catch(err=>console.log(err))

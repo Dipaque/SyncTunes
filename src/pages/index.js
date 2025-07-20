@@ -38,7 +38,7 @@ const Index = () => {
 
   const handleForward = async () => {
     const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
-    if (index !== videoIds.length - 1) {
+    if (index !== videoIds?.length - 1) {
       await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
         currentPlaying: videoIds[index + 1],
       }).catch((err) => console.log(err));
