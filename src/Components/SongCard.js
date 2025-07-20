@@ -31,8 +31,8 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
 <DropdownToggle className='btn' tag={'button'} >
 <IoEllipsisVertical color='white' size={18} />
 </DropdownToggle>
-<DropdownMenu className='bg-dark  dropdown-menu-end border-dark   shadow-lg p-2'>
-<DropdownItem className='d-flex gap-2 pt-2 pb-2 text-light text-xs dropwdown-item' onClick={()=>{
+<DropdownMenu className='bg-dark  dropdown-menu-end border-dark !hover:bg-zinc-800 !hover:text-slate-200  shadow-lg p-2'>
+<DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
   playNext(image,title,id,channelName,videoIds,currentPlaying,Cookies.get('name'))
   setToastDisplay(true)
   setToastMsg('Added to Play next')
@@ -40,7 +40,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   }}>
 <IoPlaySkipForwardOutline color='white' size={16} /> Play Next
 </DropdownItem>
-  <DropdownItem className='d-flex gap-2 pt-2 pb-2 text-light text-xs dropwdown-item' onClick={()=>{
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
     addToQueue(image,title,id,channelName,videoIds,Cookies.get('name'))
     setToastDisplay(true)
   setToastMsg('Added to Queue')
@@ -48,7 +48,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   }}>
   <HiOutlineQueueList color='white' size={16} />  Add to Queue
   </DropdownItem>
-  <DropdownItem className='d-flex gap-2 pt-2 pb-2 text-light text-xs dropwdown-item' onClick={()=>{
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
     addToQueue(image,title,id,channelName,videoIds,Cookies.get('name'))
     setToastDisplay(true)
   setToastMsg('Added to Repeat')
@@ -56,7 +56,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   }}>
   <IoRepeatOutline color='white' size={16} />  Repeat
   </DropdownItem>
-  <DropdownItem className='d-flex gap-2 pt-2 pb-2 text-light text-xs dropwdown-item' onClick={()=>{
+  <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={()=>{
     shuffule(image,title,id,channelName,videoIds,Cookies.get('name'))
     setToastDisplay(true)
   setToastMsg('Added to Shuffle')
