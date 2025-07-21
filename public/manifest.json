@@ -21,6 +21,12 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "#000000",
-  "background_color": "#ffffff",
-  "categories": ["music", "audio", "entertainment"]
+  "background_color": "#000000",
+  "categories": [
+    "music",
+    "audio",
+    "entertainment"
+  ],
+  "description": "Let listen music together.",
+  "id": "com.vercel.sync-tunes"
 }

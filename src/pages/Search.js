@@ -101,7 +101,7 @@ const Search = () => {
 
   {toastDisplay && (
     <div className="flex justify-center">
-      <Toast message={toastMsg} />
+      <Toast message={toastMsg} showToast={toastDisplay} />
     </div>
   )}
 </div>

@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "app.vercel.sync_tunes.twa",
+        "sha256_cert_fingerprints": ["9E:07:9A:54:CE:E8:BD:13:DD:D4:4B:3A:F9:F5:69:F0:59:C3:D2:94:5F:1C:1F:3B:74:EF:56:79:F1:56:CB:38"]
+      }
+    }]

@@ -1,10 +1,9 @@
 import React, {useState} from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useStateContext } from '../Context/ContextProvider'
 import { db } from '../firebase-config'
 import {  doc, Timestamp, updateDoc } from 'firebase/firestore'
-import { HiOutlineQueueList, HiOutlineHeart } from "react-icons/hi2";
-import { IoEllipsisVertical, IoPlay, IoRepeatOutline, IoShuffleOutline,IoPlaySkipForwardOutline } from 'react-icons/io5'
+import { HiOutlineQueueList, } from "react-icons/hi2";
+import { IoEllipsisVertical, IoRepeatOutline, IoShuffleOutline,IoPlaySkipForwardOutline } from 'react-icons/io5'
 import {Dropdown, DropdownItem, DropdownMenu, DropdownToggle } from 'reactstrap'
 import addToQueue from '../Functions/addToQueue'
 import shuffule from '../Functions/shuffle'

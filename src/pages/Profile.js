@@ -3,7 +3,6 @@ import Cookies from 'js-cookie'
 import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db,auth } from '../firebase-config'
 import { signOut } from 'firebase/auth';
-import { GoBookmarkFill, GoKey, GoSignOut } from 'react-icons/go'
 import { useStateContext } from '../Context/ContextProvider'
 import { Link, useNavigate } from 'react-router-dom'
 import { IoBookmarksOutline } from 'react-icons/io5';
@@ -14,6 +13,12 @@ const Profile = () => {
   const signOutUser=()=>{
     signOut(auth).then(() => {
       setPathName('/')
+      Cookies.remove('name')
+      Cookies.remove('email')
+      Cookies.remove('phone')
+      Cookies.remove('photoUrl')
+      Cookies.remove('uid')
+      sessionStorage.removeItem("roomCode");
       nav('/')
     }).catch((error) => {
       console.log(error)

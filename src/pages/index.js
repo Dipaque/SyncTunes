@@ -6,7 +6,7 @@ import {
   IoPlaySkipBack,
   IoPlaySkipForward,
 } from "react-icons/io5";
-import { HiOutlineShare } from "react-icons/hi";
+import { HiOutlineShare, HiOutlineUser } from "react-icons/hi";
 import Marquee from "react-fast-marquee";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
@@ -34,7 +34,6 @@ const Index = () => {
     setIsPause,
   } = useStateContext();
 
-  const name = Cookies.get("name");
 
   const handleForward = async () => {
     const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
@@ -107,7 +106,7 @@ const Index = () => {
   };
 
   return (
-    <div className="bg-black">
+    <div className="bg-black h-full">
       {!sessionStorage.getItem("roomCode") ? (
         <>
           <div className=" flex justify-center gap-2 mb-5  mx-auto">
@@ -220,7 +219,11 @@ const Index = () => {
             </div>
           </div>
           {/* View Queued Songs */}
-          <div className=" flex items-end gap-6 float-right -mt-2 m-3">
+          <div className="flex items-center justify-end">
+            {/* <HiOutlineUser   size={20}
+              cursor={"pointer"}
+              className="text-slate-200 hover:text-slate-400" /> */}
+          <div className=" flex items-end gap-6 float-right  m-3">
             <HiOutlineShare
               size={20}
               cursor={"pointer"}
@@ -228,6 +231,7 @@ const Index = () => {
               onClick={handleShare}
             />
             <QueueDrawer handlePlay={handlePlay} handlePause={handlePause} />
+          </div>
           </div>
         </>
       )}

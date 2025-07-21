@@ -33,9 +33,9 @@ function App() {
    getPathName()
   },[location.pathname])
 
- 
+  
   return (
-    <div className='bg-black h-screen'> 
+    <div className='!bg-black !min-h-screen'> 
       <StyledText>
       {
         pathName!=='login' &&(<div className='bg-black mx-auto '>
