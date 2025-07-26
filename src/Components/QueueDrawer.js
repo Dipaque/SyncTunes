@@ -12,11 +12,11 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { setSongsList, songsList, currentPlaying, isPause } =
     useStateContext();
-  const roomCode = sessionStorage.getItem("roomCode");
+  const roomCode = sessionStorage.getItem("roomCode") || "";
   useEffect(() => {
-    const docRef = doc(db, "room", roomCode);
+    const docRef = roomCode && doc(db, "room", roomCode);
 
-    const unsubscribe = onSnapshot(
+    const unsubscribe = roomCode ? onSnapshot(
       docRef,
       (snapshot) => {
         const data = snapshot.data();
@@ -30,7 +30,7 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
       (error) => {
         console.error("Error fetching songs:", error);
       }
-    );
+    ):()=>{};
 
     return () => unsubscribe();
   }, [roomCode]);
@@ -68,7 +68,7 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
           </p>
         </OffcanvasHeader>
         <OffcanvasBody>
-          {songsList.map((song, i) => (
+          {songsList.length>0 ? songsList.map((song, i) => (
             <div key={i} className="flex items-center gap-2 mb-4">
               <img
                 src={song.image || ""}
@@ -113,9 +113,9 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
                     </div>
                   )}
                 </>
-              )}
+              ) }
             </div>
-          ))}
+          )):<p className="text-zinc-500 mx-auto">No song played yet!</p>}
         </OffcanvasBody>
       </Offcanvas>
     </React.Fragment>

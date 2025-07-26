@@ -70,8 +70,6 @@ const Login = () => {
       <div className="bg-black flex flex-col items-center gap-2 justify-center h-screen">
         <img src={logo} height={100} width={100} alt="logo" />
         
-        {/* {isLoading && <p className="text-white"></p>} */}
-    
         {!isLoading && user === false && (
           <button
             className="flex flex-row-reverse gap-2 justify-around border rounded-lg bg-slate-50 p-3 text-black"

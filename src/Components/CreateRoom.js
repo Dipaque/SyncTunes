@@ -7,13 +7,10 @@ import {
     ModalBody,
     ModalFooter,
     Input,
-    Label,
-    Form,
-    FormGroup,
   } from 'reactstrap';
   import Cookies from 'js-cookie';
   import { db } from '../firebase-config';
-  import {setDoc , collection,doc,Timestamp} from 'firebase/firestore'
+  import {setDoc ,doc,Timestamp} from 'firebase/firestore'
 import { useStateContext } from '../Context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
 import { IoCopyOutline } from 'react-icons/io5';
@@ -25,16 +22,19 @@ function CreateRoom() {
     const [roomCode,setRoomCode]=useState('')
     const [msg,setMsg]=useState('')
   const {modal_backdrop,setmodal_backdrop}=useStateContext()
-  const [unmountOnClose, setUnmountOnClose] = useState(true);
-  const [copy,setCopy] = useState(false)
   const toggle = () => setmodal_backdrop(!modal_backdrop);
   const handleCreateRoom=async()=>{
-    await setDoc(doc(db,'room',roomCode),{roomCode:roomCode,roomAdmin:Cookies.get('name'),members:[],createdAt:Timestamp.now(),adminEmail:Cookies.get("email")}).then(()=>{
+    await setDoc(doc(db,'room',roomCode),{roomCode:roomCode,roomAdmin:Cookies.get('name'),roomMates:[
+      {
+        email:Cookies.get("email"),
+        userName:Cookies.get("name"),photoUrl:Cookies.get("photoUrl"),joinedeAt:Timestamp.now()
+      }
+    ],createdAt:Timestamp.now(),adminEmail:Cookies.get("email"),isPrivate:true}).then(()=>{
         setMsg(`Please copy your room code ${roomCode}.`)
         sessionStorage.setItem('roomCode',roomCode)
         setTimeout(()=>{
             setmodal_backdrop(!modal_backdrop)
-            nav('/search')
+            nav(`/room/${encodeURI(roomCode)}/search`)
         },8000)
         
         
@@ -44,13 +44,11 @@ function CreateRoom() {
 })
   }
   const handleCopy=()=>{
-    setCopy(true)
     setMsg('Copied to clipboard')
-    setTimeout(()=>{setCopy(false)},4000)
   }
 
   return (
-    <Modal centered={true} style={{fontFamily:fontFamily}} className='flex justify-center w-72 ' isOpen={modal_backdrop} toggle={toggle} unmountOnClose={unmountOnClose}>
+    <Modal centered={true} style={{fontFamily:fontFamily}} className='flex justify-center w-72 ' isOpen={modal_backdrop} toggle={toggle} unmountOnClose={true}>
     <ModalHeader className='!border-none' toggle={toggle}><b>Create a new room</b></ModalHeader>
     <ModalBody>
       {
@@ -58,13 +56,14 @@ function CreateRoom() {
           <h6 className='m-3 test-start'><b>Here's the link</b></h6>
         )
       }
-      <div className='flex flex-row items-center'>
       <Input
         type="text"
         value={roomCode}
         onChange={(e)=>setRoomCode(e.target.value)}
         placeholder="Enter your room code..."
       />
+  
+      <div className='flex items-center'>
       {
         msg && (
           <CopyToClipboard text={roomCode} onCopy={handleCopy} >

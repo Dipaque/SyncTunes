@@ -45,6 +45,11 @@ export const ContextProvider = ({ children }) => {
   const [thumbnail, setThumbnail] = useState("");
   const [isPause, setIsPause] = useState(false);
   const [songsList,setSongsList] = useState([])
+  const [roomMate, setRoomMate] = useState([]);
+  const [admin, setAdmin] = useState({
+    email: "",
+    userName: "",
+  });
 
   useEffect(() => {
     const getData = () => {
@@ -126,7 +131,11 @@ export const ContextProvider = ({ children }) => {
         setIsPause,
         handleClear,
         songsList,
-        setSongsList
+        setSongsList,
+        roomMate, 
+        setRoomMate,
+        admin, 
+        setAdmin
       }}
     >
       {children}

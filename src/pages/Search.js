@@ -1,12 +1,10 @@
 import React, { useState } from "react";
-import Sidebar from "../Components/Sidebar";
 import Icon from "@mdi/react";
 import { mdiMagnify } from "@mdi/js";
 import axios from "axios";
 import SongCard from "../Components/SongCard";
 import "../App.css";
 import Shimmer from "../Components/Shimmer";
-import { GoChevronRight, GoChevronUp } from "react-icons/go";
 import Toast from "../Components/Toast";
 const Search = () => {
   const [input, setInput] = useState("");
@@ -42,7 +40,7 @@ const Search = () => {
   };
   const shimmerArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   return (
-    <div className="flex flex-col h-[calc(100vh-260px)]  -mt-8 overflow-hidden bg-black">
+    <div className="flex flex-col h-[calc(100vh-160px)]  pt-3 overflow-hidden bg-black">
   <div className="text-white ml-5 text-xl">
     <b>Search</b>
   </div>
@@ -64,7 +62,7 @@ const Search = () => {
     </button>
   </form>
 
-  <div className="flex-1 overflow-y-auto mt-6 px-4">
+  <div className="flex-1 overflow-y-auto mt-3 px-4">
     {!isLoading && data.length > 0 ? (
       data.map((obj, index) =>
         "video" in obj ? (
@@ -80,7 +78,7 @@ const Search = () => {
         ) : null
       )
     ) : isLoading ? (
-      shimmerArr.map((_, index) => <Shimmer key={index} />)
+     <div className="flex-1">{ shimmerArr.map((_, index) => <Shimmer key={index} />)}</div>
     ) : (
       <div className="flex flex-col justify-center items-center mt-14 m-3 text-slate-50">
         <img

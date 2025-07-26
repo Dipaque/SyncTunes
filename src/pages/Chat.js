@@ -40,11 +40,11 @@ const Chat = () => {
             setMyMsg('')
         }).catch(err=>console.log(err))
     }
-  return (<div className='bg-black -mt-12'>
+  return (<div className='bg-black mt-3'>
    <div className='text-white ml-5 text-xl  flex  items-end' >
       <b>Chat</b>
       </div>
-  <div className="flex  flex-col h-[calc(100vh-410px)] overflow-hidden overflow-y-scroll w-screen  bg-black ">
+  <div className="flex  flex-col h-[calc(100vh-160px)] overflow-hidden overflow-y-scroll w-screen  bg-black ">
 
     {
         sessionStorage.getItem('roomCode')?(

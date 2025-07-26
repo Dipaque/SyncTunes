@@ -6,21 +6,20 @@ import {
   IoPlaySkipBack,
   IoPlaySkipForward,
 } from "react-icons/io5";
-import { HiOutlineShare, HiOutlineUser } from "react-icons/hi";
+import { HiOutlineShare } from "react-icons/hi";
 import Marquee from "react-fast-marquee";
-import { doc, updateDoc } from "firebase/firestore";
+import { doc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { secondsToMinutes, seekBarStyle } from "../Functions/secondsToMinutes";
 import PlayerShimmer from "../Components/PlayerShimmer";
 import LikeSong from "../Components/LikeSong";
 import QueueDrawer from "../Components/QueueDrawer";
-import Cookies from "js-cookie";
+import RoommatesDrawer from "../Components/RoommatesDrawer";
+import PlayerHeader from "../Components/PlayerHeader";
 const Index = () => {
   const {
     videoIds,
-    setmodal_backdrop,
     onReady,
-    setmodal_backdrop1,
     title,
     artist,
     currentPlaying,
@@ -32,14 +31,17 @@ const Index = () => {
     isLoading,
     isPause,
     setIsPause,
+    thumbnail,
   } = useStateContext();
 
+  const roomCode = sessionStorage.getItem("roomCode")
+  
 
   const handleForward = async () => {
     const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
     if (index !== videoIds?.length - 1) {
-      await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
-        currentPlaying: videoIds[index + 1],
+      await updateDoc(doc(db, "room", roomCode), {
+        currentPlaying: {...videoIds[index + 1],playedAt:Timestamp.now()},
       }).catch((err) => console.log(err));
     }
     setCurrentTime(0);
@@ -47,19 +49,19 @@ const Index = () => {
   const handleBack = async () => {
     const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
     if (index > 0) {
-      await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
-        currentPlaying: videoIds[index - 1],
+      await updateDoc(doc(db, "room", roomCode), {
+        currentPlaying: {...videoIds[index - 1],playedAt:Timestamp.now()},
       }).catch((err) => console.log(err));
     }
     setCurrentTime(0);
   };
-  const handlePause = () => {
-    if (onReady && currentPlaying) {
+  const handlePause = async() => {
+    if (onReady && currentPlaying && currentTime) {
       onReady?.pauseVideo();
       setIsPause(true);
     }
   };
-  const handlePlay = () => {
+  const handlePlay = async() => {
     if (onReady && currentPlaying) {
       onReady.playVideo();
       setIsPause(false);
@@ -72,14 +74,13 @@ const Index = () => {
   const handleMouseUp = () => {
     setIsSeeking(false);
   };
-  const handleSeek = (event) => {
+  const handleSeek = async(event) => {
     const seekBar = seekBarRef?.current ?? event.currentTarget;
 
     if (seekBar && onReady) {
       const seekBarWidth = seekBar.offsetWidth;
       const offsetX = event.nativeEvent.offsetX;
       const seekToTime = (offsetX / seekBarWidth) * duration;
-
       onReady.seekTo(seekToTime);
       setCurrentTime(seekToTime);
     }
@@ -96,7 +97,7 @@ const Index = () => {
         .share({
           title: "Check out Sync-Tunes 🎶",
           text: "A fun way to jam music with your friends!",
-          url: "https://sync-tunes.vercel.app", // or your app URL e.g., 'https://sync-tunes.vercel.app'
+          url: window.location.href, // or your app URL e.g., 'https://sync-tunes.vercel.app'
         })
         .then(() => console.log("Thanks for sharing!"))
         .catch((err) => console.error("Error sharing:", err));
@@ -105,49 +106,17 @@ const Index = () => {
     }
   };
 
+
   return (
-    <div className="bg-black h-full">
-      {!sessionStorage.getItem("roomCode") ? (
-        <>
-          <div className=" flex justify-center gap-2 mb-5  mx-auto">
-            <button
-              className="border pl-2 pr-2 bg-slate-50   p-2 rounded-lg text-black"
-              type="button"
-              onClick={() => {
-                setmodal_backdrop(true);
-              }}
-            >
-              New Room
-            </button>
-            <button
-              className="border-zinc-500 border-1 pl-2 pr-2    p-2 rounded-lg text-white"
-              onClick={() => {
-                setmodal_backdrop1(true);
-              }}
-            >
-              Join with a code
-            </button>
-          </div>
-          <div className="flex flex-col justify-center items-center mt-14 m-3 text-slate-50">
-            <img
-              src={require("../assests/recorder.png")}
-              height={200}
-              width={200}
-              alt="recorder"
-            />
-            <h5>
-              <b>Get the link that you can share</b>
-            </h5>
-            <p className="text-sm text-center">
-              Tap on new room to generate your own room code and share it with
-              your friends!
-            </p>
-          </div>
-        </>
-      ) : isLoading ? (
+    <div className="bg-black ">
+      <PlayerHeader />
+      {isLoading || !thumbnail ? (
         <PlayerShimmer />
       ) : (
         <>
+          <div className="m-3">
+            <img src={thumbnail} className="h-60" alt="thumbnail" />
+          </div>
           <div className="m-3 mt-1">
             <div className="flex items-center justify-start ms-2 gap-6">
               <Marquee style={{ width: "85%" }}>
@@ -163,30 +132,29 @@ const Index = () => {
           {/* Seekbar */}
           {onReady && currentPlaying && currentTime ? (
             <>
-            <div
-              className=" bg-zinc-800 border-zinc-800 border-2 rounded-full  h-1.5 cursor-pointer mx-auto"
-              ref={seekBarRef}
-              onClick={handleSeek}
-              onMouseDown={handleMouseDown}
-              onMouseUp={handleMouseUp}
-              style={seekBarStyle}
-            >
               <div
-                className="seek-bar-progress bg-slate-100 rounded-full "
-                style={progressBarStyle}
-              ></div>
-            </div>
-            <div className="mt-2 flex items-center justify-between  text-slate-50 text-sm m-3">
-            <span>{secondsToMinutes(currentTime)}</span>
-            <span>{secondsToMinutes(duration)}</span>
-          </div>
+                className=" bg-zinc-800 border-zinc-800 border-2 rounded-full  h-1.5 cursor-pointer mx-auto"
+                ref={seekBarRef}
+                onClick={handleSeek}
+                onMouseDown={handleMouseDown}
+                onMouseUp={handleMouseUp}
+                style={seekBarStyle}
+              >
+                <div
+                  className="seek-bar-progress bg-slate-100 rounded-full "
+                  style={progressBarStyle}
+                ></div>
+              </div>
+              <div className="mt-2 flex items-center justify-between  text-slate-50 text-sm m-3">
+                <span>{secondsToMinutes(currentTime)}</span>
+                <span>{secondsToMinutes(duration)}</span>
+              </div>
             </>
           ) : (
             <div className="bg-zinc-700 border-zinc-800 border-2 rounded-full h-1.5 mx-auto w-[90%] relative overflow-hidden">
               <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-zinc-600 via-zinc-500 to-zinc-600 rounded-full"></div>
             </div>
           )}
-          
 
           {/* Player control */}
           <div className="flex justify-center items-center mt-8 gap-8 pb-12 ">
@@ -218,23 +186,21 @@ const Index = () => {
               <IoPlaySkipForward size={26} color={"white"} />
             </div>
           </div>
-          {/* View Queued Songs */}
-          <div className="flex items-center justify-end">
-            {/* <HiOutlineUser   size={20}
-              cursor={"pointer"}
-              className="text-slate-200 hover:text-slate-400" /> */}
-          <div className=" flex items-end gap-6 float-right  m-3">
-            <HiOutlineShare
-              size={20}
-              cursor={"pointer"}
-              className="text-slate-200 hover:text-slate-400"
-              onClick={handleShare}
-            />
-            <QueueDrawer handlePlay={handlePlay} handlePause={handlePause} />
-          </div>
-          </div>
         </>
       )}
+      {/* View Queued Songs */}
+      <div className="flex items-center justify-between ms-3">
+        <RoommatesDrawer />
+        <div className=" flex items-end gap-6 float-right  m-3">
+          <HiOutlineShare
+            size={20}
+            cursor={"pointer"}
+            className="text-slate-200 hover:text-slate-400"
+            onClick={handleShare}
+          />
+          <QueueDrawer handlePlay={handlePlay} handlePause={handlePause} />
+        </div>
+      </div>
     </div>
   );
 };

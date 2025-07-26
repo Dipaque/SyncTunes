@@ -1,12 +1,18 @@
 import React from 'react'
 import Marquee from 'react-fast-marquee';
+import { HiMusicalNote } from 'react-icons/hi2';
 // import { HiMusicalNote } from 'react-icons/hi2'
 import { IoHeart, IoPause, IoPlaySkipBack, IoPlaySkipForward } from 'react-icons/io5';
 
 const PlayerShimmer = () => {
   return (
     <div className='animate-pulse'>
-      <div className='flex items-center'>
+      <div className='-mt-8 h-60 w-60 bg-zinc-800 rounded-lg mx-auto flex items-center justify-center'>
+          <p>
+            <HiMusicalNote color='black' size={86} />
+          </p>
+      </div>
+      <div className='flex items-center ms-5 mt-5'>
        <Marquee style={{ width: "85%" }}>
                 <h5 className="text-slate-50 bg-black">
                   <b>{"Song name"}</b>

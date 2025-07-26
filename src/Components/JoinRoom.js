@@ -8,27 +8,30 @@ import {
     Input,
   } from 'reactstrap';
   import { db } from '../firebase-config';
-  import {collection,doc,getDoc, updateDoc} from 'firebase/firestore'
+  import {doc,getDoc, updateDoc, Timestamp} from 'firebase/firestore'
 import { useStateContext } from '../Context/ContextProvider';
 import Cookies from 'js-cookie';
 import { fontFamily } from '../constants';
+import { useNavigate } from 'react-router-dom';
 function JoinRoom() {
+  const nav = useNavigate();
     const [roomCode,setRoomCode]=useState('')
     const [msg,setMsg]=useState('')
-  const {modal_backdrop1,setmodal_backdrop1,setJoineeSong}=useStateContext()
-  const [unmountOnClose, setUnmountOnClose] = useState(true);
+    const {modal_backdrop1,setmodal_backdrop1,setJoineeSong}=useStateContext()
+    const email = Cookies.get("email");
 
   const toggle = () => setmodal_backdrop1(!modal_backdrop1);
   const handleJoinRoom=async()=>{
-    const collectionRef=collection(db,'room')
    const data= await getDoc(doc(db,'room',roomCode))
    if(data.exists()){
     sessionStorage.setItem('roomCode',roomCode)
     setJoineeSong(data.data().currentSong)
-    const members=data.data().members
-    if(!members.includes(Cookies.get('name'))){
-      await updateDoc(doc(db,'room',roomCode),{members:[...data.data().members,Cookies.get('name')]})
+    const roomMates = data.data().roomMates||[]
+    const isPresent = roomMates.some((user)=> user.email===email)
+    if(!isPresent){
+      await updateDoc(doc(db,'room',roomCode),{roomMates:[...roomMates,{email:Cookies.get("email"),userName:Cookies.get("name"),photoUrl:Cookies.get("photoUrl"),joinedeAt:Timestamp.now()}]})
     }
+    nav(`/room/${roomCode}/player`)
    setmodal_backdrop1(!modal_backdrop1)
    }else{
     setMsg('Room code is incorrect')
@@ -36,7 +39,7 @@ function JoinRoom() {
   }
 
   return (
-    <Modal centered={true} className='flex justify-center w-72' style={{fontFamily:fontFamily}} isOpen={modal_backdrop1} toggle={toggle} unmountOnClose={unmountOnClose}>
+    <Modal centered={true} className='flex justify-center w-72' style={{fontFamily:fontFamily}} isOpen={modal_backdrop1} toggle={toggle} unmountOnClose={true}>
     <ModalHeader className='!border-none' toggle={toggle}><b>Join the room</b></ModalHeader>
     <ModalBody>
       <Input

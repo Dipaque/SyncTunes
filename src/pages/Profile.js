@@ -9,7 +9,7 @@ import { IoBookmarksOutline } from 'react-icons/io5';
 const Profile = () => {
   const nav = useNavigate()
   const [myRoom,setMyRoom]=useState([])
-  const {path,setPathName,}=useStateContext()
+  const {path,setPathName,  handleClear, setCurrentSong, setIsPause, setThumbnail}=useStateContext()
   const signOutUser=()=>{
     signOut(auth).then(() => {
       setPathName('/')
@@ -19,6 +19,10 @@ const Profile = () => {
       Cookies.remove('photoUrl')
       Cookies.remove('uid')
       sessionStorage.removeItem("roomCode");
+      setCurrentSong([]);
+      setIsPause(true)
+      setThumbnail("")
+      handleClear()
       nav('/')
     }).catch((error) => {
       console.log(error)
@@ -33,7 +37,7 @@ const Profile = () => {
     getData()
   },[])
   return (
-    <div className='flex gap-0 bg-black flex-col -mt-8'>
+    <div className='flex gap-0 bg-black flex-col mt-3 max-h-[calc(100vh-160)] overflow-y-auto'>
         <div className='text-white ml-8 text-xl flex justify-start  items-end   '>
         <b>Profile</b>
       </div>
@@ -51,7 +55,7 @@ const Profile = () => {
         <b>
           My Rooms
         </b>
-        <div className="text-sm mt-2 h-28  bg-black text-slate-200 list-none overflow-hidden overflow-y-scroll xs:w-72 lg:w-screen ">  
+        <div className="text-sm mt-2 h-28  bg-black text-slate-200 list-none overflow-hidden overflow-y-auto xs:w-72 lg:w-screen ">  
           {
             myRoom.length>0 ?(
               
@@ -72,7 +76,7 @@ const Profile = () => {
           }
         </div>
         </div>
-        <div className='mt-4 mb-16 flex flex-col justify-end items-start gap-3 absolute bottom-2'>
+        <div className='mt-4 mb-16 flex flex-col justify-end items-start gap-3 '>
           <h6><b>Others</b></h6>
           <Link to={'/third-party'} className='no-underline'>
           <button className='text-slate-50 flex flex-row-reverse gap-2   items-center justify-start text-sm'>
@@ -89,6 +93,10 @@ const Profile = () => {
           Terms and Conditions
         </button>
         </Link>
+        <span className='text-slate-50 text-sm'>
+          Version <br />
+          <span className='text-zinc-700'>2.0.1</span>
+        </span>
         <button className='text-slate-50 flex flex-row-reverse gap-2  items-center justify-start text-sm' onClick={()=>signOutUser()}>
           Log out
         </button>
