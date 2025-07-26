@@ -42,10 +42,10 @@ const YouTubeVideo = ({ videoIds }) => {
     setCurrentTime(0);
   };
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
+    // const fetchUsers = async () => {
+    //   try {
         const docRef = doc(db, "room", sessionStorage.getItem("roomCode"));
-        onSnapshot(docRef, (doc) => {
+   const unsubscribe =     onSnapshot(docRef, (doc) => {
           if (doc.exists()) {
             setVideoIds(doc.data().currentSong);
             if (doc.data().currentPlaying) {
@@ -58,12 +58,12 @@ const YouTubeVideo = ({ videoIds }) => {
             }
           }
         });
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchUsers();
-    // return () => unsubscribe();
+      // } catch (err) {
+      //   console.log(err);
+      // }
+    // };
+    // fetchUsers();
+    return () => unsubscribe();
   }, [videoIds]);
 
   const onReadyFunc = (event) => {

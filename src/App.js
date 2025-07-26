@@ -23,7 +23,7 @@ font-family: "Poppins", 'sans-serif'
 `;
 function App() {
   document.body.style.backgroundColor='#0000'
-  const {pathName,setPathName, onReady,title,videoIds}=useStateContext()
+  const {pathName,setPathName, onReady,title,videoIds,songsList}=useStateContext()
   const location = useLocation();
   const nav = useNavigate()
   useEffect(() => {
@@ -35,7 +35,7 @@ function App() {
   
       const isAuthenticated = uid && email && name;
   
-      if (!isAuthenticated && !sessionStorage.getItem("roomCode") && currentPath !== "/") {
+      if (!isAuthenticated &&  !sessionStorage.getItem("roomCode") && currentPath !== "/") {
         // User not authenticated and not already on login page
         nav("/", { replace: true }); // redirect to login
         setPathName("login");
@@ -60,7 +60,7 @@ function App() {
       <StyledText>
       {
         pathName!=='login' &&(<div className='bg-black mx-auto sticky top-0'>
-        {videoIds?.length>0 && !["/",'/home'].includes(pathName) && <YouTubeVideo videoIds={videoIds} />}
+        {songsList?.length>0 && !["/",'/home'].includes(pathName) && <YouTubeVideo videoIds={songsList} />}
         <Sidebar /> 
         </div>)
       }

@@ -51,7 +51,7 @@ const LikeSong = ({ iconSize, color }) => {
     const songsList = await fetchSongsList();
     const likedSongs = (await getDoc(userRef)).data()?.likedSongs
     const currentSong = songsList.map((song) => {
-      if (song.id === currentPlaying.id && !song.likedBy) {
+      if (song.id === currentPlaying.id && (!song.likedBy || song.likedBy.length<=0)) {
         const likedBy = isLiked
           ? [
               {
@@ -60,7 +60,6 @@ const LikeSong = ({ iconSize, color }) => {
               },
             ]
           : null;
-
         return {
           ...song,
           likedBy: likedBy,
