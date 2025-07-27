@@ -63,16 +63,16 @@ function CreateRoom() {
         placeholder="Enter your room code..."
       />
   
-      <div className='flex items-center'>
+      <div className='flex items-center justify-center'>
       {
         msg && (
           <CopyToClipboard text={roomCode} onCopy={handleCopy} >
-          <IoCopyOutline className='-ml-6 cursor-pointer' color='gray' />
+          <IoCopyOutline className=' cursor-pointer' color='gray' />
           </CopyToClipboard>
         )
       }
-      </div>
       <p className=' m-3 mt-6 text-start' id='msg'>{msg}</p>
+      </div>
     </ModalBody>
     
     <ModalFooter className='!border-none'>

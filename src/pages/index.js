@@ -96,7 +96,7 @@ const Index = () => {
       navigator
         .share({
           title: "Check out Sync-Tunes 🎶",
-          text: "A fun way to jam music with your friends!",
+          text: "I'm jamming live on SyncTunes right now and would love for you to join in\n Let's vibe together, share some beats, and make some awesome music 🎧🎸🥁 /n Join with the room code: "+sessionStorage.getItem("roomCode")+" or click the link below:",
           url: window.location.href, // or your app URL e.g., 'https://sync-tunes.vercel.app'
         })
         .then(() => console.log("Thanks for sharing!"))
@@ -115,7 +115,7 @@ const Index = () => {
       ) : (
         <>
           <div className="m-3">
-            <img src={thumbnail} className="h-60" alt="thumbnail" />
+            <img src={thumbnail} className="h-64 mx-auto" alt="thumbnail" />
           </div>
           <div className="m-3 mt-1">
             <div className="flex items-center justify-start ms-2 gap-6">

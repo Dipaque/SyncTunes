@@ -1,4 +1,4 @@
-import React,{useState} from 'react';
+import React,{useState, useEffect} from 'react';
 import {
     Button,
     Modal,
@@ -13,12 +13,16 @@ import { useStateContext } from '../Context/ContextProvider';
 import Cookies from 'js-cookie';
 import { fontFamily } from '../constants';
 import { useNavigate } from 'react-router-dom';
-function JoinRoom() {
+function JoinRoom({codeViaProps}) {
   const nav = useNavigate();
     const [roomCode,setRoomCode]=useState('')
     const [msg,setMsg]=useState('')
     const {modal_backdrop1,setmodal_backdrop1,setJoineeSong}=useStateContext()
     const email = Cookies.get("email");
+
+    useEffect(()=>{
+      if(codeViaProps) setRoomCode(codeViaProps);
+    },[codeViaProps])
 
   const toggle = () => setmodal_backdrop1(!modal_backdrop1);
   const handleJoinRoom=async()=>{

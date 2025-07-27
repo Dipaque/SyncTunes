@@ -17,13 +17,14 @@ import Sidebar from './Components/Sidebar';
 import Home from './pages/Home';
 import Index from './pages';
 import Cookies from "js-cookie"
+import JoinRoom from "./Components/JoinRoom";
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
 `;
 function App() {
   document.body.style.backgroundColor='#0000'
-  const {pathName,setPathName, onReady,title,videoIds,songsList}=useStateContext()
+  const {pathName,setPathName, onReady,title,videoIds,songsList,setmodal_backdrop1}=useStateContext()
   const location = useLocation();
   const nav = useNavigate()
   useEffect(() => {
@@ -43,7 +44,12 @@ function App() {
         // Set pathName based on current path
         if (currentPath === "/") {
           setPathName("login");
-        } else {
+        } else if(!sessionStorage.getItem("roomCode") && currentPath.includes("/room")){
+          sessionStorage.setItem("roomCode",currentPath.split("/")[2])
+          setmodal_backdrop1(true);
+          setPathName(currentPath);
+        }
+        else {
           setPathName(currentPath);
         }
       }
@@ -51,7 +57,7 @@ function App() {
   
     checkAuthAndSetPath();
   }, [location.pathname]);
-  
+
 
   const roomCode = sessionStorage.getItem("roomCode");
 
@@ -60,10 +66,11 @@ function App() {
       <StyledText>
       {
         pathName!=='login' &&(<div className='bg-black mx-auto sticky top-0'>
-        {songsList?.length>0 && !["/",'/home'].includes(pathName) && <YouTubeVideo videoIds={songsList} />}
+        {songsList?.length>0 && !["/",'/home','/discover'].includes(pathName) && sessionStorage.getItem("roomCode") && <YouTubeVideo videoIds={songsList} />}
         <Sidebar /> 
         </div>)
       }
+      <JoinRoom codeViaProps={pathName.split("/")[2]} />
       <Routes>
       <Route path='/' element={<Login  />} />
         <Route path='/home' element={<Home />} />
