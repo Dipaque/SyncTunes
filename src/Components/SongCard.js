@@ -12,7 +12,7 @@ import Cookies from 'js-cookie'
 const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const toggle = () => setDropdownOpen((prevState) => !prevState);
-    const {videoIds,currentPlaying}=useStateContext()
+    const {videoIds,currentPlaying,setIsPause}=useStateContext()
    
  const handlePlay=async()=>{
   if(videoIds?.length>0){
@@ -20,6 +20,7 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
   }else{
     await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()}],currentPlaying:{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()}}).catch(err=>console.log(err))
   }
+  setIsPause(false)
  }
   return (
 

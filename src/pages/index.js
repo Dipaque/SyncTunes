@@ -130,7 +130,7 @@ const Index = () => {
             <p className="text-slate-200 m-2">{artist || "Artist name"}</p>
           </div>
           {/* Seekbar */}
-          {onReady && currentPlaying && currentTime ? (
+          {onReady ? (
             <>
               <div
                 className=" bg-zinc-800 border-zinc-800 border-2 rounded-full  h-1.5 cursor-pointer mx-auto"
