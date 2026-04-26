@@ -20,8 +20,8 @@ const Sidebar = () => {
     <React.Fragment>
     {roomCode ? (
       <div className="fixed bottom-0 left-0 w-full bg-zinc-900/50 backdrop-blur-md border-t border-white/10 z-50">
-        <div className="flex flex-row justify-between p-3 items-center max-w-screen-md mx-auto">
-          <Link to={`/room/${roomCode}/player`} className='text-white text-[10px] no-underline text-center flex flex-col items-center'>
+        <div className="flex flex-row justify-between p-2 ps-3 pe-3 items-center max-w-screen-md mx-auto">
+          <Link to={`/room/${roomCode}/player`} className='text-white text-[9px] no-underline text-center flex flex-col items-center'>
             {pathName.includes(`/room/${roomCode}/player`) ? (
               <GoHomeFill size={25} color="white" />
             ) : (
@@ -65,7 +65,7 @@ const Sidebar = () => {
       </div>
     ) : (
       <div className="fixed bottom-0 left-0 w-full bg-zinc-900/50 backdrop-blur-md border-t border-white/10 z-50">
-        <div className="flex items-center justify-between text-white p-3 max-w-screen-md mx-auto">
+        <div className="flex items-center justify-between text-white p-2 ps-3 pe-3 max-w-screen-md mx-auto">
           <Link to="/home" className='text-white text-[10px] no-underline text-center flex flex-col items-center'>
             {pathName.includes("home") ? (
               <GoHomeFill size={25} color="white" />

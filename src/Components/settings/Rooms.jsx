@@ -3,16 +3,21 @@ import { collection, getDocs, where, query } from "firebase/firestore";
 import Cookies from "js-cookie";
 import { db } from "../../firebase-config";
 import PageHeader from "../layout/PageHeader";
-import { useNavigate } from "react-router-dom";
+import { IoSearchOutline } from 'react-icons/io5';
+import Spinner from "../loading/Spinner";
+import RoomTemplate from "../RoomTemplate";
 const Rooms = () => {
 
-  const nav = useNavigate();
-
   const [myRoom, setMyRoom] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [input, setInput] = useState("");
+  const [searchResult, setSearchResult] = useState([]);
+
 
   useEffect(() => {
     const getData = async () => {
-      try{
+      setLoading(true);
+      try {
         const name = Cookies.get("name");
         const filteredQuery = query(
           collection(db, "room"),
@@ -20,57 +25,64 @@ const Rooms = () => {
         );
         const data = await getDocs(filteredQuery);
         setMyRoom(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-      }catch(err){
-        console.log(err)
+        setLoading(false);
+      } catch (err) {
+        console.log(err);
+        setLoading(false);
       }
     };
     getData();
   }, []);
 
+  // Search
+  useEffect(()=>{
+    if(input){
+        const filteredRooms = myRoom.filter((song)=>song.roomCode.toLowerCase().includes(input.toLowerCase()))
+        setSearchResult(filteredRooms)
+    }
+},[input])
+
   return (
     <div className=" overflow-hidden overflow-y-auto max-h-screen ">
       <PageHeader title={"My Rooms"} />
 
+      <div className="mx-auto mb-5 relative w-fit">
+      <IoSearchOutline
+        className="absolute left-3 top-1/2 -translate-y-1/2 text-white/70 pointer-events-none z-50"
+        size={16}
+      />
+    
+      <input
+        type="text"
+        value={input}
+        onChange={(e)=>setInput(e.target.value)}
+        placeholder="Find in Liked Songs"
+        className="w-64 bg-zinc-900/50 backdrop-blur-md rounded-md py-2 pr-3 pl-10 text-white text-xs font-semibold placeholder:text-white/60 focus:outline-none"
+      />
+    </div>
+
       {/* Rooms list */}
-      <div className="text-sm mt-2  bg-black text-slate-200 list-none w-screen p-3 mb-12">
-        {myRoom.length > 0 ? (
-          myRoom.map((data, i) => (
-            <div
-              key={`key-${i}`}
-              className="relative h-44 w-full mb-3 rounded-xl overflow-hidden bg-cover bg-center flex items-end p-2"
-              style={{
-                backgroundImage: `url(${data?.currentPlaying?.image})`,
-              }}
-              onClick={()=>nav(`/room/${data?.roomCode}/player`)}
-            >
-              {/* Black fade overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent"></div>
-
-              {/* Content */}
-              <div className="relative z-10 text-white w-full">
-                <p className="flex items-center gap-2 w-full">
-                  <span className="flex-1 text-xs font-semibold truncate">
-                    {data?.currentPlaying?.title}
-                  </span>
-
-                  <div className="sound-bars flex items-end gap-[2px] shrink-0">
-                    <div className="bar bar1"></div>
-                    <div className="bar bar2"></div>
-                    <div className="bar bar3"></div>
-                  </div>
-                </p>
-
-                <div className="flex justify-between items-center text-[10px] text-zinc-300 mt-1">
-                  <span>#{data?.roomCode}</span>
-                  <span>{data?.members?.length || 0} 👥</span>
-                </div>
-              </div>
-            </div>
-          ))
+      <div className="text-sm mt-2  bg-black text-slate-200 list-none w-screen p-3 mb-28">
+        {loading ? (
+          <Spinner />
         ) : (
-          <div className="mx-auto mt-5 text-slate-100">
-            No rooms created yet!
-          </div>
+          <>
+            {
+              input &&  searchResult.length > 0 ? (
+                searchResult.map((data, i) => (
+                  <RoomTemplate data={data} key={`key-${i}`} />
+                ))
+              ):
+            !input && myRoom.length > 0 ? (
+              myRoom.map((data, i) => (
+                <RoomTemplate data={data} key={`key-${i}`} />
+              ))
+            ) : (
+              <div className="text-center mt-5 text-slate-100">
+                No rooms created yet!
+              </div>
+            )}
+          </>
         )}
       </div>
     </div>

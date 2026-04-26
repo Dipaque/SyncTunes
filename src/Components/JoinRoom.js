@@ -15,15 +15,12 @@ import { fontFamily } from '../constants';
 import { useNavigate } from 'react-router-dom';
 function JoinRoom({codeViaProps}) {
   const nav = useNavigate();
-  const {modal_backdrop1,setmodal_backdrop1,setJoineeSong}=useStateContext()
+  const {modal_backdrop1,setmodal_backdrop1,setJoineeSong, setIsPause, isPause}=useStateContext()
   const email = Cookies.get("email");
-
-  
   const existingRoomCode = sessionStorage.getItem("roomCode")
   
   const [roomCode,setRoomCode]=useState('')
   const [msg,setMsg]=useState('')
-  console.log(!codeViaProps && roomCode, codeViaProps, roomCode)
 
   const toggle = () => setmodal_backdrop1(!modal_backdrop1);
   const handleJoinRoom=async()=>{
@@ -36,6 +33,10 @@ function JoinRoom({codeViaProps}) {
     if(!isPresent){
       await updateDoc(doc(db,'room',roomCode || codeViaProps),{roomMates:[...roomMates,{email:Cookies.get("email"),userName:Cookies.get("name"),photoUrl:Cookies.get("photoUrl"),joinedeAt:Timestamp.now()}]})
     }
+    if(isPause){
+      setIsPause(false)
+    }
+    
    if(!codeViaProps && roomCode) {
     nav(`/room/${roomCode || codeViaProps}/player`)
     setmodal_backdrop1(!modal_backdrop1)

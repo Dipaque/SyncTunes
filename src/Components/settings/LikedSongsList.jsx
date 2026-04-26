@@ -56,7 +56,7 @@ const LikedSongsList = () => {
 
     useEffect(()=>{
         if(input){
-            const filteredSongs = likedSongs.filter((song)=>song.title.includes(input))
+            const filteredSongs = likedSongs.filter((song)=>song.title.toLowerCase().includes(input.toLowerCase()))
             setSearchResult(filteredSongs)
         }
     },[input])
@@ -65,7 +65,7 @@ const LikedSongsList = () => {
     <div className='h-screen overflow-hidden overflow-y-auto'>
         
     <PageHeader title={"Liked Songs"} />
-    <div className='p-3  pb-14'>
+    <div className='p-3  mb-28'>
     {
         loading ? <Spinner /> :     <>
         <div className="mx-auto mb-5 relative w-fit">
@@ -91,10 +91,12 @@ const LikedSongsList = () => {
                     <SongCard key={song?.id} title={song.title} id={song?.id} image={song?.image} channelName={song?.channelName}  setToastDisplay={setToastDisplay}
                     setToastMsg={setToastMsg} />
                 )):
-              likedSongs.length > 0 &&  likedSongs?.map((song)=>(
+                !input && likedSongs.length > 0 ?  likedSongs?.map((song)=>(
                     <SongCard key={song?.id} title={song.title} id={song?.id} image={song?.image} channelName={song?.channelName}  setToastDisplay={setToastDisplay}
                     setToastMsg={setToastMsg} />
-                ))
+                )) :(<div className="text-center mt-5 text-slate-100">
+                    No songs found that you like!
+                  </div>)
             }
         </>
     } 

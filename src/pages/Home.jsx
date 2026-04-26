@@ -2,7 +2,6 @@ import React from "react";
 import CreateRoom from "../Components/CreateRoom";
 import JoinRoom from "../Components/JoinRoom";
 import { useStateContext } from "../Context/ContextProvider";
-import Cookies from "js-cookie";
 import logo from '../assests/logo.png'
 
 const Home = () => {

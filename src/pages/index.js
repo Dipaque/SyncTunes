@@ -1,16 +1,21 @@
 import React, { useEffect } from "react";
+import logo from '../assests/logo.png'
 import { useStateContext } from "../Context/ContextProvider";
 import {
   IoPause,
   IoPerson,
-  IoPersonOutline,
   IoPlay,
   IoPlaySkipBack,
   IoPlaySkipForward,
 } from "react-icons/io5";
+
+import Cookies from "js-cookie";
 import { HiOutlineShare } from "react-icons/hi";
 import Marquee from "react-fast-marquee";
-import { doc, updateDoc, Timestamp } from "firebase/firestore";
+import { doc, updateDoc, Timestamp, collection,
+  query,
+  orderBy,
+  onSnapshot } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { secondsToMinutes, seekBarStyle } from "../Functions/secondsToMinutes";
 import PlayerShimmer from "../Components/PlayerShimmer";
@@ -20,7 +25,7 @@ import RoommatesDrawer from "../Components/RoommatesDrawer";
 import PlayerHeader from "../Components/PlayerHeader";
 import { useParams } from "react-router-dom";
 import JoinRoom from "../Components/JoinRoom";
-const Index = ({updateParamsId}) => {
+const Index = ({ updateParamsId }) => {
   const {
     videoIds,
     onReady,
@@ -37,18 +42,19 @@ const Index = ({updateParamsId}) => {
     isPause,
     setIsPause,
     thumbnail,
+    setMessages,
+    setNotification
   } = useStateContext();
 
-  const {id} = useParams();
+  const { id } = useParams();
 
-  const roomCode = sessionStorage.getItem("roomCode") || id
-  
+  const roomCode = sessionStorage.getItem("roomCode") || id;
 
   const handleForward = async () => {
     const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
     if (index !== videoIds?.length - 1) {
       await updateDoc(doc(db, "room", roomCode), {
-        currentPlaying: {...videoIds[index + 1],playedAt:Timestamp.now()},
+        currentPlaying: { ...videoIds[index + 1], playedAt: Timestamp.now() },
       }).catch((err) => console.log(err));
     }
     setCurrentTime(0);
@@ -57,18 +63,18 @@ const Index = ({updateParamsId}) => {
     const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
     if (index > 0) {
       await updateDoc(doc(db, "room", roomCode), {
-        currentPlaying: {...videoIds[index - 1],playedAt:Timestamp.now()},
+        currentPlaying: { ...videoIds[index - 1], playedAt: Timestamp.now() },
       }).catch((err) => console.log(err));
     }
     setCurrentTime(0);
   };
-  const handlePause = async() => {
+  const handlePause = async () => {
     if (onReady && currentPlaying && currentTime) {
       onReady?.pauseVideo();
       setIsPause(true);
     }
   };
-  const handlePlay = async() => {
+  const handlePlay = async () => {
     if (onReady && currentPlaying) {
       onReady.playVideo();
       setIsPause(false);
@@ -81,7 +87,7 @@ const Index = ({updateParamsId}) => {
   const handleMouseUp = () => {
     setIsSeeking(false);
   };
-  const handleSeek = async(event) => {
+  const handleSeek = async (event) => {
     const seekBar = seekBarRef?.current ?? event.currentTarget;
 
     if (seekBar && onReady) {
@@ -103,7 +109,10 @@ const Index = ({updateParamsId}) => {
       navigator
         .share({
           title: "Check out Sync-Tunes 🎶",
-          text: "I'm jamming live on SyncTunes right now and would love for you to join in\n Let's vibe together, share some beats, and make some awesome music 🎧🎸🥁 /n Join with the room code: "+sessionStorage.getItem("roomCode")+" or click the link below:",
+          text:
+            "I'm jamming live on SyncTunes right now and would love for you to join in\n Let's vibe together, share some beats, and make some awesome music 🎧🎸🥁 /n Join with the room code: " +
+            sessionStorage.getItem("roomCode") +
+            " or click the link below:",
           url: window.location.href, // or your app URL e.g., 'https://sync-tunes.vercel.app'
         })
         .then(() => console.log("Thanks for sharing!"))
@@ -113,24 +122,59 @@ const Index = ({updateParamsId}) => {
     }
   };
 
-  useEffect(()=>{
-    updateParamsId(id)
-    setIsPause(false);
-  },[id])
+  useEffect(() => {
+    updateParamsId(id);
+    const getData = () => {
+      try{
+        if (id) {
+          const filteredUsersQuery = query(
+            collection(
+              db,
+              "room",
+              sessionStorage.getItem("roomCode"),
+              "messages"
+            ),
+            orderBy("timestamp", "asc")
+          );
+          onSnapshot(filteredUsersQuery, (data) => {
+            setMessages(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+            const unReadMsg = data.docs.filter(
+              (doc) =>
+                doc.data().status === "unread" &&
+                doc.data().sender !== Cookies.get("name")
+            );
+            setNotification(unReadMsg.length);
+          });
+        }
+      }catch(err){
+        console.log(err)
+      }
+    };
+    getData();
+  }, [id]);
 
   return (
     <div className="bg-black ">
-            <JoinRoom codeViaProps={id} />
+      <div className="flex items-center gap-2 p-3">
+        <img src={logo} height={15} width={15} alt="logo" />
+        <span className="text-md font-semibold text-gray-300">Sync-Tunes</span>
+      </div>
+
+      <JoinRoom codeViaProps={id} />
 
       <PlayerHeader handlePause={handlePause} />
       {isLoading || !thumbnail ? (
         <PlayerShimmer />
       ) : (
         <>
-          <div className="m-3 ms-4 me-4">
-            <img src={thumbnail} className="h-56 mx-auto rounded-md" alt="thumbnail" />
+          <div className="m-3 mt-8 ms-4 me-4">
+            <img
+              src={thumbnail}
+              className="h-56 mx-auto rounded-md"
+              alt="thumbnail"
+            />
           </div>
-          <div className="m-3 mt-1">
+          <div className="m-3 mt-5">
             <div className="flex items-center justify-start ms-2 gap-6">
               <Marquee style={{ width: "85%" }}>
                 <h5 className="text-slate-50 bg-black">
@@ -140,8 +184,10 @@ const Index = ({updateParamsId}) => {
               <LikeSong iconSize={38} color={"#f1f5f9"} />
             </div>
 
-            <p className="text-slate-200 m-2">{artist || "Artist name"}</p>
-            <p className="text-slate-200 m-2 text-xs flex items-center gap-1"><IoPerson /> {playedBy || "Player name"}</p>
+            <p className="text-slate-200 m-2 mt-1">{artist || "Artist name"}</p>
+            <p className="text-slate-200 m-2 text-xs flex items-center gap-1">
+              <IoPerson /> {playedBy || "Player name"}
+            </p>
           </div>
           {/* Seekbar */}
           {onReady ? (
@@ -171,7 +217,7 @@ const Index = ({updateParamsId}) => {
           )}
 
           {/* Player control */}
-          <div className="flex justify-center items-center mt-8 gap-8 pb-12 ">
+          <div className="flex justify-center items-center mt-2 gap-8 pb-5 ">
             <div
               className="bg-zinc-800 rounded-full p-3 text-center"
               onClick={() => handleBack()}
@@ -203,7 +249,7 @@ const Index = ({updateParamsId}) => {
         </>
       )}
       {/* View Queued Songs */}
-      <div className="flex items-center justify-between ms-3 pb-16">
+      <div className="flex items-center justify-between ms-3 -mt-5  pb-14">
         <RoommatesDrawer />
         <div className=" flex items-end gap-6 float-right  m-3">
           <HiOutlineShare

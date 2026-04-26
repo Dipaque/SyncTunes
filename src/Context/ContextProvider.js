@@ -6,14 +6,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import {
-  collection,
-  query,
-  orderBy,
-  onSnapshot,
-} from "firebase/firestore";
-import Cookies from "js-cookie";
-import { db } from "../firebase-config";
+import { useParams } from "react-router-dom";
 const StateContext = createContext();
 export const ContextProvider = ({ children }) => {
   const [videoId, setVideoId] = useState("");
@@ -44,36 +37,6 @@ export const ContextProvider = ({ children }) => {
     userName: "",
   });
 
-  useEffect(() => {
-    const getData = () => {
-      try{
-        if (sessionStorage.getItem("roomCode")) {
-          const filteredUsersQuery = query(
-            collection(
-              db,
-              "room",
-              sessionStorage.getItem("roomCode"),
-              "messages"
-            ),
-            orderBy("timestamp", "asc")
-          );
-          onSnapshot(filteredUsersQuery, (data) => {
-            setMessages(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-            const unReadMsg = data.docs.filter(
-              (doc) =>
-                doc.data().status === "unread" &&
-                doc.data().sender !== Cookies.get("name")
-            );
-            setNotification(unReadMsg.length);
-          });
-        }
-      }catch(err){
-        console.log(err)
-      }
-    };
-    getData();
-  }, [sessionStorage.getItem("roomCode")]);
-
   const handleClear = useCallback(() => {
     setCurrentPlaying("")
     setThumbnail("")
@@ -82,6 +45,7 @@ export const ContextProvider = ({ children }) => {
     setPlayedBy("")
     setCurrentTime(0)
     setDuration(0);
+    setMessages([])
     seekBarRef.current = null
   }, []);
 
