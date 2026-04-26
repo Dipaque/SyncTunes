@@ -1,8 +1,11 @@
 {
   "name": "share-my-music",
-  "version": "2.0.1",
+  "version": "3.0.0",
   "private": true,
   "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/cli": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
     "@headlessui/react": "^1.7.18",
     "@heroicons/react": "^2.1.1",
     "@mdi/js": "^7.4.47",

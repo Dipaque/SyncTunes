@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useStateContext } from "../Context/ContextProvider";
+import { IoHeart } from 'react-icons/io5';
 
 const LikedUsers = () => {
 
@@ -12,8 +13,8 @@ const LikedUsers = () => {
     },[currentPlaying,songsList]) 
 
   return (
-<div className='flex items-center gap-2 text-xs text-slate-200'>
-{avatars && avatars?.length>0 && "Liked by"}
+<div className='flex items-center gap-0 text-xs text-slate-200'>
+{avatars && avatars?.length>0 && <IoHeart color='#F91880' size={20} />}
     <div className='flex -space-x-1 overflow-hidden'>{
         avatars && avatars?.map((user)=>(
             <img src={user.avatar} className='h-5 w-5 rounded-full' alt='profile' />

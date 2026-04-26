@@ -1,4 +1,4 @@
-import React,{useEffect,} from 'react';
+import React,{useCallback, useEffect, useState,} from 'react';
 import './App.css';
 import './index.css';
 import { Route, Routes,useLocation, useNavigate } from 'react-router-dom';
@@ -8,25 +8,36 @@ import Login from './pages/Login';
 import Chat from './pages/Chat';
 import styled from 'styled-components'; // or import { css } from '@emotion/react';
 import { useStateContext } from './Context/ContextProvider';
-import Profile from './pages/Profile';
-import Privacypolicy from './pages/Privacypolicy';
-import Terms from './pages/Terms';
-import Thirdparty from './pages/Thirdparty';
+import Settings from './pages/settings/Settings';
+import Profile from './Components/settings/Profile';
+import About from './Components/settings/About';
+import Rooms from './Components/settings/Rooms';
+import Privacypolicy from './pages/settings/Privacypolicy';
+import Terms from './pages/settings/Terms';
+import Thirdparty from './pages/settings/Thirdparty';
 import MinifiedPlayer from './Components/MinifiedPlayer';
 import Sidebar from './Components/Sidebar';
 import Home from './pages/Home';
 import Index from './pages';
 import Cookies from "js-cookie"
-import JoinRoom from "./Components/JoinRoom";
+import LikedSongsList from './Components/settings/LikedSongsList';
+import Explore from './pages/Explore';
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
 `;
 function App() {
   document.body.style.backgroundColor='#0000'
-  const {pathName,setPathName, onReady,title,videoIds,songsList,setmodal_backdrop1}=useStateContext()
+  const {pathName,setPathName, onReady,title,songsList}=useStateContext()
   const location = useLocation();
   const nav = useNavigate()
+
+  const [paramsId, setParamsId] = useState("")
+
+  const updateParamsId = useCallback((id)=>{
+    setParamsId(id)
+  },[])
+
   useEffect(() => {
     const checkAuthAndSetPath = () => {
       const currentPath = location.pathname;
@@ -44,9 +55,8 @@ function App() {
         // Set pathName based on current path
         if (currentPath === "/") {
           setPathName("login");
-        } else if(!sessionStorage.getItem("roomCode") && currentPath.includes("/room")){
-          sessionStorage.setItem("roomCode",currentPath.split("/")[2])
-          setmodal_backdrop1(true);
+        } else if(!sessionStorage.getItem("roomCode") && paramsId){
+          sessionStorage.setItem("roomCode",paramsId)
           setPathName(currentPath);
         }
         else {
@@ -54,35 +64,38 @@ function App() {
         }
       }
     };
-  
+    
     checkAuthAndSetPath();
-  }, [location.pathname]);
-
-
-  const roomCode = sessionStorage.getItem("roomCode");
+  }, [paramsId]);
+  
+  const roomCode = paramsId
 
   return (
     <div className='!bg-black h-screen'> 
       <StyledText>
-      {
-        pathName!=='login' &&(<div className='bg-black mx-auto sticky top-0'>
-        {songsList?.length>0 && !["/",'/home','/discover'].includes(pathName) && sessionStorage.getItem("roomCode") && <YouTubeVideo videoIds={songsList} />}
-        <Sidebar /> 
-        </div>)
-      }
-      <JoinRoom codeViaProps={pathName.split("/")[2]} />
-      <Routes>
+          <Routes>
       <Route path='/' element={<Login  />} />
         <Route path='/home' element={<Home />} />
-        <Route path='/room/:id/player' element={<Index />} />
+        <Route path='/explore' element={<Explore />} />
+        <Route path='/room/:id/player' element={<Index updateParamsId={updateParamsId} />} />
         <Route path='/room/:id/search' element={<Search  />} />
         <Route path='/room/:id/chat' element={<Chat  />} />
-        <Route path='/profile' element={<Profile />} />
+        <Route path='/settings' element={<Settings />} />
+        <Route path='/settings/profile' element={<Profile />} />
+        <Route path='/settings/rooms' element={<Rooms />} />
+        <Route path='/settings/liked' element={<LikedSongsList />} />
+        <Route path='/settings/about' element={<About />} />
         <Route path='/privacy-policy' element={<Privacypolicy />} />
         <Route path='/terms' element={<Terms />} />
         <Route path='/third-party' element={<Thirdparty />} />
       </Routes>
     {!["/","/home",`/room/${roomCode}/player`].includes(pathName) && onReady && title && <MinifiedPlayer />}
+      {
+        pathName!=='login' &&(<div className='bg-zinc-600 rounded-md'>
+        {songsList?.length>0 && !["/",'/home','/discover'].includes(pathName) && sessionStorage.getItem("roomCode") && <YouTubeVideo videoIds={songsList} />}
+        <Sidebar /> 
+        </div>)
+      }
       </StyledText>
     </div>
   );

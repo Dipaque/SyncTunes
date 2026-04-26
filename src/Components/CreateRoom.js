@@ -6,6 +6,7 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
+    FormGroup,
     Input,
   } from 'reactstrap';
   import Cookies from 'js-cookie';
@@ -13,7 +14,7 @@ import {
   import {setDoc ,doc,Timestamp} from 'firebase/firestore'
 import { useStateContext } from '../Context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
-import { IoCopyOutline } from 'react-icons/io5';
+import { IoCopyOutline, IoGlobeOutline } from 'react-icons/io5';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import '../App.css'
 import { fontFamily } from '../constants';
@@ -21,6 +22,7 @@ function CreateRoom() {
     const nav = useNavigate()
     const [roomCode,setRoomCode]=useState('')
     const [msg,setMsg]=useState('')
+    const [isPrivate, setIsPrivate] = useState(true)
   const {modal_backdrop,setmodal_backdrop}=useStateContext()
   const toggle = () => setmodal_backdrop(!modal_backdrop);
   const handleCreateRoom=async()=>{
@@ -29,7 +31,7 @@ function CreateRoom() {
         email:Cookies.get("email"),
         userName:Cookies.get("name"),photoUrl:Cookies.get("photoUrl"),joinedeAt:Timestamp.now()
       }
-    ],createdAt:Timestamp.now(),adminEmail:Cookies.get("email"),isPrivate:true}).then(()=>{
+    ],createdAt:Timestamp.now(),adminEmail:Cookies.get("email"),isPrivate:isPrivate}).then(()=>{
         setMsg(`Please copy your room code ${roomCode}.`)
         sessionStorage.setItem('roomCode',roomCode)
         setTimeout(()=>{
@@ -62,6 +64,21 @@ function CreateRoom() {
         onChange={(e)=>setRoomCode(e.target.value)}
         placeholder="Enter your room code..."
       />
+
+      <span className='text-sm mt-3 text-gray-500 flex items-center justify-between'>
+        <div className='flex items-center justify-center gap-1'>
+        <IoGlobeOutline size={16} /> Private Room
+        </div>
+        <FormGroup switch>
+        <Input
+          type="switch"
+          checked={isPrivate}
+          onChange={() => setIsPrivate(!isPrivate)}
+          role="switch" 
+          size={22}
+        />
+        </FormGroup>
+      </span>
   
       <div className='flex items-center justify-center'>
       {

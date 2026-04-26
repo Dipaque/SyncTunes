@@ -114,7 +114,7 @@ const Chat = () => {
                 </button> 
             </div>
             </div>
-            <div className=' absolute ms-3 bottom-24'>
+            <div className=' absolute ms-3 bottom-40'>
                 <div className='flex flex-row gap-2'>
             <input 
         type='text'

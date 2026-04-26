@@ -40,7 +40,7 @@ const Search = () => {
   };
   const shimmerArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
   return (
-    <div className="flex flex-col h-[calc(100vh-160px)]  pt-3 overflow-hidden bg-black">
+    <div className="flex flex-col h-screen pb-28  pt-3 overflow-hidden bg-black">
   <div className="text-white ml-5 text-xl">
     <b>Search</b>
   </div>

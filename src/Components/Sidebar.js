@@ -18,78 +18,84 @@ const Sidebar = () => {
   },[window.location.pathname])
   return (
     <React.Fragment>
-   {roomCode ?  <div className="bg-zinc-900/50 backdrop-blur-md border-t border-white/10 w-full z-50">
-  <div className="flex flex-row justify-between p-3 items-center">
-    <Link to={`/room/${roomCode}/player`}>
-      {pathName.includes(`/room/${roomCode}/player`) ? (
-        <GoHomeFill size={25} color="white" />
-      ) : (
-        <GoHome size={25} color="white" />
-      )}
-    </Link>
-
-   { roomCode && <Link to={"/room/"+roomCode+"/search"}>
-      {!pathName.includes('search') ? (
-        <RxMagnifyingGlass color="white" size={25} />
-      ) : (
-        <FaMagnifyingGlass color="white" size={20} />
-      )}
-    </Link>}
-
-  { roomCode &&  <Link to={"/room/"+roomCode+"/chat"} className="relative">
-      {notification > 0 && (
-        <div className="badge bg-white text-black absolute -top-2 left-4 text-xs px-1.5 py-0.5 rounded-full">
-          {notification}
+    {roomCode ? (
+      <div className="fixed bottom-0 left-0 w-full bg-zinc-900/50 backdrop-blur-md border-t border-white/10 z-50">
+        <div className="flex flex-row justify-between p-3 items-center max-w-screen-md mx-auto">
+          <Link to={`/room/${roomCode}/player`} className='text-white text-[10px] no-underline text-center flex flex-col items-center'>
+            {pathName.includes(`/room/${roomCode}/player`) ? (
+              <GoHomeFill size={25} color="white" />
+            ) : (
+              <GoHome size={25} color="white" />
+            )}
+            Home
+          </Link>
+  
+          <Link to={`/room/${roomCode}/search`} className='text-white text-[10px] no-underline flex flex-col items-center'>
+            {!pathName.includes("search") ? (
+              <RxMagnifyingGlass color="white" size={25} />
+            ) : (
+              <FaMagnifyingGlass color="white" size={20} />
+            )}
+            Search
+          </Link>
+  
+          <Link to={`/room/${roomCode}/chat`} className="relative text-white text-[10px] no-underline flex flex-col items-center">
+            {notification > 0 && (
+              <div className="badge bg-white text-black absolute -top-2 left-4 text-xs px-1.5 py-0.5 rounded-full">
+               </div>
+            )}
+  
+            {pathName.includes("chat") ? (
+              <IoChatbox size={25} color="white" />
+            ) : (
+              <IoChatboxOutline size={25} color="white" />
+            )}
+            Chat
+          </Link>
+  
+          <Link to="/settings" className='text-white text-[10px] no-underline flex flex-col items-center'>
+          {pathName.includes("settings") ? (
+              <BsGearFill size={20} color="white" />
+            ) : (
+              <BsGear size={20} color="white" />
+            )}
+            Settings
+          </Link>
         </div>
-      )}
-      {pathName.includes('chat') ? (
-        <IoChatbox size={25} color="white" />
-      ) : (
-        <IoChatboxOutline size={25} color="white" />
-      )}
-    </Link>}
-
-    <Link to="/profile">
-      {Cookies.get('photoUrl') ? (
-        <img
-          src={Cookies.get('photoUrl')}
-          className="rounded-full h-7 w-7 object-cover"
-          alt="profile"
-        />
-      ) : (
-        <GoPerson color="white" size={25} />
-      )}
-    </Link>
-  </div>
-</div>
-: <div className="flex items-center justify-between  text-white p-3 ">
- <Link to={"/home"}>
-      {pathName.includes(`home`) ? (
-        <GoHomeFill size={25} color="white" />
-      ) : (
-        <GoHome size={25} color="white" />
-      )}
-    </Link>
- <Link to={`/discover`}>
-      {pathName.includes(`discover`) ? (
-        <BsCompassFill  size={20} color="white" />
-      ) : (
-        <BsCompass  size={20} color="white" />
-      )}
-    </Link>
- <Link to={`profile`}>
-      {pathName.includes(`profile`) ? (
-        <BsGearFill size={20} color="white" />
-      ) : (
-        <BsGear size={20} color="white" />
-      )}
-    </Link>
-</div>
-
-}
-
-       
-    </React.Fragment>
+      </div>
+    ) : (
+      <div className="fixed bottom-0 left-0 w-full bg-zinc-900/50 backdrop-blur-md border-t border-white/10 z-50">
+        <div className="flex items-center justify-between text-white p-3 max-w-screen-md mx-auto">
+          <Link to="/home" className='text-white text-[10px] no-underline text-center flex flex-col items-center'>
+            {pathName.includes("home") ? (
+              <GoHomeFill size={25} color="white" />
+            ) : (
+              <GoHome size={25} color="white" />
+            )}
+            Home
+          </Link>
+  
+          <Link to="/explore" className='text-white text-[10px] no-underline text-center flex flex-col items-center'>
+            {pathName.includes("explore") ? (
+              <BsCompassFill size={20} color="white" />
+            ) : (
+              <BsCompass size={20} color="white" />
+            )}
+            Explore
+          </Link>
+  
+          <Link to="/settings" className='text-white text-[10px] no-underline text-center flex flex-col items-center'>
+            {pathName.includes("settings") ? (
+              <BsGearFill size={20} color="white" />
+            ) : (
+              <BsGear size={20} color="white" />
+            )}
+            Settings
+          </Link>
+        </div>
+      </div>
+    )}
+  </React.Fragment>
   )
 }
 

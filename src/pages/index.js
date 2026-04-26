@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useStateContext } from "../Context/ContextProvider";
 import {
   IoPause,
+  IoPerson,
+  IoPersonOutline,
   IoPlay,
   IoPlaySkipBack,
   IoPlaySkipForward,
@@ -16,11 +18,14 @@ import LikeSong from "../Components/LikeSong";
 import QueueDrawer from "../Components/QueueDrawer";
 import RoommatesDrawer from "../Components/RoommatesDrawer";
 import PlayerHeader from "../Components/PlayerHeader";
-const Index = () => {
+import { useParams } from "react-router-dom";
+import JoinRoom from "../Components/JoinRoom";
+const Index = ({updateParamsId}) => {
   const {
     videoIds,
     onReady,
     title,
+    playedBy,
     artist,
     currentPlaying,
     duration,
@@ -34,7 +39,9 @@ const Index = () => {
     thumbnail,
   } = useStateContext();
 
-  const roomCode = sessionStorage.getItem("roomCode")
+  const {id} = useParams();
+
+  const roomCode = sessionStorage.getItem("roomCode") || id
   
 
   const handleForward = async () => {
@@ -106,16 +113,22 @@ const Index = () => {
     }
   };
 
+  useEffect(()=>{
+    updateParamsId(id)
+    setIsPause(false);
+  },[id])
 
   return (
     <div className="bg-black ">
-      <PlayerHeader />
+            <JoinRoom codeViaProps={id} />
+
+      <PlayerHeader handlePause={handlePause} />
       {isLoading || !thumbnail ? (
         <PlayerShimmer />
       ) : (
         <>
-          <div className="m-3">
-            <img src={thumbnail} className="h-64 mx-auto" alt="thumbnail" />
+          <div className="m-3 ms-4 me-4">
+            <img src={thumbnail} className="h-56 mx-auto rounded-md" alt="thumbnail" />
           </div>
           <div className="m-3 mt-1">
             <div className="flex items-center justify-start ms-2 gap-6">
@@ -128,6 +141,7 @@ const Index = () => {
             </div>
 
             <p className="text-slate-200 m-2">{artist || "Artist name"}</p>
+            <p className="text-slate-200 m-2 text-xs flex items-center gap-1"><IoPerson /> {playedBy || "Player name"}</p>
           </div>
           {/* Seekbar */}
           {onReady ? (
@@ -189,7 +203,7 @@ const Index = () => {
         </>
       )}
       {/* View Queued Songs */}
-      <div className="flex items-center justify-between ms-3">
+      <div className="flex items-center justify-between ms-3 pb-16">
         <RoommatesDrawer />
         <div className=" flex items-end gap-6 float-right  m-3">
           <HiOutlineShare

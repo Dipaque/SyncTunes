@@ -7,7 +7,7 @@ import { IoHeart, IoPause, IoPlaySkipBack, IoPlaySkipForward } from 'react-icons
 const PlayerShimmer = () => {
   return (
     <div className='animate-pulse'>
-      <div className='-mt-8 h-60 w-60 bg-zinc-800 rounded-lg mx-auto flex items-center justify-center'>
+      <div className='mt-3 h-60 w-60 bg-zinc-800 rounded-lg mx-auto flex items-center justify-center'>
           <p>
             <HiMusicalNote color='black' size={86} />
           </p>

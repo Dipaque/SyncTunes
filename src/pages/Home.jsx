@@ -3,6 +3,7 @@ import CreateRoom from "../Components/CreateRoom";
 import JoinRoom from "../Components/JoinRoom";
 import { useStateContext } from "../Context/ContextProvider";
 import Cookies from "js-cookie";
+import logo from '../assests/logo.png'
 
 const Home = () => {
   const {
@@ -15,15 +16,10 @@ const Home = () => {
     <>
       <CreateRoom />
       <JoinRoom />
-      <div className=" m-3 ">
-        {Cookies.get("name") &&
-           (
-           
-              <b className="text-white">
-                {"Welcome " + Cookies.get("name").split(" ")[0] ||
-                  Cookies.get("name")}
-              </b>
-          )}
+
+      <div className="flex items-center gap-2 mb-3 p-3">
+        <img src={logo} height={15} width={15} alt="logo" />
+        <span className="text-md font-semibold text-gray-300">Sync-Tunes</span>
       </div>
 
       <div className=" flex justify-center gap-2 mb-5 p-3  mx-auto">

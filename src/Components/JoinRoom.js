@@ -15,35 +15,44 @@ import { fontFamily } from '../constants';
 import { useNavigate } from 'react-router-dom';
 function JoinRoom({codeViaProps}) {
   const nav = useNavigate();
-    const [roomCode,setRoomCode]=useState('')
-    const [msg,setMsg]=useState('')
-    const {modal_backdrop1,setmodal_backdrop1,setJoineeSong}=useStateContext()
-    const email = Cookies.get("email");
+  const {modal_backdrop1,setmodal_backdrop1,setJoineeSong}=useStateContext()
+  const email = Cookies.get("email");
 
-    useEffect(()=>{
-      if(codeViaProps) setRoomCode(codeViaProps);
-    },[codeViaProps])
+  
+  const existingRoomCode = sessionStorage.getItem("roomCode")
+  
+  const [roomCode,setRoomCode]=useState('')
+  const [msg,setMsg]=useState('')
+  console.log(!codeViaProps && roomCode, codeViaProps, roomCode)
 
   const toggle = () => setmodal_backdrop1(!modal_backdrop1);
   const handleJoinRoom=async()=>{
-   const data= await getDoc(doc(db,'room',roomCode))
+   const data= await getDoc(doc(db,'room',roomCode || codeViaProps))
    if(data.exists()){
-    sessionStorage.setItem('roomCode',roomCode)
+    sessionStorage.setItem('roomCode',roomCode || codeViaProps)
     setJoineeSong(data.data().currentSong)
     const roomMates = data.data().roomMates||[]
     const isPresent = roomMates.some((user)=> user.email===email)
     if(!isPresent){
-      await updateDoc(doc(db,'room',roomCode),{roomMates:[...roomMates,{email:Cookies.get("email"),userName:Cookies.get("name"),photoUrl:Cookies.get("photoUrl"),joinedeAt:Timestamp.now()}]})
+      await updateDoc(doc(db,'room',roomCode || codeViaProps),{roomMates:[...roomMates,{email:Cookies.get("email"),userName:Cookies.get("name"),photoUrl:Cookies.get("photoUrl"),joinedeAt:Timestamp.now()}]})
     }
-    nav(`/room/${roomCode}/player`)
-   setmodal_backdrop1(!modal_backdrop1)
+   if(!codeViaProps && roomCode) {
+    nav(`/room/${roomCode || codeViaProps}/player`)
+    setmodal_backdrop1(!modal_backdrop1)
+  }
    }else{
     setMsg('Room code is incorrect')
    }
   }
 
+  useEffect(()=>{
+    if((codeViaProps && (codeViaProps && !existingRoomCode)) ||( codeViaProps && (codeViaProps !== existingRoomCode))){
+       handleJoinRoom();
+      }
+  },[codeViaProps,existingRoomCode])
+
   return (
-    <Modal centered={true} className='flex justify-center w-72' style={{fontFamily:fontFamily}} isOpen={modal_backdrop1} toggle={toggle} unmountOnClose={true}>
+    <Modal centered={true} className='flex justify-center w-72' style={{fontFamily:fontFamily}} isOpen={modal_backdrop1} toggle={()=>toggle()} unmountOnClose={true}>
     <ModalHeader className='!border-none' toggle={toggle}><b>Join the room</b></ModalHeader>
     <ModalBody>
       <Input

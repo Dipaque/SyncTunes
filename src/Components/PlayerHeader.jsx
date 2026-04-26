@@ -14,7 +14,7 @@ import {
 import LeaveRoom from "./LeaveRoom";
 import LikedUsers from "./LikedUsers";
 import { useNavigate } from "react-router-dom";
-const PlayerHeader = () => {
+const PlayerHeader = ({handlePause}) => {
   const [currentSong, setCurrentSong] = useState([]);
   const nav = useNavigate()
   const {
@@ -22,7 +22,6 @@ const PlayerHeader = () => {
     setIsLeaving,
     setIsPause,
     isLeaving,
-    playedBy,
     pathName,
     handleClear,
     songsList,
@@ -38,10 +37,10 @@ const PlayerHeader = () => {
 
   useEffect(() => {
     const getData = () => {
-      if (sessionStorage.getItem("roomCode")) {
+      if (roomCode) {
         const filteredUsersQuery = query(
           collection(db, "room"),
-          where("roomCode", "==", sessionStorage.getItem("roomCode"))
+          where("roomCode", "==", roomCode)
         );
         onSnapshot(filteredUsersQuery, (data) => {
           setCurrentSong(
@@ -57,7 +56,7 @@ const PlayerHeader = () => {
       }
     };
     getData();
-  }, [sessionStorage.getItem("roomCode")]);
+  }, [roomCode]);
 
   const requestPermission = () => {
     // Check if the browser supports the Notification API
@@ -78,14 +77,21 @@ const PlayerHeader = () => {
   }, []);
 
   const handleLeaveRoom = async () => {
+    await handlePause();
+
     if (roomMate?.length > 0) {
-      const index = roomMate.findIndex((user)=>user.email===Cookies.get("email"));
-      if (index > -1) {
-        roomMate.splice(index, 1);
+      try{
+        const index = roomMate.findIndex((user)=>user.email===Cookies.get("email"));
+        if (index >= 0) {
+          roomMate.splice(index, 1);
+        }
+        await updateDoc(doc(db, "room", roomCode), {
+          roomMates: roomMate,
+        });
+
+      }catch(err){
+        console.log(err)
       }
-      await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
-        roomMates: roomMate,
-      });
     }
     setCurrentSong([]);
     setIsPause(true)
@@ -99,44 +105,40 @@ const PlayerHeader = () => {
   return (
     <>
       <div
-        className="flex justify-center gap-0  w-screen h-full bg-black "
+        className="w-screen h-full bg-black p-3 pt-12"
         id="top"
       >
         <LeaveRoom handleLeaveRoom={handleLeaveRoom} />
-        <div className=" m-3 mb-3">
         
-          {sessionStorage.getItem("roomCode") && currentSong.length > 0 && (
-            <div className=" flex items-center  justify-center flex-col  ">
-              <p className="text-xs mx-auto text-slate-200">
-                  {`Created by ${
-                    admin.email === Cookies.get("email") ||
-                    admin.userName === Cookies.get("name")
-                      ? "you"
-                      : admin.userName.split(" ")[0] || admin.userName
-                  }`}
-                </p>
-              <button
-                className=" mx-auto  text-xs mb-2  text-white flex flex-row justify-center items-center gap-2"
-                type="button"
-                onClick={() => setIsLeaving(true)}
-              >
-                <VscSignOut color="white" size={18} />
-                {sessionStorage.getItem("roomCode")}
-              </button>
-              <p className="text-xs text-slate-50 transition-opacity duration-300">
-                {playedBy &&
-                  `Played by ${playedBy.split(" ")[0] || playedBy}
-              `}
-              </p>
+          {roomCode && currentSong.length > 0 && (
 
-              {songsList && currentPlaying && pathName.includes("/room/"+roomCode+"/player") && (
-                <p className="flex items-center gap-2 text-xs text-slate-200">
-                  <LikedUsers />{" "}
-                </p>
-              )}
+            
+            <>
+            <div className="flex items-center justify-between">
+                <span
+                className="font-bold mb-2  text-zinc-500 flex gap-1 items-center"
+                
+              >
+               ROOM:
+               <span className="text-lg text-white">{roomCode}</span>
+              </span>
+              <VscSignOut type="button" size={18} color="white" onClick={() => setIsLeaving(true)} />
             </div>
+              <div className="text-white flex flex-row items-center  justify-between">
+                          <span className="text-xs truncate">
+
+
+                  {`Host: ${admin.userName}`}
+                </span>
+              {songsList && currentPlaying && pathName.includes("/room/"+roomCode+"/player") && (
+                <span className="flex items-center gap-2 text-xs text-slate-200">
+                  <LikedUsers />{" "}
+                </span>
+              )}
+              </div>
+
+            </>
           )}
-        </div>
       </div>
     </>
   );

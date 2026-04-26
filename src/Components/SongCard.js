@@ -15,12 +15,26 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
     const {videoIds,currentPlaying,setIsPause}=useStateContext()
    
  const handlePlay=async()=>{
-  if(videoIds?.length>0){
-    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[...videoIds,{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()},],currentPlaying:{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()}}).catch(err=>console.log(err))
-  }else{
-    await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()}],currentPlaying:{title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()}}).catch(err=>console.log(err))
+  try{
+
+    const selectedSong = {
+      title,id,image,channelName,playedBy:Cookies.get('name'),playedAt:Timestamp.now()
+    }
+
+    if(videoIds?.length>0){
+      await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[...videoIds,selectedSong,],currentPlaying:selectedSong}).catch(err=>console.log(err))
+    }else{
+      await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[selectedSong],currentPlaying:selectedSong}).catch(err=>console.log(err))
+    }
+    setIsPause(false)
   }
-  setIsPause(false)
+    catch(err){
+      setToastDisplay(true)
+      setToastMsg('Join Room to play Songs')
+      setTimeout(()=>setToastDisplay(false),4000)
+      console.log(err)
+    }
+  
  }
   return (
 

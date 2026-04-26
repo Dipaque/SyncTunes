@@ -8,16 +8,9 @@ import React, {
 } from "react";
 import {
   collection,
-  getDoc,
   query,
-  where,
   orderBy,
   onSnapshot,
-  doc,
-  getDocs,
-  addDoc,
-  Timestamp,
-  updateDoc,
 } from "firebase/firestore";
 import Cookies from "js-cookie";
 import { db } from "../firebase-config";
@@ -53,25 +46,29 @@ export const ContextProvider = ({ children }) => {
 
   useEffect(() => {
     const getData = () => {
-      if (sessionStorage.getItem("roomCode")) {
-        const filteredUsersQuery = query(
-          collection(
-            db,
-            "room",
-            sessionStorage.getItem("roomCode"),
-            "messages"
-          ),
-          orderBy("timestamp", "asc")
-        );
-        onSnapshot(filteredUsersQuery, (data) => {
-          setMessages(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-          const unReadMsg = data.docs.filter(
-            (doc) =>
-              doc.data().status === "unread" &&
-              doc.data().sender !== Cookies.get("name")
+      try{
+        if (sessionStorage.getItem("roomCode")) {
+          const filteredUsersQuery = query(
+            collection(
+              db,
+              "room",
+              sessionStorage.getItem("roomCode"),
+              "messages"
+            ),
+            orderBy("timestamp", "asc")
           );
-          setNotification(unReadMsg.length);
-        });
+          onSnapshot(filteredUsersQuery, (data) => {
+            setMessages(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+            const unReadMsg = data.docs.filter(
+              (doc) =>
+                doc.data().status === "unread" &&
+                doc.data().sender !== Cookies.get("name")
+            );
+            setNotification(unReadMsg.length);
+          });
+        }
+      }catch(err){
+        console.log(err)
       }
     };
     getData();
@@ -83,6 +80,9 @@ export const ContextProvider = ({ children }) => {
     setArtist("")
     setTitle("")
     setPlayedBy("")
+    setCurrentTime(0)
+    setDuration(0);
+    seekBarRef.current = null
   }, []);
 
   return (

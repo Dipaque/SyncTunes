@@ -15,7 +15,7 @@ const LeaveRoom = ({handleLeaveRoom}) => {
     <Modal centered={true} style={{fontFamily:fontFamily}} className='flex justify-center w-72' isOpen={isLeaving} toggle={toggle} unmountOnClose={true}>
     <ModalHeader className='!text-sm !border-none' toggle={toggle}>Exit room</ModalHeader>
     <ModalBody className='flex items-center justify-start'>
-      <p className='text-gray-950 text-sm' id='msg'>Do you wana miss this listening?</p>
+      <p className='text-gray-950 text-sm' id='msg'>Do you wanna miss this listening?</p>
     </ModalBody>
     <ModalFooter className='!border-none'>
     <Button color='dark' className='!text-sm'   onClick={()=>handleLeaveRoom()}>
