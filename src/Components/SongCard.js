@@ -9,8 +9,19 @@ import addToQueue from '../Functions/addToQueue'
 import shuffule from '../Functions/shuffle'
 import playNext from '../Functions/playNext'
 import Cookies from 'js-cookie'
+import { useNavigate, useParams } from 'react-router-dom';
 const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
+
+  // room id from params
+  const {id: paramsId} = useParams();
+  const nav = useNavigate()
+
+  // room code
+  const roomCode = paramsId || sessionStorage.getItem("roomCode");
+
+  // local state
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
   const toggle = () => setDropdownOpen((prevState) => !prevState);
     const {videoIds,currentPlaying,setIsPause}=useStateContext()
    
@@ -22,16 +33,20 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
     }
 
     if(videoIds?.length>0){
-      await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[...videoIds,selectedSong,],currentPlaying:selectedSong}).catch(err=>console.log(err))
+      await updateDoc(doc(db,'room',roomCode),{currentSong:[...videoIds,selectedSong,],currentPlaying:selectedSong}).catch(err=>console.log(err))
     }else{
-      await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[selectedSong],currentPlaying:selectedSong}).catch(err=>console.log(err))
+      await updateDoc(doc(db,'room',roomCode),{currentSong:[selectedSong],currentPlaying:selectedSong}).catch(err=>console.log(err))
     }
     setIsPause(false)
+    nav(`/room/${encodeURI(roomCode)}/player`)
   }
     catch(err){
-      setToastDisplay(true)
-      setToastMsg('Join Room to play Songs')
-      setTimeout(()=>setToastDisplay(false),4000)
+      if(!roomCode){
+        setToastDisplay(true)
+        setToastMsg('Join Room to play Songs')
+        setTimeout(()=>setToastDisplay(false),4000)
+
+      }
       console.log(err)
     }
   

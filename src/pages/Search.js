@@ -62,7 +62,7 @@ const Search = () => {
     </button>
   </form>
 
-  <div className="flex-1 overflow-y-auto mt-3 px-4">
+  <div className="flex-1 overflow-y-auto mt-3 px-2">
     {!isLoading && data.length > 0 ? (
       data.map((obj, index) =>
         "video" in obj ? (

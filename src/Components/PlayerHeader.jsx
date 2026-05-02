@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import { VscSignOut } from "react-icons/vsc";
+import logo from "../assests/logo.png";
 import { useStateContext } from "../Context/ContextProvider";
 import { db } from "../firebase-config";
 import {
@@ -14,9 +14,10 @@ import {
 import LeaveRoom from "./LeaveRoom";
 import LikedUsers from "./LikedUsers";
 import { useNavigate } from "react-router-dom";
-const PlayerHeader = ({handlePause}) => {
+import KebabButton from "./kebab_btn/KebabButton";
+const PlayerHeader = ({ handlePause }) => {
   const [currentSong, setCurrentSong] = useState([]);
-  const nav = useNavigate()
+  const nav = useNavigate();
   const {
     setVideoIds,
     setIsLeaving,
@@ -28,12 +29,12 @@ const PlayerHeader = ({handlePause}) => {
     currentPlaying,
     roomMate,
     setRoomMate,
-    admin, 
+    admin,
     setAdmin,
-    setThumbnail
+    setThumbnail,
   } = useStateContext();
 
-  const roomCode = sessionStorage.getItem("roomCode")
+  const roomCode = sessionStorage.getItem("roomCode");
 
   useEffect(() => {
     const getData = () => {
@@ -80,65 +81,64 @@ const PlayerHeader = ({handlePause}) => {
     await handlePause();
 
     if (roomMate?.length > 0) {
-      try{
-        const index = roomMate.findIndex((user)=>user.email===Cookies.get("email"));
+      try {
+        const index = roomMate.findIndex(
+          (user) => user.email === Cookies.get("email")
+        );
         if (index >= 0) {
           roomMate.splice(index, 1);
         }
         await updateDoc(doc(db, "room", roomCode), {
           roomMates: roomMate,
         });
-
-      }catch(err){
-        console.log(err)
+      } catch (err) {
+        console.log(err);
       }
     }
     setCurrentSong([]);
-    setIsPause(true)
-    setThumbnail("")
+    setIsPause(true);
+    setThumbnail("");
     handleClear();
-    nav("/home")
+    nav("/home");
     sessionStorage.removeItem("roomCode");
     setIsLeaving(!isLeaving);
-
   };
   return (
     <>
-      <div
-        className="w-screen h-full bg-black p-3 pt-12"
-        id="top"
-      >
+      <div className="flex items-center justify-between mb-3 p-3">
+        <div className="flex items-center gap-2 ">
+          <img src={logo} height={15} width={15} alt="logo" />
+          <span className="text-lg font-semibold text-gray-300">
+            Sync-Tunes
+          </span>
+        </div>
+        <KebabButton handleExit={() => setIsLeaving(true)} />
+      </div>
+      <div className="w-screen h-full bg-black p-3 pt-12" id="top">
         <LeaveRoom handleLeaveRoom={handleLeaveRoom} />
-        
-          {roomCode && currentSong.length > 0 && (
 
-            
-            <>
+        {roomCode && currentSong.length > 0 && (
+          <>
             <div className="flex items-center justify-between">
-                <span
-                className="font-bold mb-2  text-zinc-500 flex gap-1 items-center"
-                
-              >
-               ROOM:
-               <span className="text-lg text-white">{roomCode}</span>
+              <span className="font-bold mb-2  text-zinc-500 flex gap-1 items-center">
+                ROOM:
+                <span className="text-lg text-white">{roomCode}</span>
               </span>
-              <VscSignOut type="button" size={18} color="white" onClick={() => setIsLeaving(true)} />
             </div>
-              <div className="text-white flex flex-row items-center  justify-between">
-                          <span className="text-xs truncate">
-
-
-                  {`Host: ${admin.userName}`}
-                </span>
-              {songsList && currentPlaying && pathName.includes("/room/"+roomCode+"/player") && (
-                <span className="flex items-center gap-2 text-xs text-slate-200">
-                  <LikedUsers />{" "}
-                </span>
-              )}
-              </div>
-
-            </>
-          )}
+            <div className="text-white flex flex-row items-center  justify-between">
+              <span className="text-xs truncate">
+                {`Host: ${admin.userName}`}
+              </span>
+              {songsList &&
+                currentPlaying &&
+                pathName.includes("/room/" + roomCode + "/player") && (
+                  <span className="flex items-center gap-2 text-xs text-slate-200">
+                    <LikedUsers />{" "}
+                  </span>
+                )}
+            </div>
+          </>
+        )}
       </div>
     </>
   );

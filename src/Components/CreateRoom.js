@@ -26,27 +26,29 @@ function CreateRoom() {
   const {modal_backdrop,setmodal_backdrop}=useStateContext()
   const toggle = () => setmodal_backdrop(!modal_backdrop);
   const handleCreateRoom=async()=>{
-    await setDoc(doc(db,'room',roomCode),{roomCode:roomCode,roomAdmin:Cookies.get('name'),roomMates:[
-      {
-        email:Cookies.get("email"),
-        userName:Cookies.get("name"),photoUrl:Cookies.get("photoUrl"),joinedeAt:Timestamp.now()
-      }
-    ],createdAt:Timestamp.now(),adminEmail:Cookies.get("email"),isPrivate:isPrivate}).then(()=>{
-        setMsg(`Please copy your room code ${roomCode}.`)
-        sessionStorage.setItem('roomCode',roomCode)
-        setTimeout(()=>{
-            setmodal_backdrop(!modal_backdrop)
-            nav(`/room/${encodeURI(roomCode)}/search`)
-        },8000)
-        
-        
-}).catch(err=>{
-    setMsg(err)
-    console.log(err)
-})
+    try{
+      await setDoc(doc(db,'room',roomCode),{roomCode:roomCode,roomAdmin:Cookies.get('name'),roomMates:[
+        {
+          email:Cookies.get("email"),
+          userName:Cookies.get("name"),photoUrl:Cookies.get("photoUrl"),joinedeAt:Timestamp.now()
+        }
+      ],createdAt:Timestamp.now(),adminEmail:Cookies.get("email"),isPrivate:isPrivate}).then(()=>{
+          setMsg(`Please copy your room code ${roomCode}.`)
+          sessionStorage.setItem('roomCode',roomCode)
+              setmodal_backdrop(!modal_backdrop)
+              nav(`/room/${encodeURI(roomCode)}/search`)        
+          
+  }).catch(err=>{
+      setMsg(err)
+      console.log(err)
+  })
+    }catch(err){
+      setMsg(err)
+    }
   }
-  const handleCopy=()=>{
+  const handleCopy=(roomCode)=>{
     setMsg('Copied to clipboard')
+    navigator.clipboard.writeText = roomCode
   }
 
   return (
@@ -60,7 +62,7 @@ function CreateRoom() {
       }
       <Input
         type="text"
-        value={roomCode}
+        value={roomCode?.trim()}
         onChange={(e)=>setRoomCode(e.target.value)}
         placeholder="Enter your room code..."
       />
@@ -83,9 +85,7 @@ function CreateRoom() {
       <div className='flex items-center justify-center'>
       {
         msg && (
-          <CopyToClipboard text={roomCode} onCopy={handleCopy} >
-          <IoCopyOutline className=' cursor-pointer' color='gray' />
-          </CopyToClipboard>
+          <IoCopyOutline className=' cursor-pointer' color='gray' onClick={handleCopy} />
         )
       }
       <p className=' m-3 mt-6 text-start' id='msg'>{msg}</p>

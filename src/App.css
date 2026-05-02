@@ -2,6 +2,7 @@
 body{
   font-family: 'Poppins',sans-serif;
   background-color: black;
+  user-select: none;
 }
 .marquee-container {
   overflow: hidden;
@@ -84,7 +85,7 @@ body{
 }
 
 .animate-slide-down {
-  animation: slide-down 0.2s ease-out;
+  animation: slide-down 0.6s ease-out forwards;
 }
 
 @keyframes slide-down {

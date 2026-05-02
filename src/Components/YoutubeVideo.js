@@ -22,6 +22,7 @@ const YouTubeVideo = ({ videoIds }) => {
     isLoading,
     thumbnail,
     setThumbnail,
+    setIsPause
   } = useStateContext();
   const onVideoEnd = () => {
     if (videoIds?.length > 1) {
@@ -89,8 +90,10 @@ const YouTubeVideo = ({ videoIds }) => {
   };
   const onStateChange = (event) => {
     if (event.data === YouTube.PlayerState.PLAYING) {
+      setIsPause(false)
       startInterval();
     } else {
+      setIsPause(true)
       clearInterval(intervalRef.current);
     }
   };

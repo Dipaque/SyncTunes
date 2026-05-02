@@ -71,7 +71,7 @@ function App() {
   const roomCode = paramsId
 
   return (
-    <div className='!bg-black h-screen'> 
+    <div className='!bg-black h-screen overflow-x-hidden'> 
       <StyledText>
           <Routes>
       <Route path='/' element={<Login  />} />

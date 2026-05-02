@@ -3,6 +3,7 @@ import CreateRoom from "../Components/CreateRoom";
 import JoinRoom from "../Components/JoinRoom";
 import { useStateContext } from "../Context/ContextProvider";
 import logo from '../assests/logo.png'
+import { IoEllipsisVertical } from "react-icons/io5";
 
 const Home = () => {
   const {
@@ -18,7 +19,7 @@ const Home = () => {
 
       <div className="flex items-center gap-2 mb-3 p-3">
         <img src={logo} height={15} width={15} alt="logo" />
-        <span className="text-md font-semibold text-gray-300">Sync-Tunes</span>
+        <span className="text-lg font-semibold text-gray-300">Sync-Tunes</span>
       </div>
 
       <div className=" flex justify-center gap-2 mb-5 p-3  mx-auto">

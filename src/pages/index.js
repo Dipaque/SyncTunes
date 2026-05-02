@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
-import logo from '../assests/logo.png'
 import { useStateContext } from "../Context/ContextProvider";
 import {
+  IoEllipsisVertical,
   IoPause,
   IoPerson,
   IoPlay,
@@ -25,6 +25,7 @@ import RoommatesDrawer from "../Components/RoommatesDrawer";
 import PlayerHeader from "../Components/PlayerHeader";
 import { useParams } from "react-router-dom";
 import JoinRoom from "../Components/JoinRoom";
+import { handleShare } from "../Functions/handleShare";
 const Index = ({ updateParamsId }) => {
   const {
     videoIds,
@@ -104,24 +105,6 @@ const Index = ({ updateParamsId }) => {
     height: "100%",
   };
 
-  const handleShare = () => {
-    if (navigator.share) {
-      navigator
-        .share({
-          title: "Check out Sync-Tunes 🎶",
-          text:
-            "I'm jamming live on SyncTunes right now and would love for you to join in\n Let's vibe together, share some beats, and make some awesome music 🎧🎸🥁 /n Join with the room code: " +
-            sessionStorage.getItem("roomCode") +
-            " or click the link below:",
-          url: window.location.href, // or your app URL e.g., 'https://sync-tunes.vercel.app'
-        })
-        .then(() => console.log("Thanks for sharing!"))
-        .catch((err) => console.error("Error sharing:", err));
-    } else {
-      alert("Sharing is not supported in this browser.");
-    }
-  };
-
   useEffect(() => {
     updateParamsId(id);
     const getData = () => {
@@ -155,11 +138,6 @@ const Index = ({ updateParamsId }) => {
 
   return (
     <div className="bg-black ">
-      <div className="flex items-center gap-2 p-3">
-        <img src={logo} height={15} width={15} alt="logo" />
-        <span className="text-md font-semibold text-gray-300">Sync-Tunes</span>
-      </div>
-
       <JoinRoom codeViaProps={id} />
 
       <PlayerHeader handlePause={handlePause} />

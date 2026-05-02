@@ -80,36 +80,18 @@ const Chat = () => {
    
   };
   return (
-    <div className="bg-black pt-3 h-screen overflow-hidden overflow-y-scroll">
+    <div className="bg-black pt-3 h-screen">
       <div className="text-white ml-5 text-xl flex items-end">
         <b>Chat</b>
       </div>
       <div className="flex  flex-col w-screen">
         {sessionStorage.getItem("roomCode") ? (
           <div>
-            <div className=" bg-zinc-900  m-3  overflow-hidden overflow-y-scroll    rounded-lg text-sm ">
+            <div className=" bg-zinc-900  h-[calc(100vh-40vh)] m-3  overflow-hidden overflow-y-scroll rounded-lg text-sm ">
               <div className="flex flex-col justify-between w-[95vw] gap-0">
                 {messages.map((data, index) =>
                   data.sender === Cookies.get("name") ? (
-                    index === messages.length - 1 ? (
-                      <div className="">
-                        <div
-                          key={index}
-                          className=" chat chat-end  text-white  p-2 mb-28  "
-                        >
-                          <div className=" bg-black chat-bubble ">
-                            <b>{"You"}</b>
-                            <p>{data.data}</p>
-                            <div className="flex flex-row items-center  text-xs">
-                              <BiTimeFive />{" "}
-                              {data.timestamp.toDate().getHours() +
-                                ":" +
-                                data.timestamp.toDate().getMinutes()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
+                  (
                       <div
                         key={index}
                         className=" chat chat-end  text-white p-2 "
@@ -126,24 +108,6 @@ const Chat = () => {
                         </div>
                       </div>
                     )
-                  ) : index === messages.length - 1 ? (
-                    <div className="">
-                      <div
-                        key={index}
-                        className=" chat chat-start start-0 text-white p-2 mb-28 "
-                      >
-                        <div className="bg-black chat-bubble ">
-                          <b>{data.sender}</b>
-                          <p>{data.data}</p>
-                          <div className="flex flex-row items-center text-xs">
-                            <BiTimeFive />{" "}
-                            {data.timestamp.toDate().getHours() +
-                              ":" +
-                              data.timestamp.toDate().getMinutes()}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   ) : (
                     <div
                       key={index}
