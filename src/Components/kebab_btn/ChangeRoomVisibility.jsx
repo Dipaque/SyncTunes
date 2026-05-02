@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import {
-  IoGlobeOutline,
-} from "react-icons/io5";
-import { Offcanvas, OffcanvasBody, FormGroup, Input, } from "reactstrap";
+import { IoGlobeOutline } from "react-icons/io5";
+import { Offcanvas, OffcanvasBody, FormGroup, Input } from "reactstrap";
 import { fontFamily } from "../../constants";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { db } from "../../firebase-config";
@@ -31,23 +29,23 @@ const ChangeRoomVisibility = () => {
     }
   };
 
-  const updateRoomStatus = async(checked) => {
+  const updateRoomStatus = async (checked) => {
     // toggle the state
-    setIsPrivate(checked)
+    setIsPrivate(checked);
 
     // fire API call to update status
-    try{
-        const docRef = doc(db, "room", roomCode);
-        await updateDoc(docRef,{isPrivate: checked})
-        setToast(true)
-        // Close after toast 
-        setTimeout(()=>{
-            setIsOpen(false);
-        },1000)
-    }catch(err){
-        console.log(err)
+    try {
+      const docRef = doc(db, "room", roomCode);
+      await updateDoc(docRef, { isPrivate: checked });
+      setToast(true);
+      // Close after toast
+      setTimeout(() => {
+        setIsOpen(false);
+      }, 1000);
+    } catch (err) {
+      console.log(err);
     }
-  }
+  };
 
   useEffect(() => {
     const getRoomVisibility = async () => {
@@ -99,9 +97,14 @@ const ChangeRoomVisibility = () => {
           </span>
         </OffcanvasBody>
       </Offcanvas>
-      {
-        toast && <Toast showToast={toast} message={`Room changed ${isPrivate ? "Private" : "Public"}`} />
-      }
+      {toast && (
+        <div className="flex justify-center">
+          <Toast
+            showToast={toast}
+            message={`Room changed ${isPrivate ? "Private" : "Public"}`}
+          />
+        </div>
+      )}
     </React.Fragment>
   );
 };
