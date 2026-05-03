@@ -61,12 +61,14 @@ const Chat = () => {
   };
   const sendMsg = async () => {
     try{
+      if(myMsg.trim() !== ""){
         await addDoc(
             collection(db, "room", sessionStorage.getItem("roomCode"), "messages"),
             {
-              data: myMsg,
-              sender: Cookies.get("email"),
+              data: myMsg.trim(),
+              sender: Cookies.get("name"),
               timestamp: Timestamp.now(),
+              email: Cookies.get("email"),
               status: "unread",
             }
           )
@@ -74,6 +76,7 @@ const Chat = () => {
               setMyMsg("");
             })
             .catch((err) => console.log(err));
+      }
     }catch(err){
         console.log(err)
     }
@@ -90,7 +93,7 @@ const Chat = () => {
             <div className=" bg-zinc-900  h-[calc(100vh-40vh)] m-3  overflow-hidden overflow-y-scroll rounded-lg text-sm ">
               <div className="flex flex-col justify-between w-[95vw] gap-0">
                 {messages.map((data, index) =>
-                  data.sender === Cookies.get("name") ? (
+                  data.email === Cookies.get("email") ? (
                   (
                       <div
                         key={index}

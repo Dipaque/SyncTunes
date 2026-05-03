@@ -84,7 +84,7 @@ function App() {
             const unReadMsg = data.docs.filter(
               (doc) =>
                 doc.data().status === "unread" &&
-                doc.data().sender !== Cookies.get("email")
+                doc.data().email !== Cookies.get("email")
             );
             setNotification(unReadMsg.length);
           });
