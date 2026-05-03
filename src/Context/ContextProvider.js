@@ -45,7 +45,13 @@ export const ContextProvider = ({ children }) => {
     setPlayedBy("")
     setCurrentTime(0)
     setDuration(0);
+    setSongsList([]);
+    setRoomMate([]);
     setMessages([])
+    setAdmin({
+      email: "",
+      userName: "",
+    })
     seekBarRef.current = null
   }, []);
 
