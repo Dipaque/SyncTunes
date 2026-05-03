@@ -6,7 +6,7 @@ import { fontFamily } from "../constants";
 import { getUniqueObjectsById } from "../Functions/removeDupes";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase-config";
-import { IoPause, IoPlay } from "react-icons/io5";
+import { IoPause, IoPerson, IoPlay } from "react-icons/io5";
 
 const QueueDrawer = ({ handlePlay, handlePause }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -61,13 +61,14 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
           borderTopRightRadius: "14px",
         }}
       >
+        <div className="border-1 border-gray-500 p-[2px] bg-gray-500 w-8 rounded-full mx-auto mt-3" onClick={handleOpen} />
         <OffcanvasHeader>
           <h6 className="text-sm font-bold">Queue</h6>
-          <p className="text-zinc-700 text-sm">
+          <p className="text-gray-500 text-xs">
             Tracks selected by room members
           </p>
         </OffcanvasHeader>
-        <OffcanvasBody>
+        <OffcanvasBody className="-mt-7">
           {songsList.length>0 ? songsList.map((song, i) => (
             <div key={i} className="flex items-center gap-2 mb-4">
               <img
@@ -87,10 +88,10 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
                   isPause && <div className="text-slate-200 text-lg">...</div>
                 )}
                 <div className="flex-1">
-                  <div className="line-clamp-1">
+                  <div className="line-clamp-1 text-sm">
                     {song.title || "Song name"}
                   </div>
-                  <p className="text-xs">{song.channelName || "artist"}</p>
+                  <p className="flex items-center gap-1 text-xs text-gray-500"> <IoPerson />{song.playedBy || "artist"}</p>
                 </div>
               </span>
               {currentPlaying.id === song.id && (

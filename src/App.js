@@ -22,13 +22,15 @@ import Index from './pages';
 import Cookies from "js-cookie"
 import LikedSongsList from './Components/settings/LikedSongsList';
 import Explore from './pages/Explore';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
+import { db } from './firebase-config';
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
 `;
 function App() {
   document.body.style.backgroundColor='#0000'
-  const {pathName,setPathName, onReady,title,songsList}=useStateContext()
+  const {pathName,setPathName, onReady,title,songsList, setMessages,setNotification}=useStateContext()
   const location = useLocation();
   const nav = useNavigate()
 
@@ -64,9 +66,38 @@ function App() {
         }
       }
     };
+
+    const getRealtimeMessages = () => {
+      try{
+        if (paramsId) {
+          const filteredUsersQuery = query(
+            collection(
+              db,
+              "room",
+              paramsId || sessionStorage.getItem("roomCode"),
+              "messages"
+            ),
+            orderBy("timestamp", "asc")
+          );
+          onSnapshot(filteredUsersQuery, (data) => {
+            setMessages(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
+            const unReadMsg = data.docs.filter(
+              (doc) =>
+                doc.data().status === "unread" &&
+                doc.data().sender !== Cookies.get("email")
+            );
+            setNotification(unReadMsg.length);
+          });
+        }
+      }catch(err){
+        console.log(err)
+      }
+    };
+    getRealtimeMessages()
     
     checkAuthAndSetPath();
   }, [paramsId]);
+
   
   const roomCode = paramsId
 

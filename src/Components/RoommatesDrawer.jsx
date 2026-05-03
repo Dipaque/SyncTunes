@@ -32,18 +32,19 @@ const RoommatesDrawer = () => {
           borderTopRightRadius: "14px",
         }}
       >
+        <div className="border-1 border-gray-500 p-[2px] bg-gray-500 w-8 rounded-full mx-auto mt-3" onClick={handleOpen} />
         <OffcanvasHeader>
           <h6 className="text-sm font-bold">Roommates</h6>
         </OffcanvasHeader>
         <OffcanvasBody>
           {
-            roomMate.map((user,i)=>(
-         <div className="mb-3 flex items-center justify-between" key={`key-${i}`}>
+            roomMate?.map((user,i)=>(
+         <div className="mb-3 -mt-2 flex items-center justify-between" key={`key-${i}`}>
           <div className="flex items-center gap-3">
-            <img src={user.photoUrl} className="rounded-full" height={35} width={35} alt="user-profile" />
-            <span>{user.userName}</span>
+            <img src={user?.photoUrl} className="rounded-full" height={35} width={35} alt="user-profile" />
+            <span className="line-clamp-1 text-sm">{user?.userName||""}</span>
           </div>
-           { user.email=== admin.email && <div className="bg-[#162312] border-2 border-[#244415] text-[#3a8216] p-1 rounded-md text-xs">
+           { user?.email=== admin?.email && <div className="bg-green-700 opacity-90 text-green-100 p-1 rounded-md text-xs">
               Admin
             </div>}
          </div>

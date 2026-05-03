@@ -1,7 +1,6 @@
 import React, { useEffect } from "react";
 import { useStateContext } from "../Context/ContextProvider";
 import {
-  IoEllipsisVertical,
   IoPause,
   IoPerson,
   IoPlay,
@@ -24,7 +23,7 @@ import QueueDrawer from "../Components/QueueDrawer";
 import RoommatesDrawer from "../Components/RoommatesDrawer";
 import PlayerHeader from "../Components/PlayerHeader";
 import { useParams } from "react-router-dom";
-import JoinRoom from "../Components/JoinRoom";
+import JoinRoom from "../Components/modal/JoinRoom";
 import { handleShare } from "../Functions/handleShare";
 const Index = ({ updateParamsId }) => {
   const {
@@ -107,33 +106,6 @@ const Index = ({ updateParamsId }) => {
 
   useEffect(() => {
     updateParamsId(id);
-    const getData = () => {
-      try{
-        if (id) {
-          const filteredUsersQuery = query(
-            collection(
-              db,
-              "room",
-              sessionStorage.getItem("roomCode"),
-              "messages"
-            ),
-            orderBy("timestamp", "asc")
-          );
-          onSnapshot(filteredUsersQuery, (data) => {
-            setMessages(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
-            const unReadMsg = data.docs.filter(
-              (doc) =>
-                doc.data().status === "unread" &&
-                doc.data().sender !== Cookies.get("name")
-            );
-            setNotification(unReadMsg.length);
-          });
-        }
-      }catch(err){
-        console.log(err)
-      }
-    };
-    getData();
   }, [id]);
 
   return (
@@ -163,7 +135,7 @@ const Index = ({ updateParamsId }) => {
             </div>
 
             <p className="text-slate-200 m-2 mt-1">{artist || "Artist name"}</p>
-            <p className="text-slate-200 m-2 text-xs flex items-center gap-1">
+            <p className="m-2 text-xs flex items-center gap-1 text-gray-400">
               <IoPerson /> {playedBy || "Player name"}
             </p>
           </div>

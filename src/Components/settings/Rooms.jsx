@@ -6,6 +6,7 @@ import PageHeader from "../layout/PageHeader";
 import { IoSearchOutline } from 'react-icons/io5';
 import Spinner from "../loading/Spinner";
 import RoomTemplate from "../RoomTemplate";
+import { HiOutlineCollection } from "react-icons/hi";
 const Rooms = () => {
 
   const [myRoom, setMyRoom] = useState([]);
@@ -18,10 +19,10 @@ const Rooms = () => {
     const getData = async () => {
       setLoading(true);
       try {
-        const name = Cookies.get("name");
+        const email = Cookies.get("email");
         const filteredQuery = query(
           collection(db, "room"),
-          where("roomAdmin", "==", name)
+          where("adminEmail", "==", email)
         );
         const data = await getDocs(filteredQuery);
         setMyRoom(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
@@ -56,9 +57,13 @@ const Rooms = () => {
         type="text"
         value={input}
         onChange={(e)=>setInput(e.target.value)}
-        placeholder="Find in Liked Songs"
+        placeholder="Find in rooms..."
         className="w-64 bg-zinc-900/50 backdrop-blur-md rounded-md py-2 pr-3 pl-10 text-white text-xs font-semibold placeholder:text-white/60 focus:outline-none"
       />
+    </div>
+
+    <div className='flex items-center text-white/70 justify-start gap-2 mb-4 m-3 ms-2 text-xs font-semibold'>
+      <HiOutlineCollection size={16} />  Total {myRoom.length} Rooms
     </div>
 
       {/* Rooms list */}

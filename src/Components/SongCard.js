@@ -53,9 +53,9 @@ const SongCard = ({image,title,id,channelName,setToastDisplay,setToastMsg}) => {
  }
   return (
 
-<div  className='flex flex-row m-3 justify-center items-start gap-2 text-white cursor-pointer' >
-  <img src={image} className='rounded-lg h-16 w-16' onClick={()=>handlePlay()} alt='' />
-  <p className='w-2/3 line-clamp-2' onClick={()=>handlePlay()}>{title}</p>
+<div  className='flex flex-row p-2 px-1 pe-1 justify-center items-start gap-2 text-white cursor-pointer' >
+  <img src={image} className='rounded-lg h-12 w-16' onClick={()=>handlePlay()} alt='' />
+  <p className='w-2/3 line-clamp-2 text-sm' onClick={()=>handlePlay()}>{title}</p>
   <Dropdown isOpen={dropdownOpen} toggle={toggle} direction={'down'}>
 <DropdownToggle className='btn' tag={'button'} >
 <IoEllipsisVertical color='white' size={18} />

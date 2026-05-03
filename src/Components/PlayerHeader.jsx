@@ -11,7 +11,7 @@ import {
   doc,
   updateDoc,
 } from "firebase/firestore";
-import LeaveRoom from "./LeaveRoom";
+import LeaveRoom from "./modal/LeaveRoom";
 import LikedUsers from "./LikedUsers";
 import { useNavigate } from "react-router-dom";
 import KebabButton from "./kebab_btn/KebabButton";
@@ -38,22 +38,26 @@ const PlayerHeader = ({ handlePause }) => {
 
   useEffect(() => {
     const getData = () => {
-      if (roomCode) {
-        const filteredUsersQuery = query(
-          collection(db, "room"),
-          where("roomCode", "==", roomCode)
-        );
-        onSnapshot(filteredUsersQuery, (data) => {
-          setCurrentSong(
-            data.docs.map((doc) => ({ ...doc?.data(), id: doc?.id }))
+      try{
+        if (roomCode) {
+          const filteredUsersQuery = query(
+            collection(db, "room"),
+            where("roomCode", "==", roomCode)
           );
-          setVideoIds(data?.docs[0]?.data()?.currentSong);
-          setRoomMate(data?.docs[0]?.data()?.roomMates);
-          setAdmin({
-            userName: data?.docs[0]?.data()?.roomAdmin,
-            email: data?.docs[0]?.data()?.adminEmail ?? "",
+          onSnapshot(filteredUsersQuery, (data) => {
+            setCurrentSong(
+              data.docs.map((doc) => ({ ...doc?.data(), id: doc?.id }))
+            );
+            setVideoIds(data?.docs[0]?.data()?.currentSong);
+            setRoomMate(data?.docs[0]?.data()?.roomMates);
+            setAdmin({
+              userName: data?.docs[0]?.data()?.roomAdmin,
+              email: data?.docs[0]?.data()?.adminEmail ?? "",
+            });
           });
-        });
+        }
+      }catch(err){
+        console.log(err)
       }
     };
     getData();

@@ -1,5 +1,5 @@
-import React, {useState} from 'react'
-import { useStateContext } from '../Context/ContextProvider'
+import React from 'react'
+import { useStateContext } from '../../Context/ContextProvider'
 import {
     Button,
     Modal,
@@ -7,7 +7,7 @@ import {
     ModalBody,
     ModalFooter,
   } from 'reactstrap';
-import { fontFamily } from '../constants';
+import { fontFamily } from '../../constants';
 const LeaveRoom = ({handleLeaveRoom}) => {
     const {isLeaving,setIsLeaving,} = useStateContext()
   const toggle = () => setIsLeaving(!isLeaving);

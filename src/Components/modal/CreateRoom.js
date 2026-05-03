@@ -1,5 +1,4 @@
 import React,{useState} from 'react';
-import ReactDOM from 'react-dom';
 import {
     Button,
     Modal,
@@ -10,14 +9,13 @@ import {
     Input,
   } from 'reactstrap';
   import Cookies from 'js-cookie';
-  import { db } from '../firebase-config';
+  import { db } from '../../firebase-config';
   import {setDoc ,doc,Timestamp} from 'firebase/firestore'
-import { useStateContext } from '../Context/ContextProvider';
+import { useStateContext } from '../../Context/ContextProvider';
 import { useNavigate } from 'react-router-dom';
 import { IoCopyOutline, IoGlobeOutline } from 'react-icons/io5';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import '../App.css'
-import { fontFamily } from '../constants';
+import '../../App.css'
+import { fontFamily } from '../../constants';
 function CreateRoom() {
     const nav = useNavigate()
     const [roomCode,setRoomCode]=useState('')

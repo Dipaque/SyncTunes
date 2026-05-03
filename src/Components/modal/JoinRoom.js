@@ -7,11 +7,11 @@ import {
     ModalFooter,
     Input,
   } from 'reactstrap';
-  import { db } from '../firebase-config';
+  import { db } from '../../firebase-config';
   import {doc,getDoc, updateDoc, Timestamp} from 'firebase/firestore'
-import { useStateContext } from '../Context/ContextProvider';
+import { useStateContext } from '../../Context/ContextProvider';
 import Cookies from 'js-cookie';
-import { fontFamily } from '../constants';
+import { fontFamily } from '../../constants';
 import { useNavigate } from 'react-router-dom';
 function JoinRoom({codeViaProps}) {
   const nav = useNavigate();

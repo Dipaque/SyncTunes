@@ -1,9 +1,8 @@
 import React from "react";
-import CreateRoom from "../Components/CreateRoom";
-import JoinRoom from "../Components/JoinRoom";
+import CreateRoom from "../Components/modal/CreateRoom";
+import JoinRoom from "../Components/modal/JoinRoom";
 import { useStateContext } from "../Context/ContextProvider";
 import logo from '../assests/logo.png'
-import { IoEllipsisVertical } from "react-icons/io5";
 
 const Home = () => {
   const {

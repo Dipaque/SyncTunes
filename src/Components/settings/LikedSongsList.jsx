@@ -7,6 +7,7 @@ import PageHeader from '../layout/PageHeader';
 import { IoSearchOutline } from 'react-icons/io5';
 import Toast from '../Toast';
 import Spinner from '../loading/Spinner';
+import { HiOutlineMusicNote } from 'react-icons/hi';
 
 const LikedSongsList = () => {
 
@@ -65,7 +66,7 @@ const LikedSongsList = () => {
     <div className='h-screen overflow-hidden overflow-y-auto'>
         
     <PageHeader title={"Liked Songs"} />
-    <div className='p-3  mb-28'>
+    <div className='p-1  mb-28'>
     {
         loading ? <Spinner /> :     <>
         <div className="mx-auto mb-5 relative w-fit">
@@ -82,8 +83,8 @@ const LikedSongsList = () => {
         className="w-64 bg-zinc-900/50 backdrop-blur-md rounded-md py-2 pr-3 pl-10 text-white text-xs font-semibold placeholder:text-white/60 focus:outline-none"
       />
     </div>
-    <div className='flex items-center text-white/70 justify-between mb-4 m-3 text-xs font-semibold'>
-        Total {likedSongs.length} Songs
+    <div className='flex items-center text-white/70 justify-start gap-2 mb-4 m-3 ms-2 text-xs font-semibold'>
+      <HiOutlineMusicNote size={16} />  Total {likedSongs.length} Songs
     </div>
     
             {

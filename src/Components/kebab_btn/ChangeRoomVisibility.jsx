@@ -80,8 +80,13 @@ const ChangeRoomVisibility = () => {
           borderTopRightRadius: "14px",
         }}
       >
+        <div
+          className="border-1 border-gray-500 p-[2px] bg-gray-500 w-8 rounded-full mx-auto mt-3"
+          onClick={handleOpen}
+        />
+
         <OffcanvasBody>
-          <span className="text-sm mt-3 text-gray-500 flex items-center justify-between">
+          <span className="text-sm mt-2 text-gray-500 flex items-center justify-between">
             <div className="flex items-center gap-2 text-gray-300">
               Change to Private
             </div>

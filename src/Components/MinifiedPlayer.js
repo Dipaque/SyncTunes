@@ -61,11 +61,11 @@ const MinifiedPlayer = () => {
 
   return (
     <div className="absolute bottom-[3.6rem] left-1/2 -translate-x-1/2 rounded-md animate-controller bg-zinc-900/50 backdrop-blur-md border-t border-white/10 w-[95vw] max-w-xl"  onClick={handleNavigate}>
-      <div className="p-3 flex justify-between items-center gap-2">
+      <div className="p-3 flex justify-between items-center gap-2 px-2">
         <div className="flex items-center gap-2">
         <img
           src={thumbnail || ""}
-          className=" h-8 w-12"
+          className=" h-8 w-12 rounded-md"
           alt="thumbnail"
         />
         <div className=" text-slate-100 line-clamp-1 text-sm">

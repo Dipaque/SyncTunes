@@ -65,7 +65,7 @@ const Chat = () => {
             collection(db, "room", sessionStorage.getItem("roomCode"), "messages"),
             {
               data: myMsg,
-              sender: Cookies.get("name"),
+              sender: Cookies.get("email"),
               timestamp: Timestamp.now(),
               status: "unread",
             }
