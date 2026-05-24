@@ -83,7 +83,7 @@ const KebabButton = ({ handleExit }) => {
         onClick={handleOpen}
       />
       <Offcanvas
-        className={`!bg-zinc-900 !text-slate-200 !h-[55%] ${
+        className={`!bg-zinc-900 !text-slate-200 !h-[45%] !max-w-screen-sm ${
           isOpen ? "!animate-drawer" : "translate-y-0 !animate-slide-down"
         }`}
         direction="bottom"
@@ -97,7 +97,7 @@ const KebabButton = ({ handleExit }) => {
         }}
       >
         <div
-          className="border-1 border-gray-500 p-[2px] bg-gray-500 w-8 rounded-full mx-auto mt-3"
+          className="border-1 border-gray-500 p-[1px] bg-gray-500 w-8 rounded-full mx-auto mt-3"
           onClick={handleOpen}
         />
 

@@ -48,7 +48,7 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
         onClick={handleOpen}
       />
       <Offcanvas
-        className={`!bg-zinc-900 !text-slate-200 !h-[50%] ${
+        className={`!bg-zinc-900 !text-slate-200 !h-[50%] !max-w-screen-sm ${
           isOpen ? "!animate-drawer" : "!animate-slide-down"
         }`}
         direction="bottom"
@@ -61,7 +61,7 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
           borderTopRightRadius: "14px",
         }}
       >
-        <div className="border-1 border-gray-500 p-[2px] bg-gray-500 w-8 rounded-full mx-auto mt-3" onClick={handleOpen} />
+        <div className="border-1 border-gray-500 p-[1px] bg-gray-500 w-8 rounded-full mx-auto mt-3" onClick={handleOpen} />
         <OffcanvasHeader>
           <h6 className="text-sm font-bold">Queue</h6>
           <p className="text-gray-500 text-xs">

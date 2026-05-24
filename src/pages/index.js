@@ -42,8 +42,7 @@ const Index = ({ updateParamsId }) => {
     isPause,
     setIsPause,
     thumbnail,
-    setMessages,
-    setNotification
+    isLeaving
   } = useStateContext();
 
   const { id } = useParams();
@@ -105,8 +104,8 @@ const Index = ({ updateParamsId }) => {
   };
 
   useEffect(() => {
-    updateParamsId(id);
-  }, [id]);
+    isLeaving ? updateParamsId("") : updateParamsId(id);
+  }, [id, isLeaving, updateParamsId]);
 
   return (
     <div className="bg-black ">
