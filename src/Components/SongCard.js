@@ -131,7 +131,7 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
         
         <DropdownMenu className='bg-dark dropdown-menu-end border-dark !hover:bg-zinc-800 !hover:text-slate-200 shadow-lg p-2'>
           <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={() => {
-            playNext(image, title, id, channelName, videoIds, currentPlaying, Cookies.get('name'));
+            playNext(image, title, id, channelName, videoIds, currentPlaying, Cookies.get('name'), artistId);
             setToastDisplay(true);
             addRecent()
             setToastMsg('Added to Play next');
@@ -141,7 +141,7 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
           </DropdownItem>
           
           <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={() => {
-            addToQueue(image, title, id, channelName, videoIds, Cookies.get('name'));
+            addToQueue(image, title, id, channelName, videoIds, Cookies.get('name'), artistId);
             setToastDisplay(true);
             addRecent()
             setToastMsg('Added to Queue');
@@ -151,7 +151,7 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
           </DropdownItem>
           
           <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={() => {
-            addToQueue(image, title, id, channelName, videoIds, Cookies.get('name'));
+            addToQueue(image, title, id, channelName, videoIds, Cookies.get('name'), artistId);
             setToastDisplay(true);
             addRecent()
             setToastMsg('Added to Repeat');
@@ -161,7 +161,7 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
           </DropdownItem>
           
           <DropdownItem className='d-flex gap-2 pt-3 pb-3 text-light text-xs dropwdown-item' onClick={() => {
-            shuffule(image, title, id, channelName, videoIds, Cookies.get('name'));
+            shuffule(image, title, id, channelName, videoIds, Cookies.get('name'), artistId);
             setToastDisplay(true);
             addRecent()
             setToastMsg('Added to Shuffle');

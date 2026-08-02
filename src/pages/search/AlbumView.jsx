@@ -8,6 +8,7 @@ import Cookies from 'js-cookie';
 import addToQueue from '../../Functions/addToQueue';
 import { formatText } from '../../utils/formatText';
 import AlbumShimmer from '../../Components/loading/AlbumShimmer';
+import GenericNotFound from '../../Components/NotFoundPage';
 
 const AlbumView = () => {
   // Extracting 'id' (roomId) and 'album' (albumId) from the route params
@@ -42,7 +43,7 @@ const AlbumView = () => {
     );
   }
 
-  if (!album) return <div className="text-white bg-black h-screen p-5">Album not found.</div>;
+  if (!album || !album?.songs) return <GenericNotFound />;;
 
   const coverImage = album.thumbnails?.[album.thumbnails.length - 1]?.url;
 
@@ -60,7 +61,8 @@ const AlbumView = () => {
         song.videoId, 
         artistName, 
         videoIds, 
-        Cookies.get('name')
+        Cookies.get('name'),
+        song?.artist?.artistId
       );
     }
 

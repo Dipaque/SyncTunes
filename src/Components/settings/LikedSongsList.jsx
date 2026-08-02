@@ -8,6 +8,8 @@ import { IoSearchOutline } from 'react-icons/io5';
 import Toast from '../Toast';
 import Spinner from '../loading/Spinner';
 import { HiOutlineMusicNote } from 'react-icons/hi';
+import NotFoundGraphic from '../../assests/notFound';
+import GenericNotFound from '../NotFoundPage';
 
 const LikedSongsList = () => {
 
@@ -89,15 +91,13 @@ const LikedSongsList = () => {
     
             {
                 input && searchResult.length > 0 ? searchResult?.map((song)=>(
-                    <SongCard key={song?.id} title={song.title} id={song?.id} image={song?.image} channelName={song?.channelName}  setToastDisplay={setToastDisplay}
+                    <SongCard key={song?.id} title={song.title} id={song?.id} image={song?.image} channelName={song?.channelName} artistId={song.artistId} setToastDisplay={setToastDisplay}
                     setToastMsg={setToastMsg} />
                 )):
                 !input && likedSongs.length > 0 ?  likedSongs?.map((song)=>(
-                    <SongCard key={song?.id} title={song.title} id={song?.id} image={song?.image} channelName={song?.channelName}  setToastDisplay={setToastDisplay}
+                    <SongCard key={song?.id} title={song.title} id={song?.id} image={song?.image} channelName={song?.channelName} artistId={song.artistId} setToastDisplay={setToastDisplay}
                     setToastMsg={setToastMsg} />
-                )) :(<div className="text-center mt-5 text-slate-100">
-                    No songs found that you like!
-                  </div>)
+                )) :(<GenericNotFound content={"You have'nt liked any songs yet."} />)
             }
         </>
     } 

@@ -7,6 +7,7 @@ import { IoSearchOutline } from 'react-icons/io5';
 import Spinner from "../loading/Spinner";
 import RoomTemplate from "../RoomTemplate";
 import { HiOutlineCollection } from "react-icons/hi";
+import GenericNotFound from "../NotFoundPage";
 const Rooms = () => {
 
   const [myRoom, setMyRoom] = useState([]);
@@ -83,9 +84,7 @@ const Rooms = () => {
                 <RoomTemplate data={data} key={`key-${i}`} />
               ))
             ) : (
-              <div className="text-center mt-5 text-slate-100">
-                No rooms created yet!
-              </div>
+              <GenericNotFound content={"You have'nt created any rooms yet."} />
             )}
           </>
         )}

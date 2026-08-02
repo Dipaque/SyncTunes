@@ -7,6 +7,7 @@ import { getUniqueObjectsById } from "../Functions/removeDupes";
 import { doc, onSnapshot } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { IoPause, IoPerson, IoPlay } from "react-icons/io5";
+import NotFoundGraphic from "../assests/notFound";
 
 const QueueDrawer = ({ handlePlay, handlePause }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -118,7 +119,10 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
                 </>
               ) }
             </div>
-          )):<p className="text-zinc-500 mx-auto">No song played yet!</p>}
+          )):<p className="text-zinc-500 mx-auto text-center text-sm">
+            <NotFoundGraphic className={"h-40 w-40 mx-auto"} />
+            No song played yet!
+            </p>}
         </OffcanvasBody>
       </Offcanvas>
     </React.Fragment>

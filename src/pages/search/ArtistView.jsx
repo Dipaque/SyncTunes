@@ -7,6 +7,7 @@ import { useStateContext } from '../../Context/ContextProvider';
 import Cookies from 'js-cookie';
 import addToQueue from '../../Functions/addToQueue';
 import ArtistShimmer from '../../Components/loading/ArtistShimmer';
+import GenericNotFound from '../../Components/NotFoundPage';
 
 const ArtistView = () => {
   // Extracting 'id' (roomId) and 'artist' (artistId) from the route params
@@ -41,7 +42,7 @@ const ArtistView = () => {
     );
   }
 
-  if (!artist) return <div className="text-white bg-black h-screen p-5">Artist not found.</div>;
+  if (!artist || !artist?.name) return <GenericNotFound />;
 
   const artistImage = artist.thumbnails?.[artist.thumbnails.length - 1]?.url;
 
@@ -56,7 +57,8 @@ const ArtistView = () => {
         song.videoId, 
         artist.name, 
         videoIds, 
-        Cookies.get('name')
+        Cookies.get('name'),
+        song?.artist?.artistId
       );
     }
   };

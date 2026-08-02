@@ -285,7 +285,7 @@ const Index = ({ updateParamsId }) => {
             {isExternalDevice ? (
              <div className="flex flex-row gap-1 items-center text-nowrap text-[10px] text-slate-50 "><IoHeadsetOutline size={22} className="text-slate-300" />{deviceLabel} </div> // Spotify Green for active external device
             ) : (
-              <LuSpeaker size={22} className="text-slate-300" />
+              <LuSpeaker size={22} className="text-slate-200" />
             )}
           </div>
         <div className=" flex items-end gap-6 float-right  m-3">
