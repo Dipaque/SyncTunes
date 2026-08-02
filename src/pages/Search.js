@@ -1,13 +1,12 @@
 import React, { useState } from "react";
 import Icon from "@mdi/react";
 import { mdiMagnify } from "@mdi/js";
-import axios from "axios";
 import SongCard from "../Components/SongCard";
 import "../App.css";
 import Shimmer from "../Components/Shimmer";
 import Toast from "../Components/Toast";
-import { getAuth } from "firebase/auth"; 
 import { localStorage_recentSearches } from "../constants";
+import apiClient from "../utils/apiClient";
 
 const filters = ["ALL", "SONG", "VIDEO", "ARTIST", "ALBUM", "PLAYLIST"];
 
@@ -34,14 +33,8 @@ const Search = () => {
     setIsLoading(true);
 
     try {
-      const auth = getAuth();
-      const token = await auth.currentUser?.getIdToken();
-
-      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/search`, {
-        params: { q: input },
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await apiClient.get('/search', { 
+        params: { q: input } 
       });
 
       setData(response.data);

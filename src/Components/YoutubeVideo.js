@@ -4,6 +4,10 @@ import { db } from "../firebase-config";
 import { doc, onSnapshot, updateDoc, Timestamp } from "firebase/firestore";
 import { useStateContext } from "../Context/ContextProvider";
 import { getUniqueObjectsById } from "../Functions/removeDupes";
+import Cookies from "js-cookie"
+import apiClient from "../utils/apiClient";
+import addToQueue from "../Functions/addToQueue";
+import { localStorage_autoSuggest } from "../constants";
 
 const YouTubeVideo = ({ videoIds }) => {
   const intervalRef = useRef(null);
@@ -32,23 +36,68 @@ const YouTubeVideo = ({ videoIds }) => {
     setCurrentTime(0);
   }, [id, setCurrentTime]);
 
-  const onVideoEnd = () => {
-    // ... your existing onVideoEnd logic ...
-    if (videoIds?.length > 1) {
-      const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
-      if (index < videoIds?.length - 1) {
+  const onVideoEnd = async () => {
+    const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
+    const autoSuggest = JSON.parse(localStorage.getItem(localStorage_autoSuggest)); // get settings value
+    
+    // Check if the currently ending song is the absolute last song in the array
+    const isLastSong = index === videoIds?.length - 1;
+  
+    try {
+      if (!isLastSong) {
+        // 1. NOT the last song: Simply play the next song in the queue
         const uniqueVideoIds = getUniqueObjectsById(videoIds);
-        updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
+        await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
           currentSong: uniqueVideoIds,
           currentPlaying: { ...videoIds[index + 1], playedAt: Timestamp.now() },
-        }).catch((err) => console.log(err));
+        });
+  
+      } else {
+        // 2. IS the last song: Check if Auto-Suggest is enabled
+        if (autoSuggest) {
+          // AWAIT the api call (apiClient already knows the base URL)
+          const { data } = await apiClient.get(`/song/${id}/up-next`);
+          
+          console.log("Auto-suggest fetched:", data);
+  
+          if (data && data.length > 0) {
+            // Queue all the fetched results
+            for (let i = 0; i < data.length; i++) {
+              await addToQueue(
+                data[i]?.thumbnail || data[i]?.thumbnails?.[0]?.url, 
+                data[i]?.title, 
+                data[i]?.videoId, 
+                data[i]?.artists || data[i]?.artist?.name, 
+                videoIds, 
+                Cookies.get('name') || "Auto Suggest"
+              );
+            }
+  
+            // Force the player to immediately start playing the FIRST suggested song
+            await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
+              currentPlaying: {
+                id: data[0].videoId,
+                title: data[0].title,
+                image: data[0]?.thumbnail || data[0]?.thumbnails?.[0]?.url,
+                channelName: data[0]?.artists || data[0]?.artist?.name,
+                playedBy: "Auto Suggest",
+                playedAt: Timestamp.now()
+              }
+            });
+          }
+        } else {
+          // 3. IS the last song, but Auto-Suggest is OFF: Loop back to the very first song
+          await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
+            currentPlaying: { ...videoIds[0], playedAt: Timestamp.now() },
+          });
+        }
       }
-    } else {
-      updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
-        currentPlaying: { ...videoIds[0], playedAt: Timestamp.now(), },
-      }).catch((err) => console.log(err));
+    } catch (err) {
+      console.error("Error handling track change / auto-suggest:", err);
     }
-    if (onReady) onReady.seekTo(0);
+  
+    // Reset the local player time
+    // if (onReady) onReady.seekTo(0);
     setCurrentTime(0);
   };
 

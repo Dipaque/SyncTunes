@@ -4,7 +4,7 @@ import { Offcanvas, OffcanvasBody, OffcanvasHeader } from "reactstrap";
 import { HiOutlineQueueList } from "react-icons/hi2";
 import { fontFamily } from "../constants";
 import { getUniqueObjectsById } from "../Functions/removeDupes";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { IoPause, IoPerson, IoPlay } from "react-icons/io5";
 import NotFoundGraphic from "../assests/notFound";
@@ -15,25 +15,30 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
     useStateContext();
   const roomCode = sessionStorage.getItem("roomCode") || "";
   useEffect(() => {
-    const docRef = roomCode && doc(db, "room", roomCode);
-
-    const unsubscribe = roomCode ? onSnapshot(
-      docRef,
-      (snapshot) => {
-        const data = snapshot.data();
-        if (data && Array.isArray(data.currentSong)) {
-          const uniqueSongs = getUniqueObjectsById(data.currentSong);
-          setSongsList(uniqueSongs);
+    const fetchRoomData = async () => {
+      if (!roomCode) return;
+  
+      try {
+        const docRef = doc(db, "room", roomCode);
+        const snapshot = await getDoc(docRef);
+  
+        if (snapshot.exists()) {
+          const data = snapshot.data();
+          if (data && Array.isArray(data.currentSong)) {
+            const uniqueSongs = getUniqueObjectsById(data.currentSong);
+            setSongsList(uniqueSongs);
+          } else {
+            console.warn("currentSong is missing or not an array");
+          }
         } else {
-          console.warn("currentSong is missing or not an array");
+          console.warn("Room document does not exist");
         }
-      },
-      (error) => {
+      } catch (error) {
         console.error("Error fetching songs:", error);
       }
-    ):()=>{};
-
-    return () => unsubscribe();
+    };
+  
+    fetchRoomData();
   }, [roomCode]);
 
   const handleOpen = () => {
