@@ -4,6 +4,7 @@ import { db } from "../firebase-config";
 import { doc, onSnapshot, updateDoc, Timestamp } from "firebase/firestore";
 import { useStateContext } from "../Context/ContextProvider";
 import { getUniqueObjectsById } from "../Functions/removeDupes";
+
 const YouTubeVideo = ({ videoIds }) => {
   const intervalRef = useRef(null);
   const [id, setId] = useState("");
@@ -15,7 +16,7 @@ const YouTubeVideo = ({ videoIds }) => {
     currentPlaying,
     setCurrentPlaying,
     setDuration,
-    setCurrentTime,
+    setCurrentTime, // We will use this to forcefully reset time
     onReady,
     setPlayedBy,
     setIsLoading,
@@ -24,7 +25,15 @@ const YouTubeVideo = ({ videoIds }) => {
     setThumbnail,
     setIsPause
   } = useStateContext();
+
+  // 🐛 FIX 1: Immediately clear interval and reset time when track ID changes
+  useEffect(() => {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    setCurrentTime(0);
+  }, [id, setCurrentTime]);
+
   const onVideoEnd = () => {
+    // ... your existing onVideoEnd logic ...
     if (videoIds?.length > 1) {
       const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
       if (index < videoIds?.length - 1) {
@@ -42,12 +51,13 @@ const YouTubeVideo = ({ videoIds }) => {
     if (onReady) onReady.seekTo(0);
     setCurrentTime(0);
   };
+
   useEffect(() => {
-    let unsubscribe
+    let unsubscribe;
     const fetchUsers = async () => {
       try {
         const docRef = doc(db, "room", sessionStorage.getItem("roomCode"));
-    unsubscribe =     onSnapshot(docRef, (doc) => {
+        unsubscribe = onSnapshot(docRef, (doc) => {
           if (doc.exists()) {
             setVideoIds(doc.data().currentSong);
             if (doc.data().currentPlaying) {
@@ -66,13 +76,14 @@ const YouTubeVideo = ({ videoIds }) => {
     };
     fetchUsers();
     return () => unsubscribe();
-  }, [videoIds]);
+  }, [videoIds]); // Warning: Having videoIds as a dependency here might cause too many re-renders. Consider removing it or changing to roomCode.
 
   const onReadyFunc = (event) => {
     setOnReady(event.target);
     setDuration(event.target.getDuration());
     setIsLoading(false);
   };
+
   const opts = {
     height: "30",
     width: "30",
@@ -88,12 +99,16 @@ const YouTubeVideo = ({ videoIds }) => {
       showRelatedVideos: 0,
     },
   };
+
   const onStateChange = (event) => {
+    // 🐛 FIX 2: Only start interval if video is playing AND it's not buffering a new track
     if (event.data === YouTube.PlayerState.PLAYING) {
-      setIsPause(false)
+      setIsPause(false);
+      // Ensure we have the new video's duration before setting interval
+      setDuration(event.target.getDuration()); 
       startInterval();
     } else {
-      setIsPause(true)
+      setIsPause(true);
       clearInterval(intervalRef.current);
     }
   };
@@ -101,13 +116,10 @@ const YouTubeVideo = ({ videoIds }) => {
   const startInterval = () => {
     clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      setCurrentTime((prevCurrentTime) => {
+      if (onReady && typeof onReady.getCurrentTime === 'function') {
         const newCurrentTime = onReady.getCurrentTime();
-        if (Math.abs(newCurrentTime - prevCurrentTime) > 1) {
-          return newCurrentTime;
-        }
-        return prevCurrentTime;
-      });
+        setCurrentTime(newCurrentTime);
+      }
     }, 500);
   };
 
@@ -115,10 +127,9 @@ const YouTubeVideo = ({ videoIds }) => {
     <div>
       {(id || !isLoading || thumbnail ) && (
         <>
-          <div
-            style={{ position: "absolute", bottom: 0, left: -42, zIndex: -1 }}
-          >
+          <div style={{ position: "absolute", bottom: 0, left: -42, zIndex: -1 }}>
             <YouTube
+              key={id} // 🐛 FIX: This forces React to unmount the old player and mount a fresh one on track change
               videoId={id}
               className=""
               opts={opts}
