@@ -9,13 +9,9 @@ import {
   IoPlaySkipForward,
 } from "react-icons/io5";
 
-import Cookies from "js-cookie";
 import { HiOutlineShare } from "react-icons/hi";
 import Marquee from "react-fast-marquee";
-import { doc, updateDoc, Timestamp, collection,
-  query,
-  orderBy,
-  onSnapshot } from "firebase/firestore";
+import { doc, updateDoc, Timestamp } from "firebase/firestore";
 import { db } from "../firebase-config";
 import { secondsToMinutes, seekBarStyle } from "../Functions/secondsToMinutes";
 import PlayerShimmer from "../Components/PlayerShimmer";

@@ -4,10 +4,9 @@ import { db } from "../firebase-config";
 import { doc, onSnapshot, updateDoc, Timestamp } from "firebase/firestore";
 import { useStateContext } from "../Context/ContextProvider";
 import { getUniqueObjectsById } from "../Functions/removeDupes";
-import Cookies from "js-cookie"
 import apiClient from "../utils/apiClient";
-import addToQueue from "../Functions/addToQueue";
 import { localStorage_autoSuggest } from "../constants";
+import bulkQueue from "../Functions/bulkQueue";
 
 const YouTubeVideo = ({ videoIds }) => {
   const intervalRef = useRef(null);
@@ -57,29 +56,34 @@ const YouTubeVideo = ({ videoIds }) => {
         if (autoSuggest) {
           // AWAIT the api call (apiClient already knows the base URL)
           const { data } = await apiClient.get(`/song/${id}/up-next`);
-          
-          console.log("Auto-suggest fetched:", data);
-  
+            
           if (data && data.length > 0) {
             // Queue all the fetched results
-            for (let i = 0; i < data.length; i++) {
-              await addToQueue(
-                data[i]?.thumbnail || data[i]?.thumbnails?.[0]?.url, 
-                data[i]?.title, 
-                data[i]?.videoId, 
-                data[i]?.artists || data[i]?.artist?.name, 
-                videoIds, 
-                Cookies.get('name') || "Auto Suggest"
-              );
-            }
+            const suggestedSongs = data?.slice(0, data?.length / 2); // slice from 0 - 20 max
+            
+            const refactoredSongs = suggestedSongs.map((song) => {
+              return {
+                // Fixed typo: changed song.thumbnail to song.thumbnails for the array fallback
+                image: song?.thumbnail || song?.thumbnails?.[song?.thumbnails?.length - 1]?.url || "",
+                title: song?.title || "Unknown Title",
+                id: song?.videoId || "",
+                // Fallback to null because Firestore blocks 'undefined'
+                artistId: song?.artists?.artistId || null, 
+                channelName: song?.artists || song?.artist?.name || "Unknown Artist",
+                playedBy: "Auto Suggest"
+              }
+            });
+            
+            // Queue the suggest songs in the playlist
+            await bulkQueue({ queuedSongs: videoIds, newSongs: refactoredSongs });
   
             // Force the player to immediately start playing the FIRST suggested song
             await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
               currentPlaying: {
-                id: data[0].videoId,
-                title: data[0].title,
-                image: data[0]?.thumbnail || data[0]?.thumbnails?.[0]?.url,
-                channelName: data[0]?.artists || data[0]?.artist?.name,
+                id: refactoredSongs[0].id,
+                title: refactoredSongs[0].title,
+                image: refactoredSongs[0].image,
+                channelName: refactoredSongs[0].channelName,
                 playedBy: "Auto Suggest",
                 playedAt: Timestamp.now()
               }

@@ -5,9 +5,9 @@ import SongCard from '../../Components/SongCard';
 import { IoArrowBack, IoPause, IoPlay } from 'react-icons/io5';
 import { useStateContext } from '../../Context/ContextProvider';
 import Cookies from 'js-cookie';
-import addToQueue from '../../Functions/addToQueue';
 import ArtistShimmer from '../../Components/loading/ArtistShimmer';
 import GenericNotFound from '../../Components/NotFoundPage';
+import bulkQueue from '../../Functions/bulkQueue';
 
 const ArtistView = () => {
   // Extracting 'id' (roomId) and 'artist' (artistId) from the route params
@@ -49,18 +49,25 @@ const ArtistView = () => {
   // Function to queue top songs
   const handlePlayTopSongs = async () => {
 
-    for (const song of artist.topSongs || []) {
-      const songImage = song.thumbnails?.[song.thumbnails.length - 1]?.url;
-      await addToQueue(
-        songImage, 
-        song.name, 
-        song.videoId, 
-        artist.name, 
-        videoIds, 
-        Cookies.get('name'),
-        song?.artist?.artistId
-      );
-    }
+        // Prepare songs payload
+        const newSongs = artist?.topSongs?.map((song)=>{
+          const image = song.thumbnails?.[song?.thumbnails.length - 1]?.url;
+          const channelName = song.artists?.map(a => a.name).join(', ') || song?.artist?.name;
+    
+          return {
+            image,
+            channelName,
+            id: song?.videoId,
+            title: song?.name,
+            artistId: song?.artist?.artistId,
+            playedBy: Cookies.get('name')
+          }
+        })
+    
+        // update to the playlist
+        await bulkQueue({newSongs, queuedSongs: videoIds})
+    
+        navigate(`/room/${encodeURI(roomId)}/player`);
   };
 
   return (
