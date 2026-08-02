@@ -70,11 +70,12 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
         </OffcanvasHeader>
         <OffcanvasBody className="-mt-7">
           {songsList.length>0 ? songsList.map((song, i) => (
-            <div key={i} className="flex items-center gap-2 mb-4">
+            <div key={i} className="flex items-center justify-between gap-2 mb-4">
+              <div className="flex flex-row gap-2">
               <img
                 src={song.image || ""}
                 alt="thumbnail"
-                className="h-12 w-16"
+                className="h-12 w-14 rounded-sm"
               />
               <span className="flex items-start gap-2">
                 {currentPlaying.id === song.id && !isPause ? (
@@ -94,6 +95,7 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
                   <p className="flex items-center gap-1 text-xs text-gray-500"> <IoPerson />{song.playedBy || "artist"}</p>
                 </div>
               </span>
+              </div>
               {currentPlaying.id === song.id && (
                 <>
                   {isPause ? (

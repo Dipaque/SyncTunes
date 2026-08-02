@@ -1,19 +1,54 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useStateContext } from "../Context/ContextProvider";
 import Marquee from "react-fast-marquee";
 import LikeSong from "./LikeSong";
-import { IoPause, IoPlay } from "react-icons/io5";
+import { IoPause, IoPlay, IoHeadset } from "react-icons/io5";
+import { LuSpeaker } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 
 const MinifiedPlayer = () => {
-  const { thumbnail, title, onReady, isPause, setIsPause,  duration,
-    currentTime,
-    setCurrentTime,
-    setIsSeeking,
-    seekBarRef, 
-} = useStateContext();
+  const { 
+    thumbnail, title, onReady, isPause, setIsPause, duration,
+    currentTime, setCurrentTime, setIsSeeking, seekBarRef, 
+  } = useStateContext();
 
-    const nav = useNavigate();
+  const nav = useNavigate();
+  
+  // State to track if the active device is a headset/bluetooth
+  const [isExternalDevice, setIsExternalDevice] = useState(false);
+
+  // Check for connected audio output devices
+  useEffect(() => {
+    const checkAudioDevices = async () => {
+      if (!navigator.mediaDevices?.enumerateDevices) return;
+      
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
+        
+        // Check labels for keywords indicating an external device
+        // Note: Labels may be empty on some browsers until microphone permissions are granted
+        const hasExternal = audioOutputs.some(device => {
+          const label = device.label.toLowerCase();
+          return label.includes('bluetooth') || label.includes('headset') || label.includes('headphone');
+        });
+        
+        setIsExternalDevice(hasExternal);
+      } catch (err) {
+        console.error("Error checking devices:", err);
+      }
+    };
+
+    checkAudioDevices();
+
+    // Listen for devices connecting/disconnecting in real-time
+    if (navigator.mediaDevices) {
+      navigator.mediaDevices.addEventListener('devicechange', checkAudioDevices);
+      return () => {
+        navigator.mediaDevices.removeEventListener('devicechange', checkAudioDevices);
+      };
+    }
+  }, []);
 
   const handlePause = () => {
     if (onReady) {
@@ -21,6 +56,7 @@ const MinifiedPlayer = () => {
       setIsPause(true);
     }
   };
+
   const handlePlay = () => {
     if (onReady) {
       onReady.playVideo();
@@ -35,6 +71,7 @@ const MinifiedPlayer = () => {
   const handleMouseUp = () => {
     setIsSeeking(false);
   };
+
   const handleSeek = (event) => {
     event.stopPropagation();
     const seekBar = seekBarRef?.current ?? event.currentTarget;
@@ -55,67 +92,91 @@ const MinifiedPlayer = () => {
   };
 
   const handleNavigate = () => {
-    const roomCode = sessionStorage.getItem("roomCode")||""
+    const roomCode = sessionStorage.getItem("roomCode") || "";
     nav(`/room/${roomCode}/player`);
   };
 
   return (
-    <div className="absolute bottom-[3.6rem] left-1/2 -translate-x-1/2 rounded-md animate-controller bg-zinc-900/50 backdrop-blur-md border-t border-white/10 w-[95vw] max-w-xl"  onClick={handleNavigate}>
+    <div 
+      className="absolute bottom-[3.6rem] left-1/2 -translate-x-1/2 rounded-md animate-controller bg-zinc-900/50 backdrop-blur-md border-t border-white/10 w-[95vw] max-w-xl"  
+      onClick={handleNavigate}
+    >
       <div className="p-3 flex justify-between items-center gap-2 px-2">
-        <div className="flex items-center gap-2">
-        <img
-          src={thumbnail || ""}
-          className=" h-8 w-12 rounded-md"
-          alt="thumbnail"
-        />
-        <div className=" text-slate-100 line-clamp-1 text-sm">
-          <Marquee>{title || "Song name"}</Marquee>
-        </div>
+        
+        {/* Left Side: Thumbnail & Title */}
+        <div className="flex items-center gap-2 w-1/2">
+          <img
+            src={thumbnail || ""}
+            className="h-8 w-12 rounded-md object-cover"
+            alt="thumbnail"
+          />
+          <div className="text-slate-100 text-sm overflow-hidden whitespace-nowrap">
+            <Marquee speed={30} delay={2}>
+              <span className="pr-10">{title || "Song name"}</span>
+            </Marquee>
+          </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          <LikeSong color={"#f1f5f9"} iconSize={27} />
-        {isPause ? (
-              <div
-                className="text-center "
-                onClick={(e) =>{
-                    e.stopPropagation()
-                     handlePlay()
-                    }}
-              >
-                <IoPlay size={26} color={"white"} />
-              </div>
+        {/* Right Side: Controls */}
+        <div className="flex items-center gap-3">
+          
+          {/* Audio Output Device Indicator */}
+          <div 
+            onClick={(e) => e.stopPropagation()} // Prevents maximizing player if user taps icon
+            className="flex items-center justify-center cursor-pointer"
+          >
+            {isExternalDevice ? (
+              <IoHeadset size={22} className="text-[#1ed760]" /> // Spotify Green for active external device
             ) : (
-              <div
-                className="rounded-full text-center "
-                onClick={(e) =>{ 
-                    e.stopPropagation()
-                    handlePause()
-                }}
-              >
-                <IoPause size={26} color={"white"} />
-              </div>
+              <LuSpeaker size={22} className="text-slate-300" />
             )}
+          </div>
+
+          <LikeSong color={"#f1f5f9"} iconSize={27} />
+          
+          {isPause ? (
+            <div
+              className="text-center cursor-pointer"
+              onClick={(e) =>{
+                e.stopPropagation();
+                handlePlay();
+              }}
+            >
+              <IoPlay size={26} color={"white"} />
+            </div>
+          ) : (
+            <div
+              className="rounded-full text-center cursor-pointer"
+              onClick={(e) =>{ 
+                e.stopPropagation();
+                handlePause();
+              }}
+            >
+              <IoPause size={26} color={"white"} />
+            </div>
+          )}
         </div>
       </div>
+
+      {/* Seek Bar */}
       <div
-            className=" bg-[#4d4d4d]  border-zinc-800 border-2 rounded-full  h-[2px] cursor-pointer mx-auto"
-            ref={seekBarRef}
-            onClick={handleSeek}
-            onMouseDown={handleMouseDown}
-            onMouseUp={handleMouseUp}
-            style={{
-                width:"100%",
-                height:"8px",
-                position:"absolute",
-                bottom:"1px",
-            }}
-          >
-            <div
-              className="seek-bar-progress bg-slate-100 rounded-full "
-              style={progressBarStyle}
-            ></div>
-          </div>
+        className="bg-[#4d4d4d] border-zinc-800 border-2 rounded-full h-[2px] cursor-pointer mx-auto"
+        ref={seekBarRef}
+        onClick={handleSeek}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        style={{
+          width:"100%",
+          height:"8px",
+          position:"absolute",
+          bottom:"1px",
+        }}
+      >
+        <div
+          className="seek-bar-progress bg-slate-100 rounded-full"
+          style={progressBarStyle}
+        ></div>
+      </div>
     </div>
   );
 };

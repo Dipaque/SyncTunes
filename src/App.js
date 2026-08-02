@@ -25,6 +25,9 @@ import LikedSongsList from './Components/settings/LikedSongsList';
 import Explore from './pages/Explore';
 import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from './firebase-config';
+import ArtistView from './pages/search/ArtistView';
+import AlbumView from './pages/search/AlbumView';
+import PlaylistView from './pages/search/PlaylistView';
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
@@ -162,6 +165,9 @@ function App() {
         <Route path='/explore' element={<Explore />} />
         <Route path='/room/:id/player' element={<Index updateParamsId={updateParamsId} />} />
         <Route path='/room/:id/search' element={<Search  />} />
+        <Route path='/room/:id/artists/:artist' element={<ArtistView  />} />
+        <Route path='/room/:id/albums/:album' element={<AlbumView  />} />
+        <Route path='/room/:id/playlists/:playlist' element={<PlaylistView  />} />
         <Route path='/room/:id/chat' element={<Chat  />} />
         <Route path='/settings' element={<Settings />} />
         <Route path='/settings/profile' element={<Profile />} />

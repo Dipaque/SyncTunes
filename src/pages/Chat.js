@@ -87,10 +87,10 @@ const Chat = () => {
       <div className="text-white ml-5 text-xl flex items-end">
         <b>Chat</b>
       </div>
-      <div className="flex  flex-col w-screen">
+      <div className="flex  flex-col max-w-screen-sm">
         {sessionStorage.getItem("roomCode") ? (
           <div>
-            <div className=" bg-zinc-900  h-[calc(100vh-40vh)] m-3  overflow-hidden overflow-y-scroll rounded-lg text-sm ">
+            <div className=" bg-zinc-900  h-[calc(100vh-40vh)] m-3  overflow-hidden overflow-y-scroll rounded-lg text-sm">
               <div className="flex flex-col justify-between w-[95vw] gap-0">
                 {messages.map((data, index) =>
                   data.email === Cookies.get("email") ? (

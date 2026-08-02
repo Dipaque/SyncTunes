@@ -18,7 +18,7 @@ const Sidebar = () => {
   return (
     <React.Fragment>
     {roomCode ? (
-      <div className="fixed bottom-0 left-0 w-full bg-zinc-900/50 backdrop-blur-md border-t border-white/10 z-50">
+      <div className="fixed bottom-0 left-0 w-full bg-zinc-900/50 backdrop-blur-md border-t border-white/10 z-50 max-w-screen-sm">
         <div className="flex flex-row justify-between p-2 ps-3 pe-3 items-center max-w-screen-md mx-auto">
           <Link to={`/room/${roomCode}/player`} className='text-white text-[9px] no-underline text-center flex flex-col items-center'>
             {pathName.includes(`/room/${roomCode}/player`) ? (
@@ -63,7 +63,7 @@ const Sidebar = () => {
         </div>
       </div>
     ) : (
-      <div className="fixed bottom-0 left-0 w-full bg-zinc-900/50 backdrop-blur-md border-t border-white/10 z-50">
+      <div className="fixed bottom-0 left-0 w-full bg-zinc-900/50 backdrop-blur-md border-t border-white/10 z-50 max-w-screen-sm">
         <div className="flex items-center justify-between text-white p-2 ps-3 pe-3 max-w-screen-md mx-auto">
           <Link to="/home" className='text-white text-[9px] no-underline text-center flex flex-col items-center'>
             {pathName.includes("home") ? (

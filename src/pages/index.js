@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useStateContext } from "../Context/ContextProvider";
 import {
+  IoHeadsetOutline,
   IoPause,
   IoPerson,
   IoPlay,
@@ -22,9 +23,10 @@ import LikeSong from "../Components/LikeSong";
 import QueueDrawer from "../Components/QueueDrawer";
 import RoommatesDrawer from "../Components/RoommatesDrawer";
 import PlayerHeader from "../Components/PlayerHeader";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import JoinRoom from "../Components/modal/JoinRoom";
 import { handleShare } from "../Functions/handleShare";
+import { LuSpeaker } from "react-icons/lu";
 const Index = ({ updateParamsId }) => {
   const {
     videoIds,
@@ -48,6 +50,10 @@ const Index = ({ updateParamsId }) => {
   const { id } = useParams();
 
   const roomCode = sessionStorage.getItem("roomCode") || id;
+
+    // State to track if the active device is a headset/bluetooth
+    const [isExternalDevice, setIsExternalDevice] = useState(false);
+    const [deviceLabel, setDeviceLabel] = useState("");
 
   const handleForward = async () => {
     const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
@@ -107,6 +113,69 @@ const Index = ({ updateParamsId }) => {
     isLeaving ? updateParamsId("") : updateParamsId(id);
   }, [id, isLeaving, updateParamsId]);
 
+
+  // Add this function inside MinifiedPlayer
+  const unlockDeviceLabels = async (e) => {
+    e.stopPropagation(); // Prevent maximizing the player
+    
+    try {
+      // 1. Briefly request audio permission to unlock hardware labels
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      
+      // 2. Immediately stop the mic stream so the red recording dot disappears
+      stream.getTracks().forEach(track => track.stop());
+      
+      // 3. Now that we have permission, check the devices again
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
+      
+      const hasExternal = audioOutputs.some(device => {
+        const label = device.label.toLowerCase();
+        setDeviceLabel(device?.label)
+        return label.includes('bluetooth') || label.includes('headset') || label.includes('headphone');
+      });
+      
+      setIsExternalDevice(hasExternal);
+    } catch (err) {
+      console.error("Permission denied or no microphone available:", err);
+      // Fallback: If they deny permission, manually toggle the UI as a fallback
+      setIsExternalDevice(prev => !prev); 
+    }
+  };
+  // Check for connected audio output devices
+  useEffect(() => {
+    const checkAudioDevices = async () => {
+      if (!navigator.mediaDevices?.enumerateDevices) return;
+      
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioOutputs = devices.filter(device => device.kind === 'audiooutput');
+        
+        // Check labels for keywords indicating an external device
+        // Note: Labels may be empty on some browsers until microphone permissions are granted
+        const hasExternal = audioOutputs.some(device => {
+          const label = device.label.toLowerCase();
+          setDeviceLabel(device?.label)
+          return label.includes('bluetooth') || label.includes('headset') || label.includes('headphone');
+        });
+        
+        setIsExternalDevice(hasExternal);
+      } catch (err) {
+        console.error("Error checking devices:", err);
+      }
+    };
+
+    checkAudioDevices();
+
+    // Listen for devices connecting/disconnecting in real-time
+    if (navigator.mediaDevices) {
+      navigator.mediaDevices.addEventListener('devicechange', checkAudioDevices);
+      return () => {
+        navigator.mediaDevices.removeEventListener('devicechange', checkAudioDevices);
+      };
+    }
+  }, []);
+
   return (
     <div className="bg-black ">
       <JoinRoom codeViaProps={id} />
@@ -124,16 +193,23 @@ const Index = ({ updateParamsId }) => {
             />
           </div>
           <div className="m-3 mt-5">
-            <div className="flex items-center justify-start ms-2 gap-6">
-              <Marquee style={{ width: "85%" }}>
+            <div className="flex items-center justify-between ms-2 gap-6">
+              {
+                title.length >=34 ? <Marquee style={{ width: "85%" }}>
                 <h5 className="text-slate-50 bg-black">
                   <b>{title || "Song name"}</b>
                 </h5>
               </Marquee>
+              :
+              <h5 className="text-slate-50 bg-black">
+                  <b>{title || "Song name"}</b>
+                </h5>
+              }
+              
               <LikeSong iconSize={38} color={"#f1f5f9"} />
             </div>
+            {artist.length >=40 ? <Marquee className="mx-2" style={{ width: "85%"}}><Link to={currentPlaying?.artistId ? `/room/${encodeURI(roomCode)}/artists/${currentPlaying?.artistId}` : ""} className="text-slate-200 m-2 mt-1 text-sm no-underline">{artist || "Artist name"}</Link></Marquee>: <Link to={currentPlaying?.artistId ? `/room/${encodeURI(roomCode)}/artists/${currentPlaying?.artistId}` : ""} className="text-slate-200 m-2 mt-1 text-sm no-underline">{artist || "Artist name"}</Link>}
 
-            <p className="text-slate-200 m-2 mt-1">{artist || "Artist name"}</p>
             <p className="m-2 text-xs flex items-center gap-1 text-gray-400">
               <IoPerson /> {playedBy || "Player name"}
             </p>
@@ -197,10 +273,23 @@ const Index = ({ updateParamsId }) => {
           </div>
         </>
       )}
+
       {/* View Queued Songs */}
-      <div className="flex items-center justify-between ms-3 -mt-5  pb-14">
-        <RoommatesDrawer />
+      <div className="flex items-center justify-between ms-3 -mt-5  pb-14 ">
+        
+                   {/* Audio Output Device Indicator */}
+ <div 
+            onClick={unlockDeviceLabels} // Prevents maximizing player if user taps icon
+            className="cursor-pointer"
+          >
+            {isExternalDevice ? (
+             <div className="flex flex-row gap-1 items-center text-nowrap text-[10px] text-slate-50 "><IoHeadsetOutline size={22} className="text-slate-300" />{deviceLabel} </div> // Spotify Green for active external device
+            ) : (
+              <LuSpeaker size={22} className="text-slate-300" />
+            )}
+          </div>
         <div className=" flex items-end gap-6 float-right  m-3">
+        <RoommatesDrawer />
           <HiOutlineShare
             size={20}
             cursor={"pointer"}

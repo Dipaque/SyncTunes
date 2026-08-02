@@ -6,104 +6,206 @@ import SongCard from "../Components/SongCard";
 import "../App.css";
 import Shimmer from "../Components/Shimmer";
 import Toast from "../Components/Toast";
+import { getAuth } from "firebase/auth"; 
+import { localStorage_recentSearches } from "../constants";
+
+const filters = ["ALL", "SONG", "VIDEO", "ARTIST", "ALBUM", "PLAYLIST"];
+
 const Search = () => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [toastDisplay, setToastDisplay] = useState(false);
   const [data, setData] = useState([]);
+  
+  // Filter State
+  const [activeFilter, setActiveFilter] = useState("ALL");
+  
+  // 1. Make recents a state variable with a lazy initializer
+  const [recents, setRecents] = useState(() => {
+    const savedRecents = localStorage.getItem(localStorage_recentSearches);
+    return savedRecents ? JSON.parse(savedRecents) : [];
+  });
+
   const handleSearch = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    const options = {
-      method: "GET",
-      url: "https://youtube-search-and-download.p.rapidapi.com/search",
-      params: {
-        query: input + " songs",
+    if (!input.trim()) return;
 
-        hl: "en",
-        gl: "IN",
-      },
-      headers: {
-        "X-RapidAPI-Key": process.env.REACT_APP_YOUTUBE_KEY,
-        "X-RapidAPI-Host": "youtube-search-and-download.p.rapidapi.com",
-      },
-    };
+    setIsLoading(true);
 
     try {
-      const response = await axios.request(options);
-      setData(response.data.contents);
-      setIsLoading(false);
+      const auth = getAuth();
+      const token = await auth.currentUser?.getIdToken();
+
+      const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/search`, {
+        params: { q: input },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setData(response.data);
     } catch (error) {
-      console.error(error);
+      console.error("Search error:", error);
+      setToastMsg("Failed to fetch results");
+      setToastDisplay(true);
+      setTimeout(() => setToastDisplay(false), 4000);
+    } finally {
+      setIsLoading(false);
     }
   };
-  const shimmerArr = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
+
+  // 2. Update state when clearing localStorage
+  const clearAllRecents = () => {
+    localStorage.setItem(localStorage_recentSearches, JSON.stringify([]));
+    setRecents([]); // This triggers the re-render immediately
+  };
+
+  const shimmerArr = Array(14).fill(0);
+
+  // Apply the selected filter
+  const filteredData =
+    activeFilter === "ALL"
+      ? data
+      : data.filter((item) => item.type === activeFilter);
+
   return (
-    <div className="flex flex-col h-screen pb-28  pt-3 overflow-hidden bg-black">
-  <div className="text-white ml-5 text-xl">
-    <b>Search</b>
-  </div>
+    <div className="flex flex-col h-screen pb-28 pt-3 overflow-hidden bg-black">
 
-  <form onSubmit={(e) => e.preventDefault()} className="flex gap-2 mt-2">
-    <input
-      type="text"
-      value={input}
-      onChange={(e) => setInput(e.target.value)}
-      className="border pl-2 pr-2 ml-5 w-60 bg-slate-50 rounded-lg text-sm p-2 outline-none text-black"
-      placeholder="Find your track..."
-    />
-    <button
-      type="submit"
-      className="bg-slate-50 p-2 rounded-lg text-gray-500"
-      onClick={(e) => handleSearch(e)}
-    >
-      <Icon path={mdiMagnify} size={1} />
-    </button>
-  </form>
+      {/* Header */}
+      {recents?.length <= 0 && (
+        <div className="text-white ml-5 text-xl">
+          <b>Search</b>
+        </div>
+      )}
 
-  <div className="flex-1 overflow-y-auto mt-3 px-2">
-    {!isLoading && data.length > 0 ? (
-      data.map((obj, index) =>
-        "video" in obj ? (
-          <SongCard
-            key={index}
-            image={obj.video.thumbnails[0].url}
-            title={obj.video.title}
-            id={obj.video.videoId}
-            channelName={obj.video.channelName}
-            setToastDisplay={setToastDisplay}
-            setToastMsg={setToastMsg}
-          />
-        ) : null
-      )
-    ) : isLoading ? (
-     <div className="flex-1">{ shimmerArr.map((_, index) => <Shimmer key={index} />)}</div>
-    ) : (
-      <div className="flex flex-col justify-center items-center mt-14 m-3 text-slate-50">
-        <img
-          src={require("../assests/tape.png")}
-          height={200}
-          width={200}
-          alt="tape"
+      {/* Search Form */}
+      <form onSubmit={handleSearch} className="flex gap-2 mt-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          className="border pl-2 pr-2 ml-5 w-60 bg-slate-50 rounded-lg text-sm p-2 outline-none text-black"
+          placeholder="Find your track..."
         />
-        <h5 className="mt-7">
-          <b>Find your favorite tracks here</b>
-        </h5>
-        <p className="text-sm text-center">
-          Listen to your favorite tracks and artists with your loved ones!
-        </p>
+        <button
+          type="submit"
+          className="bg-slate-50 p-2 rounded-lg text-gray-500"
+        >
+          <Icon path={mdiMagnify} size={1} />
+        </button>
+      </form>
+
+      {/* Pill Filters */}
+      {data.length > 0 && (
+        <div className="flex gap-2 mt-4 px-3 overflow-x-auto no-scrollbar">
+          {filters.map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`px-4 py-1 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+                activeFilter === filter
+                  ? "bg-white text-black"
+                  : "bg-zinc-800 text-white hover:bg-zinc-700"
+              }`}
+            >
+              {filter.charAt(0) + filter.slice(1).toLowerCase()}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Search Results */}
+      <div className="flex-1 overflow-y-auto mt-3 px-2">
+        {!isLoading && filteredData.length > 0 ? (
+          filteredData.map((obj, index) => {
+            const itemId =
+              obj.type === "SONG" || obj.type === "VIDEO"
+                ? obj.videoId
+                : obj.type === "ALBUM"
+                ? obj.albumId
+                : obj.type === "PLAYLIST"
+                ? obj.playlistId
+                : obj.type === "ARTIST"
+                ? obj.artistId
+                : null;
+                
+            const imageUrl =
+              obj?.thumbnails?.[obj?.thumbnails?.length - 1]?.url ||
+              obj?.thumbnails?.[0]?.url;
+              
+            const artistName = obj.artist?.name || obj.name;
+
+            return (
+              <SongCard
+                key={itemId || index}
+                id={itemId}
+                type={obj.type}
+                title={obj.name}
+                image={imageUrl}
+                channelName={artistName}
+                setToastDisplay={setToastDisplay}
+                setToastMsg={setToastMsg}
+                isRecentRequired ={true}
+                artistId={obj?.artist?.artistId}
+              />
+            );
+          })
+        ) : isLoading ? (
+          <div className="flex-1">
+            {shimmerArr.map((_, index) => (
+              <Shimmer key={index} />
+            ))}
+          </div>
+        ) : ( 
+          // Recent history
+          recents.length > 0 ? (
+          <div className="text-slate-50 mx-3">
+            <h2 className="text-xl font-bold mb-2 ">Recents</h2>
+            {recents.map((history) => (
+              <SongCard
+                key={history.id}
+                id={history?.id}
+                type={history?.type}
+                title={history?.title}
+                image={history?.image}
+                channelName={history?.artist}
+                artistId={history?.artistId}
+                
+              />
+            ))}
+
+            <div
+              className="w-fit mx-auto px-4 py-1 border border-zinc-800 font-semibold mt-3 mb-5 rounded-full text-xs cursor-pointer"
+              onClick={clearAllRecents}
+            >
+              Clear recent history
+            </div>
+          </div>
+          ): (
+          <div className="flex flex-col justify-center items-center mt-14 m-3 text-slate-50">
+            <img
+              src={require("../assests/tape.png")}
+              height={200}
+              width={200}
+              alt="tape"
+            />
+            <h5 className="mt-7">
+              <b>Find your favorite tracks here</b>
+            </h5>
+            <p className="text-sm text-center">
+              Listen to your favorite tracks and artists with your loved ones!
+            </p>
+          </div>
+        ))}
       </div>
-    )}
-  </div>
 
-  {toastDisplay && (
-    <div className="flex justify-center">
-      <Toast message={toastMsg} showToast={toastDisplay} />
+      {toastDisplay && (
+        <div className="flex justify-center">
+          <Toast message={toastMsg} showToast={toastDisplay} />
+        </div>
+      )}
     </div>
-  )}
-</div>
-
   );
 };
 

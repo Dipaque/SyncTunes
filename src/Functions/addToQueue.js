@@ -2,7 +2,7 @@ import { db } from "../firebase-config";
 import { updateDoc, doc } from "firebase/firestore";
 
 const addToQueue=async(image,title,id,channelName,songs,name)=>{
-    if(songs){
+    if(songs.length>0){
         songs.splice(songs.length,0,{image,title,id,channelName,playedBy:name})
         await updateDoc(doc(db,'room',sessionStorage.getItem('roomCode')),{currentSong:[...songs]}).catch(err=>console.log(err)) 
     }else {

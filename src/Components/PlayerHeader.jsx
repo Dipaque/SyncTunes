@@ -15,8 +15,10 @@ import LeaveRoom from "./modal/LeaveRoom";
 import LikedUsers from "./LikedUsers";
 import { useNavigate } from "react-router-dom";
 import KebabButton from "./kebab_btn/KebabButton";
+import { IoCheckmark, IoCopyOutline } from "react-icons/io5";
 const PlayerHeader = ({ handlePause }) => {
   const [currentSong, setCurrentSong] = useState([]);
+  const [isCopied, setIsCopied] = useState(false)
   const nav = useNavigate();
   const {
     setVideoIds,
@@ -103,10 +105,25 @@ const PlayerHeader = ({ handlePause }) => {
     setIsPause(true);
     setThumbnail("");
     handleClear();
+    sessionStorage?.removeItem("roomCode");
     nav("/home");
-    sessionStorage.removeItem("roomCode");
     setIsLeaving(!isLeaving);
   };
+
+  const handleCopy=(roomCode)=>{
+    try {
+      // Safely attempt to write to the clipboard
+      navigator.clipboard.writeText = roomCode;
+      setIsCopied(true);
+
+      // reset the copy
+      setTimeout(()=>{
+        setIsCopied(false);
+      },3000)
+    } catch (err) {
+      console.error('Failed to copy: ', err);
+    }
+  }
   return (
     <>
       <div className="flex items-center justify-between mb-3 p-3">
@@ -127,6 +144,7 @@ const PlayerHeader = ({ handlePause }) => {
               <span className="font-bold mb-2  text-zinc-500 flex gap-1 items-center">
                 ROOM:
                 <span className="text-lg text-white">{roomCode}</span>
+               {isCopied ? <IoCheckmark className="ms-2 cursor-pointer" /> : <IoCopyOutline className="ms-2 cursor-pointer" onClick={()=>handleCopy(roomCode)} />}
               </span>
             </div>
             <div className="text-white flex flex-row items-center  justify-between">
