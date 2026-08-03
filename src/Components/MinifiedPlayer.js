@@ -111,9 +111,10 @@ const MinifiedPlayer = () => {
             alt="thumbnail"
           />
           <div className="text-slate-100 text-sm overflow-hidden whitespace-nowrap">
-            <Marquee speed={30} delay={2}>
+           {title?.length > 12 ? <Marquee speed={30} delay={2}>
               <span className="pr-10">{title || "Song name"}</span>
-            </Marquee>
+            </Marquee> : <span className="pr-10">{title || "Song name"}</span>
+            }
           </div>
         </div>
 

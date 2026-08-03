@@ -10,7 +10,7 @@ import { db } from "../firebase-config";
 const LikeSong = ({ iconSize, color }) => {
   const [liked, setLiked] = useState(false);
   const [animate, setAnimate] = useState(false);
-  const { currentPlaying, setSongsList, songsList } = useStateContext();
+  const { currentPlaying } = useStateContext();
   const roomCode = sessionStorage.getItem("roomCode");
 
   const email = Cookies.get("email");

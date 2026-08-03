@@ -36,6 +36,7 @@ export const ContextProvider = ({ children }) => {
     email: "",
     userName: "",
   });
+  const [searchResult, setSearchResult] = useState(null);
 
   const handleClear = useCallback(() => {
     setCurrentPlaying("")
@@ -105,7 +106,9 @@ export const ContextProvider = ({ children }) => {
         roomMate, 
         setRoomMate,
         admin, 
-        setAdmin
+        setAdmin,
+        searchResult,
+        setSearchResult
       }}
     >
       {children}

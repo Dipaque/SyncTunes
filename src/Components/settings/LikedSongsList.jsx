@@ -68,7 +68,7 @@ const LikedSongsList = () => {
     <div className='h-screen overflow-hidden overflow-y-auto'>
         
     <PageHeader title={"Liked Songs"} />
-    <div className='p-1  mb-28'>
+    <div className='p-1 mx-3  mb-28'>
     {
         loading ? <Spinner /> :     <>
         <div className="mx-auto mb-5 relative w-fit">

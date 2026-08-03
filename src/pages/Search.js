@@ -3,19 +3,24 @@ import Icon from "@mdi/react";
 import { mdiMagnify } from "@mdi/js";
 import SongCard from "../Components/SongCard";
 import "../App.css";
-import Shimmer from "../Components/Shimmer";
 import Toast from "../Components/Toast";
 import { localStorage_recentSearches } from "../constants";
 import apiClient from "../utils/apiClient";
+import Spinner from "../Components/loading/Spinner";
+import { useStateContext } from "../Context/ContextProvider";
 
 const filters = ["ALL", "SONG", "VIDEO", "ARTIST", "ALBUM", "PLAYLIST"];
 
 const Search = () => {
+
+  // global state
+  const {searchResult, setSearchResult} = useStateContext();
+
+  // local state
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [toastDisplay, setToastDisplay] = useState(false);
-  const [data, setData] = useState([]);
   
   // Filter State
   const [activeFilter, setActiveFilter] = useState("ALL");
@@ -37,7 +42,7 @@ const Search = () => {
         params: { q: input } 
       });
 
-      setData(response.data);
+      setSearchResult(response.data);
     } catch (error) {
       console.error("Search error:", error);
       setToastMsg("Failed to fetch results");
@@ -54,13 +59,12 @@ const Search = () => {
     setRecents([]); // This triggers the re-render immediately
   };
 
-  const shimmerArr = Array(14).fill(0);
 
   // Apply the selected filter
   const filteredData =
     activeFilter === "ALL"
-      ? data
-      : data.filter((item) => item.type === activeFilter);
+      ? searchResult
+      : searchResult?.filter((item) => item.type === activeFilter);
 
   return (
     <div className="flex flex-col h-screen pb-28 pt-3 overflow-hidden bg-black">
@@ -90,7 +94,7 @@ const Search = () => {
       </form>
 
       {/* Pill Filters */}
-      {data.length > 0 && (
+      {searchResult?.length > 0 && (
         <div className="flex gap-2 mt-4 px-3 overflow-x-auto no-scrollbar">
           {filters.map((filter) => (
             <button
@@ -110,8 +114,8 @@ const Search = () => {
 
       {/* Search Results */}
       <div className="flex-1 overflow-y-auto mt-3 px-2">
-        {!isLoading && filteredData.length > 0 ? (
-          filteredData.map((obj, index) => {
+        {!isLoading && filteredData?.length > 0 ? (
+          filteredData?.map((obj, index) => {
             const itemId =
               obj.type === "SONG" || obj.type === "VIDEO"
                 ? obj.videoId
@@ -145,11 +149,9 @@ const Search = () => {
             );
           })
         ) : isLoading ? (
-          <div className="flex-1">
-            {shimmerArr.map((_, index) => (
-              <Shimmer key={index} />
-            ))}
-          </div>
+          // <div className="flex-1">
+            <Spinner />
+          // </div>
         ) : ( 
           // Recent history
           recents.length > 0 ? (
@@ -164,7 +166,8 @@ const Search = () => {
                 image={history?.image}
                 channelName={history?.artist}
                 artistId={history?.artistId}
-                
+                setToastDisplay={setToastDisplay}
+                setToastMsg={setToastMsg}
               />
             ))}
 

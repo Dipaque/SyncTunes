@@ -4,6 +4,18 @@ body{
   background-color: black;
   user-select: none;
 }
+
+option {
+  font-family: 'Poppins',sans-serif;
+}
+img {
+  -webkit-user-select: none; /* Safari */
+  -ms-user-select: none;     /* IE 10 and older */
+  user-select: none;         /* Modern browsers (Chrome, Firefox, Edge, Opera) */
+  -webkit-user-drag: none;
+  pointer-events: none; /* Optional */
+}
+
 .marquee-container {
   overflow: hidden;
 }

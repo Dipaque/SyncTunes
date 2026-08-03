@@ -5,7 +5,11 @@ import { doc, onSnapshot, updateDoc, Timestamp } from "firebase/firestore";
 import { useStateContext } from "../Context/ContextProvider";
 import { getUniqueObjectsById } from "../Functions/removeDupes";
 import apiClient from "../utils/apiClient";
-import { localStorage_autoSuggest } from "../constants";
+import { 
+  localStorage_autoSuggest, 
+  localStorage_autoSuggestLimit,
+  localStorage_fadeDuration // Imported the new key
+} from "../constants";
 import bulkQueue from "../Functions/bulkQueue";
 
 const YouTubeVideo = ({ videoIds }) => {
@@ -58,8 +62,13 @@ const YouTubeVideo = ({ videoIds }) => {
           const { data } = await apiClient.get(`/song/${id}/up-next`);
             
           if (data && data.length > 0) {
+            // fetch limit from settings
+            const suggestionLimit = localStorage.getItem(localStorage_autoSuggestLimit);
+
+            const limit = suggestionLimit < data?.length ? suggestionLimit : data?.length-1
+
             // Queue all the fetched results
-            const suggestedSongs = data?.slice(0, data?.length / 2); // slice from 0 - 20 max
+            const suggestedSongs = data?.slice(0, limit); // slice from 0 - limit
             
             const refactoredSongs = suggestedSongs.map((song) => {
               return {
@@ -135,6 +144,10 @@ const YouTubeVideo = ({ videoIds }) => {
     setOnReady(event.target);
     setDuration(event.target.getDuration());
     setIsLoading(false);
+    
+    // 🔊 RESET VOLUME: Instantly snap the volume back to 100% when a new track loads
+    // This prevents the next song from playing silently if the previous one faded to 0.
+    event.target.setVolume(100); 
   };
 
   const opts = {
@@ -171,7 +184,22 @@ const YouTubeVideo = ({ videoIds }) => {
     intervalRef.current = setInterval(() => {
       if (onReady && typeof onReady.getCurrentTime === 'function') {
         const newCurrentTime = onReady.getCurrentTime();
+        const duration = onReady.getDuration();
+        
         setCurrentTime(newCurrentTime);
+
+        // --- FADE OUT LOGIC ---
+        // 1. Fetch the user's preferred fade duration (default to 5s if missing)
+        const savedFade = localStorage.getItem(localStorage_fadeDuration);
+        const fadeDuration = savedFade !== null ? parseInt(savedFade, 10) : 5;
+        
+        const timeRemaining = duration - newCurrentTime;
+
+        // 2. If we are within the fade window, lower the volume based on time remaining
+        if (timeRemaining <= fadeDuration && timeRemaining > 0) {
+          const targetVolume = Math.floor((timeRemaining / fadeDuration) * 100);
+          onReady.setVolume(targetVolume);
+        }
       }
     }, 500);
   };

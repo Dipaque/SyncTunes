@@ -127,7 +127,7 @@ const KebabButton = ({ handleExit }) => {
             <HiOutlineShare type="button" size={25} className="text-gray-500" />
             Share
           </div>
-          <ChangeRoomVisibility />
+          {email === admin.email && <ChangeRoomVisibility /> }
           <div
             className="flex items-center gap-2 text-gray-300 mt-4"
             onClick={handleExit}
