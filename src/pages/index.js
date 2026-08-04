@@ -23,6 +23,7 @@ import { Link, useParams } from "react-router-dom";
 import JoinRoom from "../Components/modal/JoinRoom";
 import { handleShare } from "../Functions/handleShare";
 import { LuSpeaker } from "react-icons/lu";
+import Lyrics from "../Components/player/Lyrics";
 const Index = ({ updateParamsId }) => {
   const {
     videoIds,
@@ -295,6 +296,8 @@ const Index = ({ updateParamsId }) => {
           <QueueDrawer handlePlay={handlePlay} handlePause={handlePause} />
         </div>
       </div>
+        {/* Lyrics */}
+        <Lyrics />
     </div>
   );
 };
