@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import apiClient from '../../utils/apiClient';
 import { useStateContext } from '../../Context/ContextProvider';
 import { IoMusicalNotesOutline } from 'react-icons/io5';
+import { CgTranscript } from 'react-icons/cg';
 
 const Lyrics = () => {
   const { currentPlaying } = useStateContext();
@@ -21,7 +22,7 @@ const Lyrics = () => {
       setError(null);
       
       try {
-        const { data } = await apiClient.get(`/lyrics/${currentPlaying.id}`);
+        const { data } = await apiClient.get(`/music/lyrics/${currentPlaying.id}`);
         
         // Handle different possible API response structures
         if (data) {
@@ -52,7 +53,7 @@ const Lyrics = () => {
         
         {/* Header */}
         <div className="flex items-center gap-2 mb-4">
-          <IoMusicalNotesOutline className="text-white" size={20} />
+          <CgTranscript size={20} color="white" />
           <h3 className="text-white font-bold text-lg m-0">Lyrics</h3>
         </div>
 

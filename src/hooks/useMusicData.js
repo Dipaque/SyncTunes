@@ -26,7 +26,7 @@ export const useMusicData = (type, id) => {
         // 3. Fetch the token securely
         const token = await auth.currentUser.getIdToken();
         
-        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/${type}/${id}`, {
+        const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/api/music/${type}/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         

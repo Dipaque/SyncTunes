@@ -4,6 +4,9 @@ import { db } from "../firebase-config"
 export const fetchSongsList = async() =>{
     try{
         const roomCode = sessionStorage.getItem("roomCode");
+        
+        if (!roomCode) return
+
         const docRef =  doc(db,"room",roomCode);
         const songs = (await getDoc(docRef))?.data()?.currentSong;
         return songs

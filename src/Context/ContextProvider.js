@@ -2,11 +2,10 @@ import React, {
   useContext,
   createContext,
   useState,
-  useEffect,
   useRef,
   useCallback,
 } from "react";
-import { useParams } from "react-router-dom";
+import { PLAYER_MODE } from "../constants";
 const StateContext = createContext();
 export const ContextProvider = ({ children }) => {
   const [videoId, setVideoId] = useState("");
@@ -37,6 +36,7 @@ export const ContextProvider = ({ children }) => {
     userName: "",
   });
   const [searchResult, setSearchResult] = useState(null);
+  const [playerMode, setPlayerMode] = useState(PLAYER_MODE.SOLO)
 
   const handleClear = useCallback(() => {
     setCurrentPlaying("")
@@ -108,7 +108,9 @@ export const ContextProvider = ({ children }) => {
         admin, 
         setAdmin,
         searchResult,
-        setSearchResult
+        setSearchResult,
+        playerMode,
+        setPlayerMode
       }}
     >
       {children}

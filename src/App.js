@@ -28,13 +28,16 @@ import { db } from './firebase-config';
 import ArtistView from './pages/search/ArtistView';
 import AlbumView from './pages/search/AlbumView';
 import PlaylistView from './pages/search/PlaylistView';
+import { getRoutes, PLAYER_MODE } from './constants';
+import { getPath } from './utils/getPath';
+import Library from './pages/Library';
 // Define a styled component using the imported font
 const StyledText = styled.div`
 font-family: "Poppins", 'sans-serif'
 `;
 function App() {
   document.body.style.backgroundColor='#0000'
-  const {pathName,setPathName, onReady,title,songsList, setMessages,setNotification}=useStateContext()
+  const {pathName,setPathName, onReady,currentPlaying,songsList, setMessages,setNotification, playerMode}=useStateContext()
   const location = useLocation();
   const nav = useNavigate()
 
@@ -43,6 +46,9 @@ function App() {
   const updateParamsId = useCallback((id)=>{
     setParamsId(id)
   },[])
+
+  const isSolo = playerMode === PLAYER_MODE.SOLO;
+  const ROUTE = getRoutes(isSolo);
 
   useEffect(() => {
     const checkAuthAndSetPath = () => {
@@ -102,56 +108,6 @@ function App() {
     checkAuthAndSetPath();
   }, [paramsId]);
 
-  const openMiniPlayer = async () => {
-    try {
-      if ("documentPictureInPicture" in window) {
-        const pipWindow =
-          await window.documentPictureInPicture.requestWindow({
-            height:"70",
-            width: "40"
-          });
-  
-        // Add content
-        pipWindow.document.body.innerHTML = `
-           <img
-  src="${logo}" height="60" width="160"
-  
-/>
-        `;
-      } else {
-        alert("Document PiP not supported");
-      }
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  useEffect(() => {
-    const handleVisibility = async () => {
-      if (
-        document.hidden &&
-        "documentPictureInPicture" in window &&
-        !window.documentPictureInPicture.window
-      ) {
-        try {
-          await openMiniPlayer();
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    };
-  
-    document.addEventListener(
-      "visibilitychange",
-      handleVisibility
-    );
-  
-    return () =>
-      document.removeEventListener(
-        "visibilitychange",
-        handleVisibility
-      );
-  }, []);
 
   
   const roomCode = paramsId
@@ -159,30 +115,34 @@ function App() {
   return (
     <div className='!bg-black h-screen overflow-x-hidden max-w-screen-sm'> 
       <StyledText>
-          <Routes>
-      <Route path='/' element={<Login  />} />
-        <Route path='/home' element={<Home />} />
-        <Route path='/explore' element={<Explore />} />
-        <Route path='/room/:id/player' element={<Index updateParamsId={updateParamsId} />} />
-        <Route path='/room/:id/search' element={<Search  />} />
-        <Route path='/room/:id/artists/:artist' element={<ArtistView  />} />
-        <Route path='/room/:id/albums/:album' element={<AlbumView  />} />
-        <Route path='/room/:id/playlists/:playlist' element={<PlaylistView  />} />
-        <Route path='/room/:id/chat' element={<Chat  />} />
-        <Route path='/settings' element={<Settings />} />
-        <Route path='/settings/profile' element={<Profile />} />
-        <Route path='/settings/rooms' element={<Rooms />} />
-        <Route path='/settings/liked' element={<LikedSongsList />} />
-        <Route path='/settings/about' element={<About />} />
-        <Route path='/privacy-policy' element={<Privacypolicy />} />
-        <Route path='/terms' element={<Terms />} />
-        <Route path='/third-party' element={<Thirdparty />} />
-      </Routes>
-    {!["/","/home",`/room/${roomCode}/player`].includes(pathName) && onReady && title && <MinifiedPlayer />}
-      {
+      <Routes>
+  <Route path='/' element={<Login  />} />
+  <Route path={ROUTE.HOME} element={<Home />} />
+  <Route path={ROUTE.EXPLORE} element={<Explore />} />
+  <Route path={ROUTE.PLAYER} element={<Index updateParamsId={updateParamsId} />} />
+  <Route path={ROUTE.SEARCH} element={<Search  />} />
+  <Route path={ROUTE.ARTIST} element={<ArtistView  />} />
+  <Route path={ROUTE.ALBUM} element={<AlbumView  />} />
+  <Route path={ROUTE.PLAYLIST} element={<PlaylistView  />} />
+  <Route path={ROUTE.CHAT} element={<Chat  />} />
+  <Route path={ROUTE.LIBRARY} element={<Library  />} />
+  <Route path='/settings' element={<Settings />} />
+  <Route path='/settings/profile' element={<Profile />} />
+  <Route path='/settings/rooms' element={<Rooms />} />
+  <Route path='/settings/liked' element={<LikedSongsList />} />
+  <Route path='/settings/about' element={<About />} />
+  <Route path='/privacy-policy' element={<Privacypolicy />} />
+  <Route path='/terms' element={<Terms />} />
+  <Route path='/third-party' element={<Thirdparty />} />
+</Routes>
+{!["/", getPath(ROUTE.PLAYER, roomCode)].includes(pathName) && (isSolo || roomCode) && onReady && currentPlaying?.title && <MinifiedPlayer />}      {
         pathName!=='login' &&(<div className='bg-zinc-600 rounded-md'>
-        {songsList?.length>0 && !["/",'/home','/discover'].includes(pathName) && sessionStorage.getItem("roomCode") && <YouTubeVideo videoIds={songsList} />}
-        <Sidebar /> 
+{
+   
+  !["/", "/discover", "/explore"].includes(pathName) && 
+  (isSolo || roomCode) && 
+  <YouTubeVideo videoIds={songsList} />
+}        <Sidebar /> 
         </div>)
       }
       </StyledText>

@@ -5,7 +5,7 @@ const GenericNotFound = ({ type = "Page", content }) => {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-black min-h-screen flex flex-col items-center justify-center text-white px-4 pb-28">
+    <div className="bg-black max-h-screen min-h-screen flex flex-col items-center justify-center text-white px-4 pb-28">
       
       {/* SVG Graphic used here */}
       <div className="w-48 h-48 mb-6 drop-shadow-[0_0_20px_rgba(255,255,255,0.1)]">

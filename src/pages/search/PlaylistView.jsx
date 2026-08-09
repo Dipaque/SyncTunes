@@ -79,6 +79,7 @@ const PlaylistView = () => {
           src={coverImage} 
           alt={album.title} 
           className="w-56 h-56 object-cover rounded-md shadow-[0_0_15px_rgba(255,255,255,0.1)] mb-6" 
+          loading='lazy'
         />
 
         <h4 className='font-semibold'>{album?.name}</h4>

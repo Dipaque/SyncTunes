@@ -38,7 +38,7 @@ const Search = () => {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.get('/search', { 
+      const response = await apiClient.get('/music/search', { 
         params: { q: input } 
       });
 
@@ -149,9 +149,9 @@ const Search = () => {
             );
           })
         ) : isLoading ? (
-          // <div className="flex-1">
+          <div className="max-h-screen">
             <Spinner />
-          // </div>
+          </div>
         ) : ( 
           // Recent history
           recents.length > 0 ? (
