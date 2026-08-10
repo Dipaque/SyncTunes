@@ -6,27 +6,30 @@ import Cookies from "js-cookie";
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from "reactstrap";
 
 // import icon
-import { HiOutlineShare, HiOutlineTrash } from "react-icons/hi";
-import { IoEllipsisVertical, IoPerson } from "react-icons/io5";
-import { VscSignOut } from "react-icons/vsc";
+import { HiOutlineShare, HiOutlineTrash, HiOutlineUser,  } from "react-icons/hi";
+import { HiOutlineQueueList } from "react-icons/hi2";
+import { IoEllipsisVertical, IoPerson, IoShuffleOutline } from "react-icons/io5";
+import { VscSignOut, VscPinned } from "react-icons/vsc"; 
+import { BsPinFill } from "react-icons/bs";
 
 // import constants;
-import { fontFamily } from "../../constants";
+import { fontFamily, localStorage_pinSongs, PLAYER_MODE } from "../../constants";
 
 // import components
 import ChangeRoomVisibility from "./ChangeRoomVisibility";
+import DeleteRoom from "../modal/DeleteRoom";
 
 // import utility
 import { handleShare } from "../../Functions/handleShare";
 import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { useNavigate, useParams } from "react-router-dom";
-import DeleteRoom from "../modal/DeleteRoom";
+import addToQueue from "../../Functions/addToQueue";
+import shuffle from "../../Functions/shuffle";
+import playNext from "../../Functions/playNext";
 
 const KebabButton = ({ handleExit }) => {
-  // param id
   const { id } = useParams();
-  // context
   const {
     thumbnail,
     playedBy,
@@ -34,37 +37,124 @@ const KebabButton = ({ handleExit }) => {
     admin,
     setIsPause,
     handleClear,
+    playerMode,
+    currentPlaying,
+    videoIds,
+    setVideoIds,
+    setCurrentPlaying
   } = useStateContext();
-  // email
+  
   const email = Cookies.get("email");
-  // room code
   const roomCode = id || sessionStorage.getItem("roomCode");
-  // local state
+  const isSolo = playerMode === PLAYER_MODE.SOLO;
+
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
-  // nav
   const nav = useNavigate();
 
-  /**
-   * Toggle Drawer
-   */
   const handleOpen = () => {
-    if (isOpen) {
-      setTimeout(() => {
-        setIsOpen(false);
-      }, 0);
-    } else {
-      setIsOpen(true);
+    setIsOpen(!isOpen);
+  };
+
+  // 1. Pure O(1) Lookup to check if currently playing song is pinned
+  const pinnedSongsLookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
+  const isPinned = currentPlaying ? !!pinnedSongsLookup[currentPlaying.id] : false;
+
+  // 2. Toggle Function (No loops used)
+  const handleTogglePin = () => {
+    try {
+      if (!currentPlaying) return;
+      
+      const lookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
+      
+      if (lookup[currentPlaying.id]) {
+        // If it exists in the lookup, delete it (Unpin)
+        delete lookup[currentPlaying.id];
+      } else {
+        // If it doesn't exist, assign it (Pin)
+        lookup[currentPlaying.id] = currentPlaying;
+      }
+      
+      // Save the dictionary back to localStorage
+      localStorage.setItem(localStorage_pinSongs, JSON.stringify(lookup));
+      setIsOpen(false); 
+    } catch (error) {
+      console.error("Failed to toggle pin status:", error);
     }
   };
 
+  // Solo Options Configuration
+  const soloOptions = [
+    {
+      icon: <HiOutlineQueueList size={25} />,
+      text: "Add to Queue",
+      onClick: () => {
+        const trackImg = currentPlaying?.image || thumbnail; 
+        addToQueue(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, "Solo Playing", currentPlaying.artistId, playerMode, setVideoIds, setCurrentPlaying);
+        setIsOpen(false); 
+      }
+    },
+    {
+      label: "Shuffle",
+      icon: <IoShuffleOutline color='text-gray-400' size={23} />,
+      text: "Added to Shuffle",
+      onClick: () => {
+        shuffle({
+          newSongs: {
+            image: currentPlaying?.image,
+            title,
+            id: currentPlaying?.id,
+            channelName: currentPlaying?.channelName,
+            artistId: currentPlaying?.artistId,
+            playedBy: Cookies.get('name') || "Solo Player"
+          },
+          queuedSongs: videoIds,
+          playerMode,
+          setVideoIds
+        });
+        setIsOpen(false);
+      }
+    },
+    {
+      // 3. Dynamic Text driven by the lookup state
+      icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
+      text: isPinned ? "Unpin Song" : "Pin Song",
+      onClick: handleTogglePin 
+    },
+    // {
+    //   icon: <IoRepeatOutline size={25} strokeWidth='0.2' />,
+    //   text: "Repeat Song",
+    //   onClick: () => {
+    //     const trackImg = currentPlaying?.image || thumbnail; 
+    //     playNext(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, videoIds, currentPlaying, Cookies.get('name'), currentPlaying?.artistId, playerMode, setVideoIds)
+    //     setIsOpen(false);
+    //   }
+    // },
+    // {
+    //   icon: <HiOutlineCollection strokeWidth="1.5" size={25} />,
+    //   text: "Add to Playlist",
+    //   onClick: () => {
+    //     console.log("Add to Playlist");
+    //     setIsOpen(false);
+    //   }
+    // },
+    {
+      icon: <HiOutlineUser strokeWidth="1.5" size={25} />,
+      text: "Go to artist",
+      onClick: () => {
+        setIsOpen(false);
+        if (currentPlaying?.artistId) {
+          nav(`/artists/${currentPlaying.artistId}`); 
+        }
+      }
+    },
+  ];
+
   const handleDeleteRoom = async () => {
     try {
-      // create ref
       const docRef = doc(db, "room", roomCode);
       setIsPause(true);
-      // delete room
-      await deleteDoc(docRef).then(()=>{
+      await deleteDoc(docRef).then(() => {
         handleClear();
         sessionStorage.removeItem("roomCode");
         nav("/home");
@@ -83,7 +173,7 @@ const KebabButton = ({ handleExit }) => {
         onClick={handleOpen}
       />
       <Offcanvas
-        className={`!bg-zinc-900 !text-slate-200 !h-[45%] !max-w-screen-sm ${
+        className={`!bg-zinc-900 !text-slate-200 !h-[60%] !max-w-screen-sm ${
           isOpen ? "!animate-drawer" : "translate-y-0 !animate-slide-down"
         }`}
         direction="bottom"
@@ -97,52 +187,78 @@ const KebabButton = ({ handleExit }) => {
         }}
       >
         <div
-          className="border-1 border-gray-500 p-[1px] bg-gray-500 w-8 rounded-full mx-auto mt-3"
+          className="border-1 border-gray-500 p-[1px] bg-gray-500 w-8 rounded-full mx-auto mt-3 cursor-pointer"
           onClick={handleOpen}
         />
 
         <OffcanvasHeader className="border-b border-b-gray-700 pb-0">
-          <div className="flex items-center justify-start !text-sm text-gray-200  gap-2 mb-4">
+          <div className="flex items-center justify-start !text-sm text-gray-200  gap-2 mb-2">
             <img
-              src={thumbnail || ""}
+              src={currentPlaying?.image || thumbnail || ""}
               alt="thumbnail"
-              className="h-12 w-16 rounded-md"
+              className="h-12 w-16 rounded-md object-cover"
             />
             <span className="flex items-start gap-2">
-              <div className="flex-1">
-                <div className="line-clamp-1">{title || "Song name"}</div>
-                <p className="flex items-center mt-1 gap-1 text-xs text-gray-500">
-                  {" "}
-                  <IoPerson /> {playedBy || "artist"}
+              <div className="flex-1 text-base">
+                <div className="line-clamp-1">{currentPlaying?.title || "Song name"}</div>
+                <p className="flex items-center mt-1 gap-1 text-sm text-gray-500">
+                  <IoPerson /> {!isSolo ? currentPlaying?.playedBy : currentPlaying?.channelName || "artist"}
                 </p>
               </div>
             </span>
           </div>
         </OffcanvasHeader>
         <OffcanvasBody>
+          
           <div
-            className="flex items-center gap-2 text-gray-300"
-            onClick={handleShare}
+            className="flex items-center gap-3 text-gray-300 cursor-pointer hover:text-white transition-colors p-2 -mx-2 rounded-lg hover:bg-zinc-800"
+            onClick={() => {
+              handleShare();
+              setIsOpen(false);
+            }}
           >
-            <HiOutlineShare type="button" size={25} className="text-gray-500" />
+            <HiOutlineShare type="button" size={23} className="text-gray-400" />
             Share
           </div>
-          {email === admin.email && <ChangeRoomVisibility /> }
-          <div
-            className="flex items-center gap-2 text-gray-300 mt-4"
-            onClick={handleExit}
-          >
-            <VscSignOut type="button" size={25} className="text-gray-500" />
-            Exit Room
-          </div>
-          {email === admin.email && (
+
+          {/* Render Solo Options dynamically */}
+          {isSolo && soloOptions.map((option) => (
+            <div 
+              key={option.text} 
+              onClick={option.onClick} 
+              className="flex items-center gap-3 text-gray-300 cursor-pointer hover:text-white transition-colors p-2 -mx-2 rounded-lg hover:bg-zinc-800 mt-2"
+            >
+              <span className="text-gray-400">{option.icon}</span>
+              {option.text}
+            </div>
+          ))}
+          
+          {email === admin?.email && !isSolo && <ChangeRoomVisibility />}
+          
+          {!isSolo && (
             <div
-              className="flex items-center gap-2 text-red-500 mt-4"
-              onClick={()=>setIsOpenDeleteModal(true)}
+              className="flex items-center gap-3 text-gray-300 mt-2 cursor-pointer hover:text-white transition-colors p-2 -mx-2 rounded-lg hover:bg-zinc-800"
+              onClick={() => {
+                setIsOpen(false);
+                setTimeout(() => handleExit(), 300); 
+              }}
+            >
+              <VscSignOut type="button" size={23} className="text-gray-400" />
+              Exit Room
+            </div>
+          )}
+          
+          {email === admin?.email && !isSolo && (
+            <div
+              className="flex items-center gap-3 text-red-500 mt-2 cursor-pointer hover:text-red-400 transition-colors p-2 -mx-2 rounded-lg hover:bg-zinc-800"
+              onClick={() => {
+                setIsOpen(false);
+                setTimeout(() => setIsOpenDeleteModal(true), 300); 
+              }}
             >
               <HiOutlineTrash
                 type="button"
-                size={25}
+                size={23}
                 className="text-red-500"
               />
               Delete Room
@@ -151,9 +267,13 @@ const KebabButton = ({ handleExit }) => {
         </OffcanvasBody>
       </Offcanvas>
       
-      {
-        isOpenDeleteModal && <DeleteRoom isOpenDeleteModal={isOpenDeleteModal} toggle={()=>setIsOpenDeleteModal(!isOpenDeleteModal)} handleDeleteRoom={handleDeleteRoom} />
-      }
+      {isOpenDeleteModal && (
+        <DeleteRoom 
+          isOpenDeleteModal={isOpenDeleteModal} 
+          toggle={() => setIsOpenDeleteModal(!isOpenDeleteModal)} 
+          handleDeleteRoom={handleDeleteRoom} 
+        />
+      )}
 
     </React.Fragment>
   );

@@ -16,6 +16,8 @@ import LikedUsers from "./LikedUsers";
 import { useNavigate } from "react-router-dom";
 import KebabButton from "./kebab_btn/KebabButton";
 import { IoCheckmark, IoCopyOutline } from "react-icons/io5";
+import { getRoutes, PLAYER_MODE } from "../constants";
+import { getPath } from "../utils/getPath";
 const PlayerHeader = ({ handlePause }) => {
   const [currentSong, setCurrentSong] = useState([]);
   const [isCopied, setIsCopied] = useState(false)
@@ -34,6 +36,7 @@ const PlayerHeader = ({ handlePause }) => {
     admin,
     setAdmin,
     setThumbnail,
+    playerMode
   } = useStateContext();
 
   const roomCode = sessionStorage.getItem("roomCode");
@@ -84,30 +87,51 @@ const PlayerHeader = ({ handlePause }) => {
   }, []);
 
   const handleLeaveRoom = async () => {
+    const isSolo = playerMode === PLAYER_MODE.SOLO;
+    const ROUTE = getRoutes(isSolo);
+    
+    // 1. Close modal immediately if solo mode (prevent stuck modals)
+    if (isSolo) {
+      setIsLeaving(false);
+      return; 
+    }
+    
     await handlePause();
-
-    if (roomMate?.length > 0) {
-      try {
-        const index = roomMate.findIndex(
-          (user) => user.email === Cookies.get("email")
-        );
-        if (index >= 0) {
-          roomMate.splice(index, 1);
+  
+    // 2. Wrap in roomCode check to prevent Firebase crashes
+    if (roomCode) {
+      if (roomMate?.length > 0) {
+        try {
+          const index = roomMate.findIndex(
+            (user) => user.email === Cookies.get("email")
+          );
+          
+          // 3. Fix State Mutation: Create a fresh copy of the array
+          let updatedRoomMates = [...roomMate];
+          
+          if (index >= 0) {
+            updatedRoomMates.splice(index, 1);
+          }
+          
+          await updateDoc(doc(db, "room", roomCode), {
+            roomMates: updatedRoomMates, // Upload the copy
+          });
+        } catch (err) {
+          console.error("Error leaving room:", err);
         }
-        await updateDoc(doc(db, "room", roomCode), {
-          roomMates: roomMate,
-        });
-      } catch (err) {
-        console.log(err);
       }
     }
-    setCurrentSong([]);
-    setIsPause(true);
-    setThumbnail("");
-    handleClear();
-    sessionStorage?.removeItem("roomCode");
-    nav("/home");
-    setIsLeaving(!isLeaving);
+  
+    // 4. Cleanup
+    setCurrentSong([]); // Assuming this is local state in PlayerHeader
+    handleClear(); // This handles thumbnail, isPause, artists, etc. automatically
+    sessionStorage.removeItem("roomCode");
+    
+    // 5. Explicitly set to false instead of toggling (!isLeaving)
+    setIsLeaving(false);
+    
+    // 6. Safe navigation (Home doesn't need getPath injection)
+    nav(ROUTE.HOME); 
   };
 
   const handleCopy=(roomCode)=>{

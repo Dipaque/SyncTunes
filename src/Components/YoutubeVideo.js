@@ -8,145 +8,221 @@ import apiClient from "../utils/apiClient";
 import { 
   localStorage_autoSuggest, 
   localStorage_autoSuggestLimit,
-  localStorage_fadeDuration // Imported the new key
+  localStorage_currentPlaying,
+  localStorage_fadeDuration,
+  localStorage_soloQueue,
+  PLAYER_MODE
 } from "../constants";
 import bulkQueue from "../Functions/bulkQueue";
 
-const YouTubeVideo = ({ videoIds }) => {
+/**
+ * YouTubeVideo Component
+ * Handles the hidden iframe player, track progression, auto-suggest, and volume fading.
+ * Safely routes logic between Local Storage (Solo Mode) and Firebase (Jam Mode).
+ * 
+ * @param {Object} props
+ * @param {Array} props.videoIds - The current queue of songs (fallback if context isn't used)
+ */
+const YouTubeVideo = ({ videoIds: propVideoIds }) => {
   const intervalRef = useRef(null);
   const [id, setId] = useState("");
+  
   const {
     setOnReady,
     setTitle,
     setArtist,
+    videoIds: contextVideoIds, // Prefer context videoIds over props for global truth
     setVideoIds,
     currentPlaying,
     setCurrentPlaying,
     setDuration,
-    setCurrentTime, // We will use this to forcefully reset time
+    setCurrentTime,
     onReady,
     setPlayedBy,
     setIsLoading,
     isLoading,
     thumbnail,
     setThumbnail,
-    setIsPause
+    setIsPause,
+    playerMode // Pull the global mode state
   } = useStateContext();
 
-  // 🐛 FIX 1: Immediately clear interval and reset time when track ID changes
+  // Single source of truth for the queue
+  const activeVideoIds = contextVideoIds?.length > 0 ? contextVideoIds : propVideoIds;
+  const isSolo = playerMode === PLAYER_MODE.SOLO;
+
+  // ----------------------------------------------------------------------
+  // 1. HYDRATION & SYNC (Protects against page refreshes in Solo Mode)
+  // ----------------------------------------------------------------------
+  useEffect(() => {
+    if (isSolo) {
+      // Hydrate from localStorage on initial load/refresh
+      const localPlaying = JSON.parse(localStorage.getItem(localStorage_currentPlaying));
+      const localQueue = JSON.parse(localStorage.getItem(localStorage_soloQueue));
+      console.log(localPlaying, localQueue)
+
+      if (localPlaying && !currentPlaying?.id) {
+        setCurrentPlaying(localPlaying);
+      }
+      if (localQueue && (!activeVideoIds || activeVideoIds.length === 0)) {
+        setVideoIds(localQueue);
+      }
+
+      // Sync local component state with global context
+      if (currentPlaying) {
+        setId(currentPlaying.id);
+        setTitle(currentPlaying.title);
+        setArtist(currentPlaying.channelName);
+        setPlayedBy(currentPlaying.playedBy || "Solo Player");
+        setThumbnail(currentPlaying.image || currentPlaying.thumbnail);
+      }
+    }
+  }, [isSolo, currentPlaying, activeVideoIds, setCurrentPlaying, setVideoIds, setTitle, setArtist, setPlayedBy, setThumbnail]);
+
+  // ----------------------------------------------------------------------
+  // 2. FIREBASE LISTENER (Only active in Jam Mode)
+  // ----------------------------------------------------------------------
+  useEffect(() => {
+    let unsubscribe;
+    
+    const fetchUsers = async () => {
+      // 🐛 FIX: Bypass Firebase completely if in Solo Mode
+      if (isSolo) return; 
+
+      const roomCode = sessionStorage.getItem("roomCode");
+      if (!roomCode) return;
+
+      try {
+        const docRef = doc(db, "room", roomCode);
+        unsubscribe = onSnapshot(docRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setVideoIds(data.currentSong || []);
+            
+            if (data.currentPlaying) {
+              setCurrentPlaying(data.currentPlaying);
+              setId(data.currentPlaying.id);
+              setTitle(data.currentPlaying.title);
+              setArtist(data.currentPlaying.channelName);
+              setPlayedBy(data.currentPlaying.playedBy);
+              setThumbnail(data.currentPlaying.image);
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Firebase sync error:", err);
+      }
+    };
+
+    fetchUsers();
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [isSolo, setVideoIds, setCurrentPlaying, setTitle, setArtist, setPlayedBy, setThumbnail]);
+
+
+  // ----------------------------------------------------------------------
+  // 3. TRACK PROGRESSION & AUTO-SUGGEST
+  // ----------------------------------------------------------------------
   useEffect(() => {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setCurrentTime(0);
   }, [id, setCurrentTime]);
 
   const onVideoEnd = async () => {
-    const index = videoIds.findIndex((data) => data.id === currentPlaying.id);
-    const autoSuggest = JSON.parse(localStorage.getItem(localStorage_autoSuggest)); // get settings value
-    
-    // Check if the currently ending song is the absolute last song in the array
-    const isLastSong = index === videoIds?.length - 1;
+    if (!activeVideoIds || activeVideoIds.length === 0 || !currentPlaying) return;
+  
+    const index = currentPlaying.queueIndex !== undefined 
+      ? currentPlaying.queueIndex 
+      : activeVideoIds.findIndex((data) => data.id === currentPlaying.id);
+      
+    const autoSuggest = JSON.parse(localStorage.getItem(localStorage_autoSuggest));
+    const isLastSong = index === activeVideoIds.length - 1;
+    const roomCode = sessionStorage.getItem("roomCode");
   
     try {
       if (!isLastSong) {
-        // 1. NOT the last song: Simply play the next song in the queue
-        const uniqueVideoIds = getUniqueObjectsById(videoIds);
-        await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
-          currentSong: uniqueVideoIds,
-          currentPlaying: { ...videoIds[index + 1], playedAt: Timestamp.now() },
-        });
+        // --- SCENARIO A: NOT THE LAST SONG (Play Next) ---
+        const nextSong = { 
+          ...activeVideoIds[index + 1], 
+          queueIndex: index + 1,
+          playedAt: Timestamp.now() // Stamps the exact start time for sync calculation
+        };
+  
+        if (isSolo) {
+          setCurrentPlaying(nextSong);
+          localStorage.setItem(localStorage_currentPlaying, JSON.stringify(nextSong));
+        } else {
+          const uniqueVideoIds = getUniqueObjectsById(activeVideoIds);
+          await updateDoc(doc(db, "room", roomCode), {
+            currentSong: uniqueVideoIds,
+            currentPlaying: nextSong,
+          });
+        }
   
       } else {
-        // 2. IS the last song: Check if Auto-Suggest is enabled
-        if (autoSuggest) {
-          // AWAIT the api call (apiClient already knows the base URL)
-          const { data } = await apiClient.get(`/song/${id}/up-next`);
-            
-          if (data && data.length > 0) {
-            // fetch limit from settings
-            const suggestionLimit = localStorage.getItem(localStorage_autoSuggestLimit);
-
-            const limit = suggestionLimit < data?.length ? suggestionLimit : data?.length-1
-
-            // Queue all the fetched results
-            const suggestedSongs = data?.slice(0, limit); // slice from 0 - limit
-            
-            const refactoredSongs = suggestedSongs.map((song) => {
-              return {
-                // Fixed typo: changed song.thumbnail to song.thumbnails for the array fallback
+        // --- SCENARIO B: LAST SONG ---
+        
+        if (isSolo) {
+          // SOLO MODE: Handle AutoSuggest
+          if (autoSuggest) {
+            const { data } = await apiClient.get(`music/song/${currentPlaying.id}/up-next`);
+              
+            if (data && data.length > 0) {
+              const suggestionLimit = localStorage.getItem(localStorage_autoSuggestLimit) || 5;
+              const limit = Math.min(suggestionLimit, data.length - 1);
+              
+              const refactoredSongs = data.slice(0, limit).map((song) => ({
                 image: song?.thumbnail || song?.thumbnails?.[song?.thumbnails?.length - 1]?.url || "",
                 title: song?.title || "Unknown Title",
                 id: song?.videoId || "",
-                // Fallback to null because Firestore blocks 'undefined'
                 artistId: song?.artists?.artistId || null, 
                 channelName: song?.artists || song?.artist?.name || "Unknown Artist",
                 playedBy: "Auto Suggest"
-              }
-            });
-            
-            // Queue the suggest songs in the playlist
-            await bulkQueue({ queuedSongs: videoIds, newSongs: refactoredSongs });
+              }));
+              
+              const firstSuggestedSong = { 
+                ...refactoredSongs[0], 
+                queueIndex: activeVideoIds.length,
+                playedAt: Timestamp.now() 
+              };
   
-            // Force the player to immediately start playing the FIRST suggested song
-            await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
-              currentPlaying: {
-                id: refactoredSongs[0].id,
-                title: refactoredSongs[0].title,
-                image: refactoredSongs[0].image,
-                channelName: refactoredSongs[0].channelName,
-                playedBy: "Auto Suggest",
-                playedAt: Timestamp.now()
-              }
-            });
+              const newQueue = [...activeVideoIds, ...refactoredSongs];
+              setVideoIds(newQueue);
+              localStorage.setItem(localStorage_soloQueue, JSON.stringify(newQueue));
+              
+              setCurrentPlaying(firstSuggestedSong);
+              localStorage.setItem(localStorage_currentPlaying, JSON.stringify(firstSuggestedSong));
+            }
+          } else {
+            // SOLO MODE (AutoSuggest OFF): Just stop playback
+            setIsPause(true);
+            setCurrentTime(0);
           }
         } else {
-          // 3. IS the last song, but Auto-Suggest is OFF: Loop back to the very first song
-          await updateDoc(doc(db, "room", sessionStorage.getItem("roomCode")), {
-            currentPlaying: { ...videoIds[0], playedAt: Timestamp.now() },
+          // JAM MODE: Queue is empty. Roommates must manually queue the next song.
+          // We pause the player and reset the timer.
+          setIsPause(true);
+          setCurrentTime(0);
+          
+          // Optional: Update Firestore to show everyone the player has paused
+          await updateDoc(doc(db, "room", roomCode), {
+            isPause: true
           });
         }
       }
     } catch (err) {
-      console.error("Error handling track change / auto-suggest:", err);
+      console.error("Error handling track change:", err);
     }
-  
-    // Reset the local player time
-    // if (onReady) onReady.seekTo(0);
-    setCurrentTime(0);
   };
 
-  useEffect(() => {
-    let unsubscribe;
-    const fetchUsers = async () => {
-      try {
-        const docRef = doc(db, "room", sessionStorage.getItem("roomCode"));
-        unsubscribe = onSnapshot(docRef, (doc) => {
-          if (doc.exists()) {
-            setVideoIds(doc.data().currentSong);
-            if (doc.data().currentPlaying) {
-              setCurrentPlaying(doc.data().currentPlaying);
-              setId(doc.data().currentPlaying.id);
-              setTitle(doc.data().currentPlaying.title);
-              setArtist(doc.data().currentPlaying.channelName);
-              setPlayedBy(doc.data().currentPlaying.playedBy);
-              setThumbnail(doc?.data()?.currentPlaying.image);
-            }
-          }
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    };
-    fetchUsers();
-    return () => unsubscribe();
-  }, [videoIds]); // Warning: Having videoIds as a dependency here might cause too many re-renders. Consider removing it or changing to roomCode.
-
+  // ----------------------------------------------------------------------
+  // 4. PLAYER ENGINE & EVENT HANDLERS
+  // ----------------------------------------------------------------------
   const onReadyFunc = (event) => {
     setOnReady(event.target);
     setDuration(event.target.getDuration());
     setIsLoading(false);
-    
-    // 🔊 RESET VOLUME: Instantly snap the volume back to 100% when a new track loads
-    // This prevents the next song from playing silently if the previous one faded to 0.
     event.target.setVolume(100); 
   };
 
@@ -167,10 +243,8 @@ const YouTubeVideo = ({ videoIds }) => {
   };
 
   const onStateChange = (event) => {
-    // 🐛 FIX 2: Only start interval if video is playing AND it's not buffering a new track
     if (event.data === YouTube.PlayerState.PLAYING) {
       setIsPause(false);
-      // Ensure we have the new video's duration before setting interval
       setDuration(event.target.getDuration()); 
       startInterval();
     } else {
@@ -182,24 +256,30 @@ const YouTubeVideo = ({ videoIds }) => {
   const startInterval = () => {
     clearInterval(intervalRef.current);
     intervalRef.current = setInterval(() => {
-      if (onReady && typeof onReady.getCurrentTime === 'function') {
-        const newCurrentTime = onReady.getCurrentTime();
-        const duration = onReady.getDuration();
-        
-        setCurrentTime(newCurrentTime);
+      try {
+        // Safety check: ensure player is valid and iframe is still mounted
+        if (onReady && typeof onReady.getCurrentTime === 'function' && onReady.getIframe()) {
+          const newCurrentTime = onReady.getCurrentTime();
+          const currentDuration = onReady.getDuration();
+          
+          setCurrentTime(newCurrentTime);
 
-        // --- FADE OUT LOGIC ---
-        // 1. Fetch the user's preferred fade duration (default to 5s if missing)
-        const savedFade = localStorage.getItem(localStorage_fadeDuration);
-        const fadeDuration = savedFade !== null ? parseInt(savedFade, 10) : 5;
-        
-        const timeRemaining = duration - newCurrentTime;
+          // Fade Out Logic
+          const savedFade = localStorage.getItem(localStorage_fadeDuration);
+          const fadeDuration = savedFade !== null ? parseInt(savedFade, 10) : 5;
+          const timeRemaining = currentDuration - newCurrentTime;
 
-        // 2. If we are within the fade window, lower the volume based on time remaining
-        if (timeRemaining <= fadeDuration && timeRemaining > 0) {
-          const targetVolume = Math.floor((timeRemaining / fadeDuration) * 100);
-          onReady.setVolume(targetVolume);
+          if (timeRemaining <= fadeDuration && timeRemaining > 0) {
+            const targetVolume = Math.floor((timeRemaining / fadeDuration) * 100);
+            onReady.setVolume(targetVolume);
+          }
+        } else {
+          // If the player is dead, kill the interval immediately to prevent memory leaks
+          clearInterval(intervalRef.current);
         }
+      } catch (err) {
+        console.warn("Interval cleared: YouTube player instance invalid.");
+        clearInterval(intervalRef.current);
       }
     }, 500);
   };
@@ -207,21 +287,19 @@ const YouTubeVideo = ({ videoIds }) => {
   return (
     <div>
       {(id || !isLoading || thumbnail ) && (
-        <>
-          <div style={{ position: "absolute", bottom: 0, left: -42, zIndex: -1 }}>
-            <YouTube
-              key={id} // 🐛 FIX: This forces React to unmount the old player and mount a fresh one on track change
-              videoId={id}
-              className=""
-              opts={opts}
-              onReady={onReadyFunc}
-              onStateChange={onStateChange}
-              onEnd={onVideoEnd}
-            />
-          </div>
-        </>
+        <div style={{ position: "absolute", bottom: 0, left: -42, zIndex: -1 }}>
+          <YouTube
+            key={currentPlaying?.id} 
+            videoId={currentPlaying?.id}
+            opts={opts}
+            onReady={onReadyFunc}
+            onStateChange={onStateChange}
+            onEnd={onVideoEnd}
+          />
+        </div>
       )}
     </div>
   );
 };
+
 export default YouTubeVideo;

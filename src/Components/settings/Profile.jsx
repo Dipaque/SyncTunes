@@ -4,6 +4,7 @@ import { IoPersonCircleOutline } from "react-icons/io5";
 import { fontFamily } from "../../constants";
 import { Offcanvas, OffcanvasBody } from "reactstrap";
 import { HiOutlineCamera } from "react-icons/hi";
+import Logout from "./Logout";
 
 const Profile = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +34,7 @@ const Profile = () => {
         </span>
       </div>
       <Offcanvas
-        className={`!bg-zinc-900 !text-slate-200 !h-[50%] ${
+        className={`!bg-zinc-900 !text-slate-200 !h-[63%] ${
           isOpen ? "!animate-drawer" : "translate-y-0 !animate-slide-down"
         }`}
         direction="bottom"
@@ -48,7 +49,7 @@ const Profile = () => {
       >
         <OffcanvasBody className="!text-sm">
           <div
-            className="border-1 border-gray-500 p-[2px] bg-gray-500 w-8 rounded-full mx-auto mb-4"
+            className="border-1 border-gray-500 p-[2px] bg-gray-500 w-8 rounded-full mx-auto mb-12"
             onClick={handleOpen}
           />
           <div className="flex flex-col gap-2 text-lg  text-slate-100">
@@ -67,10 +68,11 @@ const Profile = () => {
               <p className="text-sm text-gray-500 ">{Cookies.get("name")}</p>
               <span>Email</span>
               <p className="text-sm text-gray-500 ">{Cookies.get("email")}</p>
+            </div>
+          <Logout />
               <p className="text-xs text-gray-500 mt-2 text-center">
                 Your profile helps people to recognize you.
               </p>
-            </div>
           </div>
         </OffcanvasBody>
       </Offcanvas>

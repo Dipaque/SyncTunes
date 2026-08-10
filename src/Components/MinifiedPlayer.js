@@ -5,14 +5,19 @@ import LikeSong from "./LikeSong";
 import { IoPause, IoPlay, IoHeadset } from "react-icons/io5";
 import { LuSpeaker } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
+import { getRoutes, PLAYER_MODE } from "../constants";
+import { getPath } from "../utils/getPath";
 
 const MinifiedPlayer = () => {
   const { 
     thumbnail, title, onReady, isPause, setIsPause, duration,
-    currentTime, setCurrentTime, setIsSeeking, seekBarRef, 
+    currentTime, setCurrentTime, setIsSeeking, seekBarRef, playerMode
   } = useStateContext();
 
   const nav = useNavigate();
+
+  const isSolo = playerMode === PLAYER_MODE.SOLO;
+  const ROUTE = getRoutes(isSolo);
   
   // State to track if the active device is a headset/bluetooth
   const [isExternalDevice, setIsExternalDevice] = useState(false);
@@ -93,7 +98,7 @@ const MinifiedPlayer = () => {
 
   const handleNavigate = () => {
     const roomCode = sessionStorage.getItem("roomCode") || "";
-    nav(`/room/${roomCode}/player`);
+    nav(getPath(ROUTE.PLAYER, roomCode));
   };
 
   return (
@@ -101,13 +106,13 @@ const MinifiedPlayer = () => {
       className="absolute bottom-[3.6rem] left-1/2 -translate-x-1/2 rounded-md animate-controller bg-zinc-900/50 backdrop-blur-md border-t border-white/10 w-[95vw] max-w-xl"  
       onClick={handleNavigate}
     >
-      <div className="p-3 flex justify-between items-center gap-2 px-2">
+      <div className="p-3 pt-2 flex justify-between items-center gap-2 px-2">
         
         {/* Left Side: Thumbnail & Title */}
         <div className="flex items-center gap-2 w-1/2">
           <img
             src={thumbnail || ""}
-            className="h-8 w-12 rounded-md object-cover"
+            className="h-10 w-14 rounded-md object-cover"
             alt="thumbnail"
           />
           <div className="text-slate-100 text-sm overflow-hidden whitespace-nowrap">

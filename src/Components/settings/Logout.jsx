@@ -28,7 +28,7 @@ const Logout = () => {
         });
       }
   return (
-    <button className='bg-slate-50 rounded-full p-2 flex gap-2  items-center justify-center text-sm w-24 mx-auto mt-5' onClick={()=>signOutUser()}>
+    <button className='bg-slate-50 text-zinc-900 rounded-full p-2 flex gap-2  items-center justify-center text-sm w-24 mx-auto' onClick={()=>signOutUser()}>
     Log out
   </button>
   )
