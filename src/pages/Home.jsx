@@ -13,7 +13,10 @@ const Home = () => {
   const navigate = useNavigate();
 
   // global state
-  const { setmodal_backdrop1, setmodal_backdrop,playerMode, setPlayerMode } = useStateContext();
+  const { setmodal_backdrop1, setmodal_backdrop,playerMode, setPlayerMode, setCurrentPlaying, setTitle
+    ,setArtist
+    ,setPlayedBy
+    ,setThumbnail } = useStateContext();
   
   //  local state
   const [pinnedSongs, setPinnedSongs] = useState([]) // pinned songs from localStorage
@@ -23,9 +26,11 @@ const Home = () => {
   
   // 1. Fetch Local Recents
   useEffect(() => {
-    const pinned = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || []
+    const pinnedLookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {}
     const recents = JSON.parse(localStorage.getItem(localStorage_recentSearches)) || [];
     setRecentTracks(recents.slice(0, 5));
+
+    const pinned = Object.values(pinnedLookup);
     setPinnedSongs(pinned)
   }, []);
 
@@ -63,6 +68,11 @@ const Home = () => {
     setPlayerMode(mode)
 
     localStorage.setItem(localStorage_playerMode, JSON.stringify(mode)) // Store the mode in the localStorage
+    setCurrentPlaying(null);
+    setTitle(null)
+    setArtist(null)
+    setPlayedBy(null)
+    setThumbnail(null)
   }
 
   return (

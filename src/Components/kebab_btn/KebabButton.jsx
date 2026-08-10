@@ -6,12 +6,11 @@ import Cookies from "js-cookie";
 import { Offcanvas, OffcanvasBody, OffcanvasHeader } from "reactstrap";
 
 // import icon
-import { HiOutlineShare, HiOutlineTrash, HiOutlineUser, HiOutlineCollection } from "react-icons/hi";
+import { HiOutlineShare, HiOutlineTrash, HiOutlineUser,  } from "react-icons/hi";
 import { HiOutlineQueueList } from "react-icons/hi2";
 import { IoEllipsisVertical, IoPerson, IoShuffleOutline } from "react-icons/io5";
-import { VscSignOut, VscPinned } from "react-icons/vsc"; // Added VscPinned for the Pin feature
-import { CgTranscript } from "react-icons/cg";
-import { IoIosHeartEmpty } from "react-icons/io";
+import { VscSignOut, VscPinned } from "react-icons/vsc"; 
+import { BsPinFill } from "react-icons/bs";
 
 // import constants;
 import { fontFamily, localStorage_pinSongs, PLAYER_MODE } from "../../constants";
@@ -26,13 +25,11 @@ import { deleteDoc, doc } from "firebase/firestore";
 import { db } from "../../firebase-config";
 import { useNavigate, useParams } from "react-router-dom";
 import addToQueue from "../../Functions/addToQueue";
-import playNext from "../../Functions/playNext";
 import shuffle from "../../Functions/shuffle";
+import playNext from "../../Functions/playNext";
 
 const KebabButton = ({ handleExit }) => {
-  // param id
   const { id } = useParams();
-  // context
   const {
     thumbnail,
     playedBy,
@@ -47,42 +44,42 @@ const KebabButton = ({ handleExit }) => {
     setCurrentPlaying
   } = useStateContext();
   
-  // email & room code
   const email = Cookies.get("email");
   const roomCode = id || sessionStorage.getItem("roomCode");
   const isSolo = playerMode === PLAYER_MODE.SOLO;
 
-  // local state
   const [isOpen, setIsOpen] = useState(false);
   const [isOpenDeleteModal, setIsOpenDeleteModal] = useState(false);
   const nav = useNavigate();
 
-  /**
-   * Toggle Drawer
-   */
   const handleOpen = () => {
     setIsOpen(!isOpen);
   };
 
-  /**
-   * Pins the current song to LocalStorage so it can be retrieved later
-   */
-  const handlePinSong = () => {
+  // 1. Pure O(1) Lookup to check if currently playing song is pinned
+  const pinnedSongsLookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
+  const isPinned = currentPlaying ? !!pinnedSongsLookup[currentPlaying.id] : false;
+
+  // 2. Toggle Function (No loops used)
+  const handleTogglePin = () => {
     try {
       if (!currentPlaying) return;
       
-      const pinnedSongs = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || [];
+      const lookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
       
-      // Prevent pinning the same song multiple times
-      const isAlreadyPinned = pinnedSongs.some((song) => song.id === currentPlaying.id);
-      
-      if (!isAlreadyPinned) {
-        localStorage.setItem(localStorage_pinSongs, JSON.stringify([...pinnedSongs, currentPlaying]));
+      if (lookup[currentPlaying.id]) {
+        // If it exists in the lookup, delete it (Unpin)
+        delete lookup[currentPlaying.id];
+      } else {
+        // If it doesn't exist, assign it (Pin)
+        lookup[currentPlaying.id] = currentPlaying;
       }
       
-      setIsOpen(false); // Close drawer on success
+      // Save the dictionary back to localStorage
+      localStorage.setItem(localStorage_pinSongs, JSON.stringify(lookup));
+      setIsOpen(false); 
     } catch (error) {
-      console.error("Failed to pin song:", error);
+      console.error("Failed to toggle pin status:", error);
     }
   };
 
@@ -92,60 +89,62 @@ const KebabButton = ({ handleExit }) => {
       icon: <HiOutlineQueueList size={25} />,
       text: "Add to Queue",
       onClick: () => {
-        // Fallback to thumbnail if image is missing
         const trackImg = currentPlaying?.image || thumbnail; 
         addToQueue(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, "Solo Playing", currentPlaying.artistId, playerMode, setVideoIds, setCurrentPlaying);
-        setIsOpen(false); // 🐛 FIX: Close drawer so the user knows it worked
+        setIsOpen(false); 
       }
     },
     {
       label: "Shuffle",
       icon: <IoShuffleOutline color='text-gray-400' size={23} />,
       text: "Added to Shuffle",
-      onClick: () => shuffle({
-        newSongs: {
-          image: currentPlaying?.image,
-          title,
-          id,
-          channelName: currentPlaying?.channelName,
-          artistId: currentPlaying?.artistId,
-          playedBy: Cookies.get('name') || "Solo Player"
-        },
-        queuedSongs: videoIds,
-        playerMode,
-        setVideoIds
-      })
-    },
-    {
-      icon: <VscPinned size={25} strokeWidth="0.1" />,
-      text: "Pin Song",
-      onClick: handlePinSong // 🐛 NEW: Pin functionality
-    },
-    {
-      icon: <IoIosHeartEmpty size={25} strokeWidth='0.2' />,
-      text: "Add to Liked songs",
       onClick: () => {
-        // TODO: Add your Liked Songs logic here
-        console.log("Add to Liked");
+        shuffle({
+          newSongs: {
+            image: currentPlaying?.image,
+            title,
+            id: currentPlaying?.id,
+            channelName: currentPlaying?.channelName,
+            artistId: currentPlaying?.artistId,
+            playedBy: Cookies.get('name') || "Solo Player"
+          },
+          queuedSongs: videoIds,
+          playerMode,
+          setVideoIds
+        });
         setIsOpen(false);
       }
     },
     {
-      icon: <HiOutlineCollection strokeWidth="1.5" size={25} />,
-      text: "Add to Playlist",
-      onClick: () => {
-        // TODO: Add your Playlist logic here
-        console.log("Add to Playlist");
-        setIsOpen(false);
-      }
+      // 3. Dynamic Text driven by the lookup state
+      icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
+      text: isPinned ? "Unpin Song" : "Pin Song",
+      onClick: handleTogglePin 
     },
+    // {
+    //   icon: <IoRepeatOutline size={25} strokeWidth='0.2' />,
+    //   text: "Repeat Song",
+    //   onClick: () => {
+    //     const trackImg = currentPlaying?.image || thumbnail; 
+    //     playNext(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, videoIds, currentPlaying, Cookies.get('name'), currentPlaying?.artistId, playerMode, setVideoIds)
+    //     setIsOpen(false);
+    //   }
+    // },
+    // {
+    //   icon: <HiOutlineCollection strokeWidth="1.5" size={25} />,
+    //   text: "Add to Playlist",
+    //   onClick: () => {
+    //     console.log("Add to Playlist");
+    //     setIsOpen(false);
+    //   }
+    // },
     {
       icon: <HiOutlineUser strokeWidth="1.5" size={25} />,
       text: "Go to artist",
       onClick: () => {
         setIsOpen(false);
         if (currentPlaying?.artistId) {
-          nav(`/artists/${currentPlaying.artistId}`); // Navigate to artist page
+          nav(`/artists/${currentPlaying.artistId}`); 
         }
       }
     },
@@ -234,14 +233,14 @@ const KebabButton = ({ handleExit }) => {
             </div>
           ))}
           
-          {email === admin.email && !isSolo && <ChangeRoomVisibility />}
+          {email === admin?.email && !isSolo && <ChangeRoomVisibility />}
           
           {!isSolo && (
             <div
               className="flex items-center gap-3 text-gray-300 mt-2 cursor-pointer hover:text-white transition-colors p-2 -mx-2 rounded-lg hover:bg-zinc-800"
               onClick={() => {
                 setIsOpen(false);
-                setTimeout(() => handleExit(), 300); // Prevent backdrop freeze
+                setTimeout(() => handleExit(), 300); 
               }}
             >
               <VscSignOut type="button" size={23} className="text-gray-400" />
@@ -249,12 +248,12 @@ const KebabButton = ({ handleExit }) => {
             </div>
           )}
           
-          {email === admin.email && !isSolo && (
+          {email === admin?.email && !isSolo && (
             <div
               className="flex items-center gap-3 text-red-500 mt-2 cursor-pointer hover:text-red-400 transition-colors p-2 -mx-2 rounded-lg hover:bg-zinc-800"
               onClick={() => {
                 setIsOpen(false);
-                setTimeout(() => setIsOpenDeleteModal(true), 300); // Prevent backdrop freeze
+                setTimeout(() => setIsOpenDeleteModal(true), 300); 
               }}
             >
               <HiOutlineTrash

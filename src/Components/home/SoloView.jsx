@@ -1,13 +1,10 @@
 import React from "react";
 import { IoPlayCircle, IoPeopleOutline } from "react-icons/io5";
-import { VscPinned } from "react-icons/vsc";
+import { TiPin  } from "react-icons/ti";
 import { useNavigate } from "react-router-dom";
 import { getRoutes, localStorage_currentPlaying, localStorage_soloQueue, PLAYER_MODE } from "../../constants"; 
 import { getPath } from "../../utils/getPath";
 import { useStateContext } from "../../Context/ContextProvider";
-import { doc, Timestamp, updateDoc } from "firebase/firestore";
-import { db } from "../../firebase-config";
-import Cookies from "js-cookie"
 import playSong from "../../Functions/playSong";
 
 const SoloView = ({ recentTracks, pinnedSongs = [], isLoading, homeData, handleItemClick }) => {
@@ -40,10 +37,10 @@ const SoloView = ({ recentTracks, pinnedSongs = [], isLoading, homeData, handleI
       // prepare params song details
       const track = {
         title: item?.title || item?.name, 
-        id: item?.videoId, 
-        image:item.thumbnails?.[item.thumbnails?.length-1]?.url || item.thumbnail, 
-        channelName: item?.artist?.name, 
-        artistId: item?.artist?.artistId
+        id: item?.videoId || item?.id, 
+        image:item.thumbnails?.[item.thumbnails?.length-1]?.url || item.thumbnail || item?.image, 
+        channelName: item?.artist?.name || item?.channelName, 
+        artistId: item?.artist?.artistId || item?.artistId
       }
 
       // prepare params object
@@ -71,8 +68,8 @@ const SoloView = ({ recentTracks, pinnedSongs = [], isLoading, homeData, handleI
       {/* Pinned Songs Section */}
       {pinnedSongs.length > 0 && (
         <section>
-          <div className="flex items-center gap-2 mb-3">
-            <VscPinned size={23} strokeWidth={0.4} className=" rotate-45" />
+          <div className="flex items-center gap-1 mb-3">
+            <TiPin  fill="white" size={25} className="mb-2" />
             <h2 className="text-lg font-bold text-white">Pinned Songs</h2>
           </div>
           <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-2 snap-x">

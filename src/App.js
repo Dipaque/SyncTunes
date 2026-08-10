@@ -108,7 +108,58 @@ function App() {
     checkAuthAndSetPath();
   }, [paramsId]);
 
+// <------------------ Enable PIP starts ------------------>
+  const openMiniPlayer = async () => {
+    try {
+      if ("documentPictureInPicture" in window) {
+        const pipWindow =
+          await window.documentPictureInPicture.requestWindow({
+            height:"70",
+            width: "40"
+          });
+  
+        // Add content
+        pipWindow.document.body.innerHTML = `
+           <img
+  src="${logo}" height="60" width="160"
+  
+/>
+        `;
+      } else {
+        alert("Document PiP not supported");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
+  useEffect(() => {
+    const handleVisibility = async () => {
+      if (
+        document.hidden &&
+        "documentPictureInPicture" in window &&
+        !window.documentPictureInPicture.window
+      ) {
+        try {
+          await openMiniPlayer();
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    };
+  
+    document.addEventListener(
+      "visibilitychange",
+      handleVisibility
+    );
+  
+    return () =>
+      document.removeEventListener(
+        "visibilitychange",
+        handleVisibility
+      );
+  }, []);
+// <------------------ Enable PIP ends ------------------>
   
   const roomCode = paramsId
 

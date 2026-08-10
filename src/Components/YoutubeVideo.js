@@ -289,8 +289,8 @@ const YouTubeVideo = ({ videoIds: propVideoIds }) => {
       {(id || !isLoading || thumbnail ) && (
         <div style={{ position: "absolute", bottom: 0, left: -42, zIndex: -1 }}>
           <YouTube
-            key={id} 
-            videoId={id}
+            key={currentPlaying?.id} 
+            videoId={currentPlaying?.id}
             opts={opts}
             onReady={onReadyFunc}
             onStateChange={onStateChange}
