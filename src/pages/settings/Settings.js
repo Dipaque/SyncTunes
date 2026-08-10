@@ -31,12 +31,12 @@ const Settings = () => {
   // local state
   const [autoSuggest, setAutoSuggest] = useState(() => {
     const saved = localStorage.getItem(localStorage_autoSuggest);
-    return saved !== null ? JSON.parse(saved) : true;
+    return saved !== null ? JSON.parse(saved) : false;
   });
 
   const [suggestLimit, setSuggestLimit] = useState(() => {
     const saved = localStorage.getItem(localStorage_autoSuggestLimit);
-    return saved !== null ? parseInt(saved, 10) : 20;
+    return saved !== null ? parseInt(saved, 10) : 5;
   });
 
   const [fadeDuration, setFadeDuration] = useState(() => {
@@ -47,7 +47,7 @@ const Settings = () => {
   // Initialize Past Songs Limit State (Default 20)
   const [pastSongsLimit, setPastSongsLimit] = useState(() => {
     const saved = localStorage.getItem(localStorage_pastSongsLimit);
-    return saved !== null ? parseInt(saved, 10) : 20;
+    return saved !== null ? parseInt(saved, 10) : 5;
   });
 
   const [preferredLang, setPreferredLang] = useState(() => {

@@ -91,7 +91,7 @@ function JoinRoom({ codeViaProps }) {
           value={roomCode}
           onChange={(e) => setRoomCode(e.target.value)}
           placeholder="Enter your room code..."
-          className="bg-zinc-800 text-white border-zinc-700 focus:bg-zinc-800 focus:text-white mb-2"
+          className="bg-zinc-800  border-zinc-700 focus:bg-zinc-800 focus:text-white mb-2"
         />
         
         {msg && <p className='text-red-500 text-center text-sm m-0'>{msg}</p>}

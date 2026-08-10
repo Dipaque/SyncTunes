@@ -92,7 +92,7 @@ function CreateRoom() {
           value={roomCode?.trim()}
           onChange={(e) => setRoomCode(e.target.value)}
           placeholder="Enter your room code..."
-          className="bg-zinc-800 text-white border-zinc-700 focus:bg-zinc-800 focus:text-white"
+          className="bg-zinc-800 border-zinc-700 focus:bg-zinc-800 focus:text-white"
         />
 
         <span className='text-sm mt-2 text-gray-400 flex items-center justify-between'>
