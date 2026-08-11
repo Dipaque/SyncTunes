@@ -57,7 +57,7 @@ const QueueDrawer = ({ handlePlay, handlePause }) => {
     };
   
     fetchRoomData();
-  }, [roomCode, playerMode, setSongsList]);
+  }, [roomCode, playerMode, songsList]);
 
   const handleOpen = () => {
     setIsOpen(!isOpen);

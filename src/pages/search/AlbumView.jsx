@@ -2,7 +2,12 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { useMusicData } from "../../hooks/useMusicData";
 import SongCard from "../../Components/SongCard";
-import { IoArrowBack, IoPause, IoPlay, IoShuffleOutline } from "react-icons/io5";
+import {
+  IoArrowBack,
+  IoPause,
+  IoPlay,
+  IoShuffleOutline,
+} from "react-icons/io5";
 import { useStateContext } from "../../Context/ContextProvider";
 import Cookies from "js-cookie";
 import { formatText } from "../../utils/formatText";
@@ -10,10 +15,13 @@ import AlbumShimmer from "../../Components/loading/AlbumShimmer";
 import GenericNotFound from "../../Components/NotFoundPage";
 import bulkQueue from "../../Functions/bulkQueue";
 // 🐛 IMPORT THE SHUFFLE UTILITY
-import shuffle from "../../Functions/shuffle"; 
-import { getRoutes, PLAYER_MODE } from "../../constants";
+import shuffle from "../../Functions/shuffle";
+import { getRoutes, localStorage_pinSongs, PLAYER_MODE } from "../../constants";
 import { getPath } from "../../utils/getPath";
 import LikeEntity from "../../Components/likes/LikeEntity";
+import { VscPinned } from "react-icons/vsc";
+import handlePin from "../../Functions/handlePin";
+import { BsPinFill } from "react-icons/bs";
 
 const AlbumView = () => {
   // Extracting 'id' (roomId) and 'album' (albumId) from the route params
@@ -25,11 +33,20 @@ const AlbumView = () => {
   const nav = useNavigate();
 
   // Bring in context for the queue function
-  const { videoIds, currentPlaying, isPause, playerMode, setVideoIds, setSongsList } = useStateContext();
+  const {
+    videoIds,
+    currentPlaying,
+    isPause,
+    playerMode,
+    setVideoIds,
+    setSongsList,
+  } = useStateContext();
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isPinned, setIsPinned] = useState(false)
 
   const isSolo = playerMode === PLAYER_MODE.SOLO;
   const ROUTE = getRoutes(isSolo);
+
 
   useEffect(() => {
     if (currentPlaying?.id) {
@@ -43,6 +60,10 @@ const AlbumView = () => {
         setIsPlaying(true);
       }
     }
+    const pinnedSongsLookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
+    const isPinned = album ? !!pinnedSongsLookup[albumId] : false;
+
+    setIsPinned(isPinned); // Update the ui
   }, [album, currentPlaying]);
 
   if (isLoading) {
@@ -57,8 +78,10 @@ const AlbumView = () => {
   const handlePlayAll = async () => {
     // Prepare songs payload
     const newSongs = album?.songs?.map((song) => {
-      const image = song.thumbnails?.[song?.thumbnails.length - 1]?.url || coverImage;
-      const channelName = song.artists?.map((a) => a.name).join(", ") || song?.artist?.name;
+      const image =
+        song.thumbnails?.[song?.thumbnails.length - 1]?.url || coverImage;
+      const channelName =
+        song.artists?.map((a) => a.name).join(", ") || song?.artist?.name;
 
       return {
         image,
@@ -76,7 +99,7 @@ const AlbumView = () => {
       queuedSongs: videoIds,
       playerMode,
       setVideoIds,
-      setSongsList
+      setSongsList,
     });
 
     nav(getPath(ROUTE.PLAYER, roomCode));
@@ -87,8 +110,10 @@ const AlbumView = () => {
     if (!album?.songs) return;
 
     const newSongs = album.songs.map((song) => {
-      const image = song.thumbnails?.[song?.thumbnails.length - 1]?.url || coverImage;
-      const channelName = song.artists?.map((a) => a.name).join(", ") || song?.artist?.name;
+      const image =
+        song.thumbnails?.[song?.thumbnails.length - 1]?.url || coverImage;
+      const channelName =
+        song.artists?.map((a) => a.name).join(", ") || song?.artist?.name;
 
       return {
         image,
@@ -106,10 +131,49 @@ const AlbumView = () => {
       queuedSongs: videoIds,
       playerMode,
       setVideoIds,
-      setSongsList
+      setSongsList,
     });
 
     nav(getPath(ROUTE.PLAYER, roomCode));
+  };
+
+  const pinAlbum = () => {
+    const metaData = {
+      id: albumId,
+      title: album?.title || album?.name,
+      image: coverImage,
+      channelName: album?.name || album?.artist?.name,
+      artistId: album.artist.artistId,
+      itemType: "ALBUM",
+    };
+
+    // pass the data to pin function
+    handlePin(metaData);
+
+    setIsPinned(true); // Update the UI
+  }
+
+  const handleTogglePin = () => {
+    try {
+      if (!album) return;
+      
+      const lookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
+      
+      if (lookup[albumId]) {
+        // If it exists in the lookup, delete it (Unpin)
+        delete lookup[albumId];
+
+        // Save the dictionary back to localStorage
+        localStorage.setItem(localStorage_pinSongs, JSON.stringify(lookup));
+        setIsPinned(false);
+      } else {
+        // If it doesn't exist, assign it (Pin)
+        pinAlbum()
+      }
+       
+    } catch (error) {
+      console.error("Failed to toggle pin status:", error);
+    }
   };
 
   return (
@@ -127,7 +191,7 @@ const AlbumView = () => {
           src={coverImage}
           alt={album.title}
           className="w-56 h-56 object-cover rounded-md shadow-[0_0_15px_rgba(255,255,255,0.1)] mb-6"
-          loading='lazy'
+          loading="lazy"
         />
 
         <h4 className="font-semibold">{album?.name}</h4>
@@ -162,14 +226,23 @@ const AlbumView = () => {
 
       {/* Action Buttons (Like + Shuffle + Play) */}
       <div className="flex items-center justify-between gap-3 px-2 mb-4">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {/* 🐛 NEW: Shuffle Button triggers handleShuffleAlbum */}
-          <IoShuffleOutline 
-            size={32} 
-            className="cursor-pointer text-white hover:text-[#1ed760] transition-colors" 
+          <IoShuffleOutline
+            size={32}
+            className="cursor-pointer text-white hover:text-[#1ed760] transition-colors"
             onClick={handleShuffleAlbum}
           />
-          <LikeEntity id={albumId} type="album" iconSize={32} />
+          <div onClick={handleTogglePin}>
+          {
+            isPinned ? <BsPinFill size={27} /> : <VscPinned
+            size={32}
+          />
+          } 
+          </div>
+          <div className="-ms-2">
+          <LikeEntity id={albumId} type="album" iconSize={32}  />
+          </div>
         </div>
 
         <button

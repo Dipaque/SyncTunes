@@ -373,13 +373,13 @@ const Index = ({ updateParamsId }) => {
             
             {/* Artist Navigation */}
 {/* Artist Navigation */}
-<div className="flex items-center justify-start gap-1">
-{playedBy === autoSuggest ? <IoSparkles color="#1ed760" /> : null}
+<div className={`flex items-center justify-start gap-1 ${playedBy === autoSuggest ? "px-2":""}`}>
+{playedBy === autoSuggest ? <IoSparkles color="#1ed760"  /> : null}
 {artist?.length >= 40 ? (
               <Marquee className="mx-2" style={{ width: "85%" }} gradient={false}>
                 <Link 
                   to={currentPlaying?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', currentPlaying.artistId) : "#"} 
-                  className="text-slate-200 m-2 mt-1 text-sm no-underline hover:text-white transition-colors"
+                  className="text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors"
                 >
                   {artist || "Unknown Artist"}
                 </Link>
@@ -387,7 +387,7 @@ const Index = ({ updateParamsId }) => {
             ) : (
               <Link 
                 to={currentPlaying?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', currentPlaying.artistId) : "#"} 
-                className="flex items-center gap-2 text-slate-200 m-2 mt-1 text-sm no-underline hover:text-white transition-colors  truncate"
+                className="flex items-center gap-2 text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors  truncate"
               >
                  {artist || "Unknown Artist"}
               </Link>

@@ -10,6 +10,7 @@ export const localStorage_soloQueue = 'inqwefineur';
 export const localStorage_currentPlaying = 'indfingwertr';
 export const localStorage_pinSongs = 'rjnsingoiponc';
 export const localStorage_syncPreferredLang = 'inibsdjbgkjb';
+export const localStorage_pinnedView = 'ihinidshinrt';
 
 export const PLAYER_MODE = {
     SOLO: 'solo',
@@ -36,3 +37,8 @@ export const getRoutes = (isSolo) => ({
 export const userActivity_route = '/user-activity'
 export const library_route = '/library'
 export const music_route = '/music' 
+
+// Indexed DB
+export const DB_NAME = 'SyncMusicCache';
+export const LIBRBARY_CACHE_STORE_NAME = 'library_cache';
+export const HOME_CACHE_STORE_NAME = 'home_data_cache';

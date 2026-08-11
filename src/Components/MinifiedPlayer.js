@@ -103,8 +103,7 @@ const MinifiedPlayer = () => {
 
   return (
     <div 
-      className="absolute bottom-[3.6rem] left-1/2 -translate-x-1/2 rounded-md animate-controller bg-zinc-900/50 backdrop-blur-md border-t border-white/10 w-[95vw] max-w-xl"  
-      onClick={handleNavigate}
+    className="fixed bottom-16 left-1/2 -translate-x-1/2 rounded-md animate-controller bg-zinc-900/50 backdrop-blur-md  w-[95vw] max-w-xl z-50 shadow-xl"      onClick={handleNavigate}
     >
       <div className="p-3 pt-2 flex justify-between items-center gap-2 px-2">
         

@@ -3,7 +3,7 @@ import { useStateContext } from '../Context/ContextProvider';
 import { db } from '../firebase-config';
 import { doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { HiOutlineQueueList } from "react-icons/hi2";
-import { IoEllipsisVertical, IoRepeatOutline, IoShuffleOutline, IoPlaySkipForwardOutline } from 'react-icons/io5';
+import { IoEllipsisVertical, IoRepeatOutline, IoShuffleOutline, IoPlaySkipForwardOutline, IoDiscOutline } from 'react-icons/io5';
 import { Offcanvas, OffcanvasHeader, OffcanvasBody } from 'reactstrap';
 import addToQueue from '../Functions/addToQueue';
 import shuffule from '../Functions/shuffle'; // Note: check your spelling of this import in your actual file
@@ -11,8 +11,11 @@ import playNext from '../Functions/playNext';
 import Cookies from 'js-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
 import { formatText } from '../utils/formatText';
-import { fontFamily, localStorage_recentSearches, getRoutes, PLAYER_MODE, localStorage_currentPlaying, localStorage_soloQueue } from '../constants';
+import { fontFamily, localStorage_recentSearches, getRoutes, PLAYER_MODE, localStorage_currentPlaying, localStorage_soloQueue, localStorage_pinSongs } from '../constants';
 import { getPath } from '../utils/getPath';
+import { HiOutlineCollection } from 'react-icons/hi';
+import { VscPinned } from 'react-icons/vsc';
+import { BsPinFill } from 'react-icons/bs';
 
 const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToastMsg, isRecentRequired=false, artistId="" }) => {
   const { id: paramsId } = useParams();
@@ -97,7 +100,12 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
     setDrawerOpen(false); 
   };
 
-  // 🐛 FIX: Consolidated array for clean mapping in the drawer
+  const pinnedLookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
+  const isPinned = !!pinnedLookup[id];
+  
+  // Optional: Helper to determine if it's a Song, Album, or Playlist based on a type prop
+  const itemType = type ? type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() : "Song"; 
+  
   const menuOptions = [
     {
       label: "Play Next",
@@ -122,7 +130,41 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
       icon: <IoShuffleOutline color='text-gray-400' size={23} />,
       toast: "Added to Shuffle",
       action: () => shuffule(image, title, id, channelName, videoIds, Cookies.get('name'), artistId)
-    }
+    },
+    {
+      // 🐛 NEW: Pin / Unpin Logic
+      label: isPinned ? `Unpin ${itemType}` : `Pin ${itemType}`,
+      icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
+      toast: isPinned ? `${itemType} Unpinned` : `${itemType} Pinned`,
+      action: () => {
+        try {
+          const lookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
+          
+          if (lookup[id]) {
+            // If it exists, delete it (Unpin)
+            delete lookup[id];
+          } else {
+            // If it doesn't exist, save it (Pin)
+            // We save all relevant props so it renders correctly on the Home screen
+            lookup[id] = { id, title, image, channelName, artistId, type: itemType };
+          }
+          
+          localStorage.setItem(localStorage_pinSongs, JSON.stringify(lookup));
+        } catch (error) {
+          console.error("Failed to toggle pin status:", error);
+        }
+      }
+    },
+    // {
+    //   // 🐛 NEW: Add to Playlist
+    //   label: "Add to Playlist",
+    //   icon: <HiOutlineCollection color='text-gray-400' size={23} strokeWidth="1.5" />,
+    //   toast: "Opening playlists",
+    //   action: () => {
+    //      // Replace with your modal trigger or API call to add to playlist
+    //      console.log("Add to Playlist");
+    //   }
+    // }
   ];
 
   const imageStyles = type === 'ARTIST' 

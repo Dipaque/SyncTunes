@@ -1,6 +1,6 @@
 import React, {useEffect,useState} from 'react'
 
-const Toast = ({message,showToast}) => {
+const Toast = ({message,showToast = true}) => {
   const [isVisible, setIsVisible] = useState(null);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ const Toast = ({message,showToast}) => {
 
   if (isVisible==null) return null;
   return (
-    <div className={`fixed bottom-24 transition-all duration-300 ease-in-out transform w-[95vw] z-50
+    <div className={`fixed bottom-32 transition-all mx-auto duration-300 ease-in-out transform w-[95vw] z-50
                ${isVisible ? "animate-fade-in-up" : isVisible===false? "animate-fade-out-down":""} bg-white rounded-lg border-white h-12 flex items-center justify-center w-60 m-3`}>
   <div className=''>
     <span className='text-sm text-zinc-900'>

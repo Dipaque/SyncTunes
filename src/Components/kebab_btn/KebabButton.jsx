@@ -92,7 +92,8 @@ const KebabButton = ({ handleExit }) => {
         const trackImg = currentPlaying?.image || thumbnail; 
         addToQueue(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, "Solo Playing", currentPlaying.artistId, playerMode, setVideoIds, setCurrentPlaying);
         setIsOpen(false); 
-      }
+      },
+      show: true
     },
     {
       label: "Shuffle",
@@ -113,13 +114,15 @@ const KebabButton = ({ handleExit }) => {
           setVideoIds
         });
         setIsOpen(false);
-      }
+      },
+      show: true
     },
     {
       // 3. Dynamic Text driven by the lookup state
       icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
       text: isPinned ? "Unpin Song" : "Pin Song",
-      onClick: handleTogglePin 
+      onClick: handleTogglePin,
+      show: true 
     },
     // {
     //   icon: <IoRepeatOutline size={25} strokeWidth='0.2' />,
@@ -146,7 +149,8 @@ const KebabButton = ({ handleExit }) => {
         if (currentPlaying?.artistId) {
           nav(`/artists/${currentPlaying.artistId}`); 
         }
-      }
+      },
+      show: currentPlaying.artistId ? true : false
     },
   ];
 
@@ -173,7 +177,7 @@ const KebabButton = ({ handleExit }) => {
         onClick={handleOpen}
       />
       <Offcanvas
-        className={`!bg-zinc-900 !text-slate-200 !h-[60%] !max-w-screen-sm ${
+        className={`!bg-zinc-900 !text-slate-200 !h-[50%] !max-w-screen-sm ${
           isOpen ? "!animate-drawer" : "translate-y-0 !animate-slide-down"
         }`}
         direction="bottom"
@@ -201,8 +205,8 @@ const KebabButton = ({ handleExit }) => {
             <span className="flex items-start gap-2">
               <div className="flex-1 text-base">
                 <div className="line-clamp-1">{currentPlaying?.title || "Song name"}</div>
-                <p className="flex items-center mt-1 gap-1 text-sm text-gray-500">
-                  <IoPerson /> {!isSolo ? currentPlaying?.playedBy : currentPlaying?.channelName || "artist"}
+                <p className="mt-1 text-sm text-gray-500">
+                  <span className="line-clamp-1">{!isSolo ? currentPlaying?.playedBy : currentPlaying?.channelName || "artist"}</span>
                 </p>
               </div>
             </span>
@@ -226,7 +230,7 @@ const KebabButton = ({ handleExit }) => {
             <div 
               key={option.text} 
               onClick={option.onClick} 
-              className="flex items-center gap-3 text-gray-300 cursor-pointer hover:text-white transition-colors p-2 -mx-2 rounded-lg hover:bg-zinc-800 mt-2"
+              className={`flex items-center gap-3 text-gray-300 cursor-pointer hover:text-white transition-colors p-2 -mx-2 rounded-lg hover:bg-zinc-800 mt-2 ${option.show ? "block": "hidden"}`}
             >
               <span className="text-gray-400">{option.icon}</span>
               {option.text}

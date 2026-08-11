@@ -1,8 +1,8 @@
-import React from "react";
-import { IoPlayCircle, IoPeopleOutline } from "react-icons/io5";
+import React, {useState} from "react";
+import { IoPlayCircle, IoPeopleOutline, IoGridOutline, IoListOutline, IoPlay } from "react-icons/io5";
 import { TiPin  } from "react-icons/ti";
 import { useNavigate } from "react-router-dom";
-import { getRoutes, localStorage_currentPlaying, localStorage_soloQueue, PLAYER_MODE } from "../../constants"; 
+import { getRoutes, localStorage_pinnedView, PLAYER_MODE } from "../../constants"; 
 import { getPath } from "../../utils/getPath";
 import { useStateContext } from "../../Context/ContextProvider";
 import playSong from "../../Functions/playSong";
@@ -15,6 +15,9 @@ const SoloView = ({ recentTracks, pinnedSongs = [], isLoading, homeData, handleI
   const isSolo = playerMode === PLAYER_MODE.SOLO;
   const ROUTE = getRoutes(isSolo);
   const roomCode = sessionStorage.getItem("roomCode") || "";
+  const selectedView = JSON.parse(localStorage.getItem(localStorage_pinnedView)) || true
+
+  const [isGridView, setIsGridView] = useState(selectedView);
 
   // Smart Routing Handler
   const handleRouting = (item) => {
@@ -67,37 +70,94 @@ const SoloView = ({ recentTracks, pinnedSongs = [], isLoading, homeData, handleI
       
       {/* Pinned Songs Section */}
       {pinnedSongs.length > 0 && (
-        <section>
-          <div className="flex items-center gap-1 mb-3">
-            <TiPin  fill="white" size={25} className="mb-2" />
-            <h2 className="text-lg font-bold text-white">Pinned Songs</h2>
-          </div>
-          <div className="flex gap-4 overflow-x-auto custom-scrollbar pb-2 snap-x">
-            {pinnedSongs.map((track, idx) => (
-              <div 
-                key={idx} 
-                onClick={() => handleRouting(track)}
-                className="flex flex-col gap-2 min-w-[120px] max-w-[120px] cursor-pointer group snap-start"
-              >
-                <div className="relative aspect-square overflow-hidden rounded-md bg-zinc-800 border-transparent  transition-colors">
-                  <img
-                    src={track.image || track.thumbnails?.[0]?.url}
-                    alt={track.title || track.name}
-                    className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    <IoPlayCircle size={40} className="text-[#1ed760] drop-shadow-lg" />
-                  </div>
-                </div>
-                <div>
-                  <p className="text-sm font-semibold text-white truncate">{track.title || track.name}</p>
-                  <p className="text-xs text-gray-400 truncate">{track.artist || track.channelName}</p>
+  <section>
+    {/* HEADER WITH TOGGLE */}
+    <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center gap-1">
+        <TiPin fill="white" size={25} className="mb-1" />
+        <h2 className="text-lg font-bold text-white">Pinned Songs</h2>
+      </div>
+      
+      <button 
+        onClick={() =>{
+           setIsGridView(!isGridView)
+           localStorage.setItem(localStorage_pinnedView, JSON.stringify(isGridView))
+          }}
+        className="text-gray-400 hover:text-white p-1 rounded-md hover:bg-zinc-800 transition-colors"
+        title={isGridView ? "Switch to Scroll View" : "Switch to Grid View"}
+      >
+        {isGridView ? <IoListOutline size={22} /> : <IoGridOutline size={22} />}
+      </button>
+    </div>
+
+    {/* DYNAMIC CONTAINER */}
+    <div className={
+      isGridView 
+        ? "grid grid-cols-2 md:grid-cols-3 gap-2 pb-2" // 2 columns for mobile, 3 for desktop
+        : "flex gap-4 overflow-x-auto custom-scrollbar pb-2 snap-x"
+    }>
+      {pinnedSongs.map((track, idx) => (
+        <div 
+          key={idx} 
+          onClick={() => handleRouting(track)}
+          className={
+            isGridView
+              ? "relative flex items-center bg-zinc-800/40 hover:bg-zinc-700/60 transition-colors rounded-md overflow-hidden cursor-pointer group h-14" 
+              : "flex flex-col gap-2 min-w-[120px] max-w-[120px] cursor-pointer group snap-start" 
+          }
+        >
+          
+          {/* --- SCROLL VIEW LAYOUT --- */}
+          {!isGridView && (
+            <>
+              <div className="relative aspect-square overflow-hidden rounded-md bg-zinc-800 border-transparent transition-colors">
+                <img
+                  src={track.image || track.thumbnails?.[0]?.url}
+                  alt={track.title || track.name}
+                  className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <IoPlayCircle size={40} className="text-[#1ed760] drop-shadow-lg" />
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
+              <div className="w-full">
+                <p className="text-sm font-semibold text-white truncate">{track.title || track.name}</p>
+                <p className="text-xs text-gray-400 truncate">{track.artist || track.channelName}</p>
+              </div>
+            </>
+          )}
+
+          {/* --- SPOTIFY GRID VIEW LAYOUT --- */}
+          {isGridView && (
+            <>
+              {/* Flush Left Image */}
+              <div className="h-14 w-14 flex-shrink-0 bg-zinc-800">
+                <img
+                  src={track.image || track.thumbnails?.[0]?.url}
+                  alt={track.title || track.name}
+                  className="object-cover w-full h-full"
+                />
+              </div>
+              
+              {/* Centered Text */}
+              <div className="flex flex-col px-3 flex-1 overflow-hidden pr-10">
+                <p className="text-sm font-bold text-white line-clamp-2">{track.title || track.name}</p>
+              </div>
+
+              {/* Hover Play Button (Right Aligned) */}
+              <div className="absolute right-2 opacity-0 group-hover:opacity-100 transition-all duration-300 z-10 shadow-xl drop-shadow-xl">
+                <div className="bg-[#1ed760] rounded-full p-2 flex items-center justify-center text-black hover:scale-105 hover:bg-[#1fdf64]">
+                  <IoPlay size={18} className="ml-0.5" />
+                </div>
+              </div>
+            </>
+          )}
+
+        </div>
+      ))}
+    </div>
+  </section>
+)}
 
       {/* Jump Back In (Recent Tracks) */}
       {recentTracks.length > 0 && (

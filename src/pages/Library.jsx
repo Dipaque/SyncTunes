@@ -3,17 +3,18 @@ import Cookies from 'js-cookie';
 import apiClient from '../utils/apiClient';
 import SongCard from '../Components/SongCard'; 
 import { useNavigate } from 'react-router-dom';
-import { library_route, getRoutes, PLAYER_MODE } from '../constants'; // 🐛 IMPORTED routes & modes
+import { library_route, getRoutes, PLAYER_MODE, DB_NAME, LIBRBARY_CACHE_STORE_NAME } from '../constants';
 import RoomTemplate from '../Components/RoomTemplate';
 import Spinner from '../Components/loading/Spinner';
 import GenericNotFound from '../Components/NotFoundPage';
 import { HiOutlineSearch } from 'react-icons/hi'; 
-// 🐛 NEW IMPORTS FOR PLAY/PAUSE/SHUFFLE
 import { IoPlay, IoPause, IoShuffleOutline } from 'react-icons/io5';
 import { useStateContext } from '../Context/ContextProvider';
 import bulkQueue from '../Functions/bulkQueue';
 import shuffle from '../Functions/shuffle';
 import { getPath } from '../utils/getPath';
+import { IndexedDBHelper } from '../utils/indexedDB';
+import { appCache } from '../utils/cache';
 
 const Library = () => {
   const [activeTab, setActiveTab] = useState('songs');
@@ -25,13 +26,15 @@ const Library = () => {
     likedPlaylists: []
   });
   const [myRooms, setMyRooms] = useState([]);
+  
+  // Start loading by default
   const [isLoading, setIsLoading] = useState(true);
+
   
   const nav = useNavigate();
   const userId = Cookies.get('uid');
   const email = Cookies.get('email');
   
-  // 🐛 NEW: Bring in Context for Player State
   const { videoIds, setVideoIds, currentPlaying, isPause, setIsPause, playerMode, setSongsList } = useStateContext();
   const isSolo = playerMode === PLAYER_MODE.SOLO;
   const ROUTE = getRoutes(isSolo);
@@ -39,21 +42,49 @@ const Library = () => {
 
   useEffect(() => {
     const fetchLibraryAndRooms = async () => {
-      setIsLoading(true);
-      try {
-        const libRes = await apiClient.post(`${library_route}/all`, { userId });
-        setLibraryData(libRes.data);
+      if (!userId || !email) return;
 
-        const roomsRes = await apiClient.post(`${library_route}/my-rooms`, { email });
-        setMyRooms(roomsRes.data);
+      const libCacheKey = `library_data_${userId}`;
+      const roomsCacheKey = `rooms_data_${email}`;
+
+      // 1. FAST LOAD: Check IndexedDB Cache first
+      const cachedLibrary = await appCache.get(libCacheKey);
+      const cachedRooms = await appCache.get(roomsCacheKey);
+
+      if (cachedLibrary) {
+        setLibraryData(cachedLibrary);
+        setIsLoading(false); // Hide spinner instantly if we have cached data
+      }
+      if (cachedRooms) {
+        setMyRooms(cachedRooms);
+      }
+
+      // 2. BACKGROUND FETCH: Get fresh data from the API silently
+      try {
+        const [libRes, roomsRes] = await Promise.all([
+          apiClient.post(`${library_route}/all`, { userId }),
+          apiClient.post(`${library_route}/my-rooms`, { email })
+        ]);
+
+        const freshLibrary = libRes.data;
+        const freshRooms = roomsRes.data;
+
+        // 3. SILENT UPDATE: Update React State (UI will seamlessly update if anything changed)
+        setLibraryData(freshLibrary);
+        setMyRooms(freshRooms);
+        setIsLoading(false); // Failsafe if cache was empty
+
+        // 4. CACHE UPDATE: Save fresh data to IndexedDB for next time
+        await appCache.set(libCacheKey, freshLibrary);
+        await appCache.set(roomsCacheKey, freshRooms);
+
       } catch (error) {
-        console.error("Failed to fetch library:", error);
-      } finally {
+        console.error("Failed to fetch fresh library data:", error);
         setIsLoading(false);
       }
     };
 
-    if (userId && email) fetchLibraryAndRooms();
+    fetchLibraryAndRooms();
   }, [userId, email]);
 
   const tabs = [
@@ -94,21 +125,18 @@ const Library = () => {
     }
   };
 
-  // 🐛 NEW: Check if any of the filtered liked songs is currently playing
   const isPlayingLikedSongs = filteredSongs.some(song => song.id === currentPlaying?.id);
 
-  // 🐛 NEW: Handle Play/Pause Toggle & Queuing
   const togglePlayPause = async () => {
     if (isPlayingLikedSongs && !isPause) {
-      setIsPause(true); // Pause the player
+      setIsPause(true); 
       return;
     }
     if (isPlayingLikedSongs && isPause) {
-      setIsPause(false); // Resume the player
+      setIsPause(false); 
       return;
     }
 
-    // If not playing, queue the filtered songs
     const newSongs = filteredSongs.map((song) => ({
       image: song.image,
       channelName: song.channelName,
@@ -123,13 +151,12 @@ const Library = () => {
       queuedSongs: videoIds,
       playerMode,
       setVideoIds,
-      setSongsList // Keep Drawer in sync
+      setSongsList 
     });
 
     nav(getPath(ROUTE.PLAYER, roomCode));
   };
 
-  // 🐛 NEW: Handle Shuffle
   const handleShuffleLikedSongs = async () => {
     if (!filteredSongs.length) return;
 
@@ -191,40 +218,36 @@ const Library = () => {
         ))}
       </div>
 
-      
-
       <div className="flex flex-col gap-2 pb-28">
         
         {/* SONGS TAB */}
         {activeTab === 'songs' && (
           filteredSongs.length > 0 ? (
             <>
-              {/* 🐛 NEW: Action Buttons (Shuffle & Play/Pause) */}
               <div className="flex items-center justify-between gap-4 mb-4 px-1">
-              <div className="text-sm flex flex-col items-start gap-2 font-medium text-gray-400 px-1">
-                <span className="text-lg text-white">Liked Songs</span>
-                {getActiveTabCountInfo()}
+                <div className="text-sm flex flex-col items-start gap-2 font-medium text-gray-400 px-1">
+                  <span className="text-lg text-white">Liked Songs</span>
+                  {getActiveTabCountInfo()}
                 </div>
                 <div className='flex items-center gap-4'>
-                <IoShuffleOutline 
-                  size={32} 
-                  className="cursor-pointer text-white hover:text-[#1ed760] transition-colors" 
-                  onClick={handleShuffleLikedSongs}
-                />
-                <button
-                  onClick={togglePlayPause}
-                  className="bg-white text-black p-2 rounded-full hover:scale-105 transition-transform flex items-center justify-center shadow-xl"
-                >
-                  {isPlayingLikedSongs && !isPause ? (
-                    <IoPause size={28} />
-                  ) : (
-                    <IoPlay size={28} className="ml-1" />
-                  )}
-                </button>
+                  <IoShuffleOutline 
+                    size={32} 
+                    className="cursor-pointer text-white hover:text-[#1ed760] transition-colors" 
+                    onClick={handleShuffleLikedSongs}
+                  />
+                  <button
+                    onClick={togglePlayPause}
+                    className="bg-white text-black p-2 rounded-full hover:scale-105 transition-transform flex items-center justify-center shadow-xl"
+                  >
+                    {isPlayingLikedSongs && !isPause ? (
+                      <IoPause size={28} />
+                    ) : (
+                      <IoPlay size={28} className="ml-1" />
+                    )}
+                  </button>
                 </div>
               </div>
 
-              {/* Songs List */}
               {filteredSongs.map(song => (
                 <SongCard key={song.id} {...song} type="SONG" />
               ))}
