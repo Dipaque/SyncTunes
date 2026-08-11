@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [4.1.0] - 2026-08-11
+
+### Added
+- **Spotify-Style Pinned Songs Grid**: Upgraded the Pinned Songs section on the Home page with a toggleable view. Users can now switch between the default horizontal scroll and an authentic Spotify-style grid view (flush-left images, translucent gray cards, and hover-state play buttons).
+- **Universal Caching Utility**: Created a reusable `IndexedDBHelper` class (`appCache`) using the Singleton pattern. It manages a single, unified database (`SyncAppDB`) and object store (`app_cache`) for the entire application, eliminating connection leaks and versioning conflicts.
+- **Home Screen TTL Cache**: Implemented a 4-hour Time-To-Live (TTL) cache for the Home page. It uses language-aware keys (e.g., `home_data_kollywood`) to instantly fetch fresh data when a user changes their preferred language, while serving instant cached data otherwise.
+- **Library "Stale-While-Revalidate" Cache**: Added IndexedDB caching to the Library page. It loads cached data instantly (hiding the loading spinner), fetches fresh API data in the background, and seamlessly updates the UI without interrupting the user.
+- **Extended SongCard Menu**: Added "Pin", "View Album", and "Add to Playlist" actions to the context menu on individual song cards, utilizing the O(1) dictionary lookup for instant pinning.
+
+### Changed
+- **Smart Diffing for Library Writes**: Upgraded the Library cache logic to perform a JSON stringify diff-check against the background API response. It now skips IndexedDB writes and React state updates entirely if the user's library hasn't changed, massively reducing CPU/disk I/O.
+- **Minified Player Layout Architecture**: Removed fragile absolute positioning (`bottom-[4rem]`) from the `MinifiedPlayer`. Wrapped it and the `Sidebar` in a unified `fixed flex-col` container so they automatically stack perfectly regardless of device screen size or padding.
+
+### Fixed
+- **Sidebar Layout Shifts**: Fixed a bug where switching between filled and outlined icons caused the text labels to jump up and down. Wrapped all Sidebar icons in a strict `h-7 w-7` bounding box to ensure pixel-perfect text alignment.
+- **Artist Name Icon Squishing**: Fixed a flexbox issue where long artist or channel names would squeeze the `IoPerson` icon into an oval. Added `flex-shrink-0` to the icon and proper `truncate` classes to the text span.
+
 ## [4.0.0] - 2026-08-10
 
 ### Added
