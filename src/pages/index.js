@@ -357,7 +357,10 @@ const Index = ({ updateParamsId }) => {
             <div className="flex items-center justify-between ms-2 gap-6 overflow-hidden">
               {/* Marquee for long titles to prevent overflow */}
               {title?.length >= 19 ? (
-                <Marquee style={{ width: "85%" }} gradient={false}>
+                <Marquee style={{ width: "85%" }} 
+                gradient={true} 
+                gradientColor="black" /* Matches your dark theme */
+                gradientWidth={40}    /* Controls how wide the fade is */>
                   <h5 className="text-slate-50 bg-black m-0 me-2">
                     <b>{title || "Unknown Song"}</b>
                   </h5>
@@ -376,7 +379,8 @@ const Index = ({ updateParamsId }) => {
 <div className={`flex items-center justify-start gap-1 ${playedBy === autoSuggest ? "px-2":""}`}>
 {playedBy === autoSuggest ? <IoSparkles color="#1ed760"  /> : null}
 {artist?.length >= 40 ? (
-              <Marquee className="mx-2" style={{ width: "85%" }} gradient={false}>
+              <Marquee className="mx-2" style={{ width: "85%" }} gradient={true} gradientColor="black" /* Matches your dark theme */
+              gradientWidth={40}    /* Controls how wide the fade is */>
                 <Link 
                   to={currentPlaying?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', currentPlaying.artistId) : "#"} 
                   className="text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors"

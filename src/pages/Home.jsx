@@ -16,8 +16,6 @@ import {
   localStorage_recentSearches,
   localStorage_syncPreferredLang,
   PLAYER_MODE,
-  DB_NAME,
-  LIBRBARY_CACHE_STORE_NAME,
 } from "../constants";
 
 // Import utils
@@ -80,7 +78,7 @@ const Home = () => {
         if (cachedEntry && now - cachedEntry.timestamp < CACHE_TTL_MS) {
           setHomeData(cachedEntry.data);
           setIsLoading(false);
-          return; // 🛑 EXIT EARLY: No API call needed!
+          return; // EXIT EARLY: No API call needed!
         }
 
         // 4. Fetch fresh data (Cache is missing, expired, or language changed)

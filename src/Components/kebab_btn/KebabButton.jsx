@@ -26,7 +26,7 @@ import { db } from "../../firebase-config";
 import { useNavigate, useParams } from "react-router-dom";
 import addToQueue from "../../Functions/addToQueue";
 import shuffle from "../../Functions/shuffle";
-import playNext from "../../Functions/playNext";
+import handlePin from "../../Functions/handlePin";
 
 const KebabButton = ({ handleExit }) => {
   const { id } = useParams();
@@ -59,29 +59,6 @@ const KebabButton = ({ handleExit }) => {
   // 1. Pure O(1) Lookup to check if currently playing song is pinned
   const pinnedSongsLookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
   const isPinned = currentPlaying ? !!pinnedSongsLookup[currentPlaying.id] : false;
-
-  // 2. Toggle Function (No loops used)
-  const handleTogglePin = () => {
-    try {
-      if (!currentPlaying) return;
-      
-      const lookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
-      
-      if (lookup[currentPlaying.id]) {
-        // If it exists in the lookup, delete it (Unpin)
-        delete lookup[currentPlaying.id];
-      } else {
-        // If it doesn't exist, assign it (Pin)
-        lookup[currentPlaying.id] = currentPlaying;
-      }
-      
-      // Save the dictionary back to localStorage
-      localStorage.setItem(localStorage_pinSongs, JSON.stringify(lookup));
-      setIsOpen(false); 
-    } catch (error) {
-      console.error("Failed to toggle pin status:", error);
-    }
-  };
 
   // Solo Options Configuration
   const soloOptions = [
@@ -121,7 +98,7 @@ const KebabButton = ({ handleExit }) => {
       // 3. Dynamic Text driven by the lookup state
       icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
       text: isPinned ? "Unpin Song" : "Pin Song",
-      onClick: handleTogglePin,
+      onClick:() => handlePin({song:currentPlaying, finalFunc: setIsOpen(false)}),
       show: true 
     },
     // {

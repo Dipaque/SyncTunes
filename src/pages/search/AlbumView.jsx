@@ -148,33 +148,8 @@ const AlbumView = () => {
     };
 
     // pass the data to pin function
-    handlePin(metaData);
-
-    setIsPinned(true); // Update the UI
+    handlePin({song: metaData, onDelete:() => setIsPinned(false), onInsert:() => setIsPinned(true)});
   }
-
-  const handleTogglePin = () => {
-    try {
-      if (!album) return;
-      
-      const lookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
-      
-      if (lookup[albumId]) {
-        // If it exists in the lookup, delete it (Unpin)
-        delete lookup[albumId];
-
-        // Save the dictionary back to localStorage
-        localStorage.setItem(localStorage_pinSongs, JSON.stringify(lookup));
-        setIsPinned(false);
-      } else {
-        // If it doesn't exist, assign it (Pin)
-        pinAlbum()
-      }
-       
-    } catch (error) {
-      console.error("Failed to toggle pin status:", error);
-    }
-  };
 
   return (
     <div className="bg-black min-h-screen text-white pb-28 pt-8 px-3 overflow-y-auto">
@@ -233,7 +208,7 @@ const AlbumView = () => {
             className="cursor-pointer text-white hover:text-[#1ed760] transition-colors"
             onClick={handleShuffleAlbum}
           />
-          <div onClick={handleTogglePin}>
+          <div onClick={pinAlbum}>
           {
             isPinned ? <BsPinFill size={27} /> : <VscPinned
             size={32}

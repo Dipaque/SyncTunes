@@ -13,9 +13,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { formatText } from '../utils/formatText';
 import { fontFamily, localStorage_recentSearches, getRoutes, PLAYER_MODE, localStorage_currentPlaying, localStorage_soloQueue, localStorage_pinSongs } from '../constants';
 import { getPath } from '../utils/getPath';
-import { HiOutlineCollection } from 'react-icons/hi';
 import { VscPinned } from 'react-icons/vsc';
 import { BsPinFill } from 'react-icons/bs';
+import handlePin from '../Functions/handlePin';
 
 const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToastMsg, isRecentRequired=false, artistId="" }) => {
   const { id: paramsId } = useParams();
@@ -136,24 +136,13 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
       label: isPinned ? `Unpin ${itemType}` : `Pin ${itemType}`,
       icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
       toast: isPinned ? `${itemType} Unpinned` : `${itemType} Pinned`,
-      action: () => {
-        try {
-          const lookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
-          
-          if (lookup[id]) {
-            // If it exists, delete it (Unpin)
-            delete lookup[id];
-          } else {
-            // If it doesn't exist, save it (Pin)
-            // We save all relevant props so it renders correctly on the Home screen
-            lookup[id] = { id, title, image, channelName, artistId, type: itemType };
-          }
-          
-          localStorage.setItem(localStorage_pinSongs, JSON.stringify(lookup));
-        } catch (error) {
-          console.error("Failed to toggle pin status:", error);
+      action: () =>{
+
+         const song = {
+          id, title, image, channelName, artistId, itemType
+         }
+         handlePin({song})
         }
-      }
     },
     // {
     //   // 🐛 NEW: Add to Playlist
