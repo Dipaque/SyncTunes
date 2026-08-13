@@ -52,7 +52,7 @@ const LikeSong = ({ iconSize, color }) => {
     };
 
     fetchIsLiked();
-  }, [currentPlaying, playerMode, userId, email]);
+  }, [currentPlaying, playerMode, userId, email, liked]);
 
 
   // 2. HANDLE LIKE/UNLIKE ACTIONS
@@ -60,11 +60,6 @@ const LikeSong = ({ iconSize, color }) => {
     e.stopPropagation();
     
     if (!userId) return;
-
-    // Optimistic UI update + Instagram Bounce Animation
-    setLiked(isLiked);
-    setAnimate(true);
-    setTimeout(() => setAnimate(false), 300); // 300ms matches the CSS transition duration
 
     const userRef = doc(db, "users", userId);
 
@@ -132,6 +127,12 @@ const LikeSong = ({ iconSize, color }) => {
     } catch (error) {
       console.error("Failed to update liked status:", error);
       // Optional: Revert optimistic UI update here if network fails
+    }
+    finally {
+       // Optimistic UI update + Instagram Bounce Animation
+    setLiked(isLiked);
+    setAnimate(true);
+    setTimeout(() => setAnimate(false), 300); // 300ms matches the CSS transition duration
     }
   };
 

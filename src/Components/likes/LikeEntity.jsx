@@ -5,6 +5,7 @@ import Cookies from "js-cookie";
 import apiClient from "../../utils/apiClient";
 import { library_route } from "../../constants";
 
+
 const LikeEntity = ({ id, type, iconSize = 28, color = "white" }) => {
   const [liked, setLiked] = useState(false);
   const [animate, setAnimate] = useState(false);
@@ -16,27 +17,28 @@ const LikeEntity = ({ id, type, iconSize = 28, color = "white" }) => {
       case "artist": return "likedArtists";
       case "album": return "likedAlbums";
       case "playlist": return "likedPlaylists";
+      case "song" : return "likedSongs"
       default: return "";
     }
   };
 
-  useEffect(() => {
-    const fetchLikeStatus = async () => {
-      if (!userId || !id || !type) return;
+  const fetchLikeStatus = async () => {
+    if (!userId || !id || !type) return;
 
-      try {
-        // Fetch the unified library to check if this specific ID exists
-        const res = await apiClient.post(`${library_route}/all`, { userId });
-        const arrayName = getArrayName();
-        
-        if (res.data && res.data[arrayName]) {
-          const isLiked = res.data[arrayName].some((item) => item.id === id);
-          setLiked(isLiked);
-        }
-      } catch (err) {
-        console.error(`Error fetching ${type} like status:`, err);
+    try {
+      // Fetch the unified library to check if this specific ID exists
+      const res = await apiClient.post(`${library_route}/all`, { userId });
+      const arrayName = getArrayName();
+      
+      if (res.data && res.data[arrayName]) {
+        const isLiked = res.data[arrayName].some((item) => item.id === id);
+        setLiked(isLiked);
       }
-    };
+    } catch (err) {
+      console.error(`Error fetching ${type} like status:`, err);
+    }
+  };
+  useEffect(() => {
 
     fetchLikeStatus();
   }, [id, type, userId]);
@@ -59,6 +61,9 @@ const LikeEntity = ({ id, type, iconSize = 28, color = "white" }) => {
         type, // 'artist', 'album', or 'playlist'
         isLiked: newLikedState
       });
+
+    // refetch the liked song to update
+    fetchLikeStatus()
     } catch (error) {
       console.error(`Failed to update ${type} like status:`, error);
       // Revert optimistic UI on failure

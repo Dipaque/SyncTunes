@@ -80,4 +80,22 @@ export class IndexedDBHelper {
       return null;
     }
   }
+
+  /**
+   * Deletes a specific record from the object store.
+   * @param {string} key - The unique identifier to remove.
+   */
+  async remove(key) {
+    try {
+      const db = await this.initDB();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(this.storeName, 'readwrite');
+        tx.objectStore(this.storeName).delete(key);
+        tx.oncomplete = () => resolve();
+        tx.onerror = () => reject(tx.error);
+      });
+    } catch (err) {
+      console.warn(`[IndexedDB] Remove failed for ${this.dbName}:`, err);
+    }
+  }
 }

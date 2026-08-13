@@ -24,6 +24,12 @@ import { updateDoc, doc } from "firebase/firestore";
  */
 const bulkQueue = async ({ queuedSongs, newSongs, playerMode, setVideoIds, setSongsList }) => {
   const isSolo = playerMode === PLAYER_MODE.SOLO;
+  
+    // attach queue index to avoid duplication in the queues
+  newSongs = newSongs.map((song) => ({
+    ...song,
+    queueIndex: (queuedSongs?.length - 1) + 1 
+  }))
 
   try {
     // SCENARIO 1: Queue already exists

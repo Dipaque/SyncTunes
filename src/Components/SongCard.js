@@ -3,10 +3,10 @@ import { useStateContext } from '../Context/ContextProvider';
 import { db } from '../firebase-config';
 import { doc, Timestamp, updateDoc } from 'firebase/firestore';
 import { HiOutlineQueueList } from "react-icons/hi2";
-import { IoEllipsisVertical, IoRepeatOutline, IoShuffleOutline, IoPlaySkipForwardOutline, IoDiscOutline } from 'react-icons/io5';
+import { IoEllipsisVertical, IoRepeatOutline, IoShuffleOutline, IoPlaySkipForwardOutline, IoCloseOutline } from 'react-icons/io5';
 import { Offcanvas, OffcanvasHeader, OffcanvasBody } from 'reactstrap';
 import addToQueue from '../Functions/addToQueue';
-import shuffule from '../Functions/shuffle'; // Note: check your spelling of this import in your actual file
+import shuffule from '../Functions/shuffle'; 
 import playNext from '../Functions/playNext';
 import Cookies from 'js-cookie';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -16,16 +16,20 @@ import { getPath } from '../utils/getPath';
 import { VscPinned } from 'react-icons/vsc';
 import { BsPinFill } from 'react-icons/bs';
 import handlePin from '../Functions/handlePin';
+import LikeEntity from './likes/LikeEntity';
 
-const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToastMsg, isRecentRequired=false, artistId="" }) => {
+const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToastMsg, isRecentRequired=false, artistId="", onRemoveRecent }) => {
   const { id: paramsId } = useParams();
   const nav = useNavigate();
   const roomCode = paramsId || sessionStorage.getItem("roomCode");
 
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const toggleDrawer = () => setDrawerOpen((prevState) => !prevState);
+  const toggleDrawer = (e) => {
+    if (e) e.stopPropagation();
+    setDrawerOpen((prevState) => !prevState);
+  };
   
-  const { videoIds, setVideoIds, currentPlaying, setCurrentPlaying, isPause, setIsPause, searchResult, setSearchResult, playerMode, setTitle, setArtist, setThumbnail, setPlayedBy } = useStateContext();
+  const { videoIds, setVideoIds, currentPlaying, setCurrentPlaying, isPause, setIsPause, playerMode, setTitle, setArtist, setThumbnail, setPlayedBy } = useStateContext();
   const isSong = !type || type === 'SONG';
 
   const addRecent = () => {
@@ -83,7 +87,6 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
         }
         console.log(err);
       }
-      if (searchResult?.length > 0) setSearchResult([]);
     }
     addRecent();
   };
@@ -91,8 +94,8 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
   const handleMenuAction = (actionCallback, toastMessage) => {
     actionCallback();
     addRecent();
-    if (searchResult?.length > 0) setSearchResult([]);
-    if (setToastDisplay && setToastMsg) {
+    
+    if (setToastDisplay && setToastMsg && toastMessage) {
       setToastDisplay(true);
       setToastMsg(toastMessage);
       setTimeout(() => setToastDisplay(false), 4000);
@@ -103,10 +106,14 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
   const pinnedLookup = JSON.parse(localStorage.getItem(localStorage_pinSongs)) || {};
   const isPinned = !!pinnedLookup[id];
   
-  // Optional: Helper to determine if it's a Song, Album, or Playlist based on a type prop
   const itemType = type ? type.charAt(0).toUpperCase() + type.slice(1).toLowerCase() : "Song"; 
   
   const menuOptions = [
+    {
+      label: "Add to Liked Song",
+      icon: <div className='-m-2'><LikeEntity id={id} type={"song"} iconSize={25} color='text-gray-400'  /></div>,
+      action: () => {return}
+    },
     {
       label: "Play Next",
       icon: <IoPlaySkipForwardOutline color='text-gray-400' size={23} />,
@@ -132,28 +139,14 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
       action: () => shuffule(image, title, id, channelName, videoIds, Cookies.get('name'), artistId)
     },
     {
-      // 🐛 NEW: Pin / Unpin Logic
       label: isPinned ? `Unpin ${itemType}` : `Pin ${itemType}`,
       icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
       toast: isPinned ? `${itemType} Unpinned` : `${itemType} Pinned`,
       action: () =>{
-
-         const song = {
-          id, title, image, channelName, artistId, itemType
-         }
+         const song = { id, title, image, channelName, artistId, itemType }
          handlePin({song})
         }
-    },
-    // {
-    //   // 🐛 NEW: Add to Playlist
-    //   label: "Add to Playlist",
-    //   icon: <HiOutlineCollection color='text-gray-400' size={23} strokeWidth="1.5" />,
-    //   toast: "Opening playlists",
-    //   action: () => {
-    //      // Replace with your modal trigger or API call to add to playlist
-    //      console.log("Add to Playlist");
-    //   }
-    // }
+    }
   ];
 
   const imageStyles = type === 'ARTIST' 
@@ -182,7 +175,20 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
         </p>
       </div>
 
-      {isSong && (
+      {/* Individual Clear Button OR Standard Menu */}
+      {onRemoveRecent ? (
+        <div className='shrink-0'>
+          <button 
+            className='btn border-0 shadow-none focus:outline-none p-1 hover:bg-zinc-800 rounded-full transition-colors' 
+            onClick={(e) => {
+              e.stopPropagation(); // Prevents handlePlay from firing when clicking X
+              onRemoveRecent(id);
+            }}
+          >
+            <IoCloseOutline color='gray' size={22} />
+          </button>
+        </div>
+      ) : isSong ? (
         <div className='shrink-0'>
           <button className='btn border-0 shadow-none focus:outline-none p-1' onClick={toggleDrawer}>
             <IoEllipsisVertical color='white' size={18} />
@@ -209,7 +215,6 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
             </OffcanvasHeader>
             
             <OffcanvasBody className="flex flex-col gap-1 pt-2 pb-6">
-              {/* 🐛 FIX: Mapped over menuOptions instead of duplicating the HTML */}
               {menuOptions.map((option) => (
                 <div 
                   key={option.label}
@@ -222,7 +227,7 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
             </OffcanvasBody>
           </Offcanvas>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };

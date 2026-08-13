@@ -17,7 +17,7 @@ import { useNavigate } from "react-router-dom";
 import KebabButton from "./kebab_btn/KebabButton";
 import { IoCheckmark, IoCopyOutline } from "react-icons/io5";
 import { getRoutes, PLAYER_MODE } from "../constants";
-import { getPath } from "../utils/getPath";
+
 const PlayerHeader = ({ handlePause }) => {
   const [currentSong, setCurrentSong] = useState([]);
   const [isCopied, setIsCopied] = useState(false)
@@ -25,8 +25,6 @@ const PlayerHeader = ({ handlePause }) => {
   const {
     setVideoIds,
     setIsLeaving,
-    setIsPause,
-    isLeaving,
     pathName,
     handleClear,
     songsList,
@@ -35,7 +33,6 @@ const PlayerHeader = ({ handlePause }) => {
     setRoomMate,
     admin,
     setAdmin,
-    setThumbnail,
     playerMode
   } = useStateContext();
 

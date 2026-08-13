@@ -8,7 +8,7 @@ import { Offcanvas, OffcanvasBody, OffcanvasHeader } from "reactstrap";
 // import icon
 import { HiOutlineShare, HiOutlineTrash, HiOutlineUser,  } from "react-icons/hi";
 import { HiOutlineQueueList } from "react-icons/hi2";
-import { IoEllipsisVertical, IoPerson, IoShuffleOutline } from "react-icons/io5";
+import { IoEllipsisVertical, IoRepeatOutline, IoShuffleOutline } from "react-icons/io5";
 import { VscSignOut, VscPinned } from "react-icons/vsc"; 
 import { BsPinFill } from "react-icons/bs";
 
@@ -27,6 +27,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import addToQueue from "../../Functions/addToQueue";
 import shuffle from "../../Functions/shuffle";
 import handlePin from "../../Functions/handlePin";
+import playNext from "../../Functions/playNext";
+
 
 const KebabButton = ({ handleExit }) => {
   const { id } = useParams();
@@ -63,6 +65,13 @@ const KebabButton = ({ handleExit }) => {
   // Solo Options Configuration
   const soloOptions = [
     {
+      // 3. Dynamic Text driven by the lookup state
+      icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
+      text: isPinned ? "Unpin Song" : "Pin Song",
+      onClick:() => handlePin({song:currentPlaying, finalFunc: setIsOpen(false)}),
+      show: true 
+    },
+    {
       icon: <HiOutlineQueueList size={25} />,
       text: "Add to Queue",
       onClick: () => {
@@ -95,21 +104,15 @@ const KebabButton = ({ handleExit }) => {
       show: true
     },
     {
-      // 3. Dynamic Text driven by the lookup state
-      icon: isPinned ? <BsPinFill size={25} /> : <VscPinned size={25} strokeWidth="0.1" />,
-      text: isPinned ? "Unpin Song" : "Pin Song",
-      onClick:() => handlePin({song:currentPlaying, finalFunc: setIsOpen(false)}),
-      show: true 
+      icon: <IoRepeatOutline size={25} strokeWidth='0.2' />,
+      text: "Repeat Song",
+      onClick: () => {
+        const trackImg = currentPlaying?.image || thumbnail; 
+        playNext(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, videoIds, currentPlaying, Cookies.get('name'), currentPlaying?.artistId, playerMode, setVideoIds)
+        setIsOpen(false);
+      },
+      show: true
     },
-    // {
-    //   icon: <IoRepeatOutline size={25} strokeWidth='0.2' />,
-    //   text: "Repeat Song",
-    //   onClick: () => {
-    //     const trackImg = currentPlaying?.image || thumbnail; 
-    //     playNext(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, videoIds, currentPlaying, Cookies.get('name'), currentPlaying?.artistId, playerMode, setVideoIds)
-    //     setIsOpen(false);
-    //   }
-    // },
     // {
     //   icon: <HiOutlineCollection strokeWidth="1.5" size={25} />,
     //   text: "Add to Playlist",

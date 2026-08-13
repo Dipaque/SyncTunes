@@ -30,7 +30,7 @@ const addToQueue = async (
 ) => {
     debugger;
   const isSolo = playerMode === PLAYER_MODE.SOLO;
-  const newSong = { image, title, id, channelName, playedBy: name, artistId };
+  const newSong = { image, title, id, channelName, playedBy: name, artistId, queueIndex: songs?.length > 0 ? songs?.length : 0  };
 
   try {
     // SCENARIO 1: Queue already exists

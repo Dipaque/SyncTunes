@@ -33,7 +33,7 @@ const playNext = async (
   if (!songs || !currentPlaying) return;
 
   try {
-    const newSong = { image, title, id, channelName, playedBy: name, artistId, };
+    const newSong = { image, title, id, channelName, playedBy: name, artistId, queueIndex: songs?.length > 0 ? songs?.length : 0 };
     const index = songs.findIndex(data => data.id === currentPlaying.id);
     
     // Create a strict copy of the array to avoid mutating React state directly

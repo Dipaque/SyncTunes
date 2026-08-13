@@ -35,6 +35,8 @@ import PlayerHeader from "../Components/PlayerHeader";
 import JoinRoom from "../Components/modal/JoinRoom";
 import Lyrics from "../Components/player/Lyrics";
 import { getPath } from "../utils/getPath";
+import LikeEntity from "../Components/likes/LikeEntity";
+import { useMusicData } from "../hooks/useMusicData";
 
 /**
  * Main Player View Component.
@@ -77,6 +79,8 @@ const Index = ({ updateParamsId }) => {
   const roomCode = sessionStorage.getItem("roomCode") || id;
   const isSolo = playerMode === PLAYER_MODE.SOLO;
   const ROUTE = getRoutes(isSolo);
+  
+  const { data: song } = useMusicData("song", currentPlaying?.id)
 
   // --- Local State ---
   const [isExternalDevice, setIsExternalDevice] = useState(false);
@@ -338,14 +342,14 @@ const Index = ({ updateParamsId }) => {
 
       <PlayerHeader handlePause={handlePause} />
       
-      {isLoading || !thumbnail ? (
+      {isLoading || !song?.thumbnails.length>0 ? (
         <PlayerShimmer />
       ) : (
         <>
           {/* Album Artwork */}
           <div className="m-3 mt-8 ms-4 me-4">
             <img
-              src={thumbnail}
+              src={song?.thumbnails[song?.thumbnails.length-1].url}
               className="h-56 mx-auto rounded-md object-cover shadow-lg"
               alt="Track thumbnail"
               loading="lazy"
@@ -371,7 +375,7 @@ const Index = ({ updateParamsId }) => {
                 </h5>
               )}
               
-              <LikeSong iconSize={38} color={"#f1f5f9"} />
+              <div className="-m-2"><LikeEntity id={currentPlaying?.id} iconSize={38} type={"song"} color="#f1f5f9"  /></div>
             </div>
             
             {/* Artist Navigation */}
@@ -382,18 +386,18 @@ const Index = ({ updateParamsId }) => {
               <Marquee className="mx-2" style={{ width: "85%" }} gradient={true} gradientColor="black" /* Matches your dark theme */
               gradientWidth={40}    /* Controls how wide the fade is */>
                 <Link 
-                  to={currentPlaying?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', currentPlaying.artistId) : "#"} 
+                  to={song?.artist?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', song?.artist?.artistId) : "#"} 
                   className="text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors"
                 >
-                  {artist || "Unknown Artist"}
+                  {song?.artist?.name || "Unknown Artist"}
                 </Link>
               </Marquee>
             ) : (
               <Link 
-                to={currentPlaying?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', currentPlaying.artistId) : "#"} 
+                to={song?.artist?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', song?.artist?.artistId) : "#"} 
                 className="flex items-center gap-2 text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors  truncate"
               >
-                 {artist || "Unknown Artist"}
+                 {song?.artist?.name || "Unknown Artist"}
               </Link>
             )}
 </div>

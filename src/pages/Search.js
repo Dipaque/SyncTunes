@@ -13,19 +13,14 @@ const filters = ["ALL", "SONG", "VIDEO", "ARTIST", "ALBUM", "PLAYLIST"];
 
 const Search = () => {
 
-  // global state
   const {searchResult, setSearchResult} = useStateContext();
-
-  // local state
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [toastMsg, setToastMsg] = useState("");
   const [toastDisplay, setToastDisplay] = useState(false);
   
-  // Filter State
   const [activeFilter, setActiveFilter] = useState("ALL");
   
-  // 1. Make recents a state variable with a lazy initializer
   const [recents, setRecents] = useState(() => {
     const savedRecents = localStorage.getItem(localStorage_recentSearches);
     return savedRecents ? JSON.parse(savedRecents) : [];
@@ -53,30 +48,32 @@ const Search = () => {
     }
   };
 
-  // 2. Update state when clearing localStorage
   const clearAllRecents = () => {
     localStorage.setItem(localStorage_recentSearches, JSON.stringify([]));
-    setRecents([]); // This triggers the re-render immediately
+    setRecents([]); 
   };
 
+  // Handle individual search result removal
+  const handleRemoveRecent = (idToRemove) => {
+    const updatedRecents = recents.filter(item => item.id !== idToRemove);
+    setRecents(updatedRecents);
+    localStorage.setItem(localStorage_recentSearches, JSON.stringify(updatedRecents));
+  };
 
-  // Apply the selected filter
   const filteredData =
     activeFilter === "ALL"
       ? searchResult
       : searchResult?.filter((item) => item.type === activeFilter);
 
   return (
-    <div className="flex flex-col h-screen pb-28 pt-3 overflow-hidden bg-black">
+    <div className="flex flex-col h-screen pb-32 pt-3 overflow-hidden bg-black">
 
-      {/* Header */}
       {recents?.length <= 0 && (
         <div className="text-white ml-5 text-xl">
           <b>Search</b>
         </div>
       )}
 
-      {/* Search Form */}
       <form onSubmit={handleSearch} className="flex gap-2 mt-2">
         <input
           type="text"
@@ -93,7 +90,6 @@ const Search = () => {
         </button>
       </form>
 
-      {/* Pill Filters */}
       {searchResult?.length > 0 && (
         <div className="flex gap-2 mt-4 px-3 overflow-x-auto no-scrollbar">
           {filters.map((filter) => (
@@ -112,7 +108,6 @@ const Search = () => {
         </div>
       )}
 
-      {/* Search Results */}
       <div className="flex-1 overflow-y-auto mt-3 px-2">
         {!isLoading && filteredData?.length > 0 ? (
           filteredData?.map((obj, index) => {
@@ -143,7 +138,7 @@ const Search = () => {
                 channelName={artistName}
                 setToastDisplay={setToastDisplay}
                 setToastMsg={setToastMsg}
-                isRecentRequired ={true}
+                isRecentRequired={true}
                 artistId={obj?.artist?.artistId}
               />
             );
@@ -153,7 +148,6 @@ const Search = () => {
             <Spinner />
           </div>
         ) : ( 
-          // Recent history
           recents.length > 0 ? (
           <div className="text-slate-50 mx-3">
             <h2 className="text-xl font-bold mb-2 ">Recents</h2>
@@ -168,11 +162,12 @@ const Search = () => {
                 artistId={history?.artistId}
                 setToastDisplay={setToastDisplay}
                 setToastMsg={setToastMsg}
+                onRemoveRecent={handleRemoveRecent} // 🐛 NEW: Pass removal function
               />
             ))}
 
             <div
-              className="w-fit mx-auto px-4 py-1 border border-zinc-800 font-semibold mt-3 mb-5 rounded-full text-xs cursor-pointer"
+              className="w-fit mx-auto px-4 py-1 border border-zinc-800 font-semibold mt-3 mb-5 rounded-full text-xs cursor-pointer hover:bg-zinc-800 transition-colors"
               onClick={clearAllRecents}
             >
               Clear recent history

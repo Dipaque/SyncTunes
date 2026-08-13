@@ -152,7 +152,7 @@ const AlbumView = () => {
   }
 
   return (
-    <div className="bg-black min-h-screen text-white pb-28 pt-8 px-3 overflow-y-auto">
+    <div className="bg-black min-h-screen text-white pb-32 pt-8 px-3 overflow-y-auto">
       {/* Back Button */}
       <IoArrowBack
         size={26}

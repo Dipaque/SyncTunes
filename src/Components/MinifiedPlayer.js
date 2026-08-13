@@ -7,14 +7,18 @@ import { LuSpeaker } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import { getRoutes, PLAYER_MODE } from "../constants";
 import { getPath } from "../utils/getPath";
+import LikeEntity from "./likes/LikeEntity";
 
 const MinifiedPlayer = () => {
   const { 
-    thumbnail, title, onReady, isPause, setIsPause, duration,
+    currentPlaying, onReady, isPause, setIsPause, duration,
     currentTime, setCurrentTime, setIsSeeking, seekBarRef, playerMode
   } = useStateContext();
 
   const nav = useNavigate();
+
+  // Extract data from current playing
+  const { image: thumbnail, title, id: songId } = currentPlaying
 
   const isSolo = playerMode === PLAYER_MODE.SOLO;
   const ROUTE = getRoutes(isSolo);
@@ -137,7 +141,7 @@ const MinifiedPlayer = () => {
             )}
           </div>
 
-          <LikeSong color={"#f1f5f9"} iconSize={27} />
+          <LikeEntity type={"song"} color={"#f1f5f9"} iconSize={27} id={songId} />
           
           {isPause ? (
             <div

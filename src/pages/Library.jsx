@@ -13,7 +13,6 @@ import { useStateContext } from '../Context/ContextProvider';
 import bulkQueue from '../Functions/bulkQueue';
 import shuffle from '../Functions/shuffle';
 import { getPath } from '../utils/getPath';
-import { IndexedDBHelper } from '../utils/indexedDB';
 import { appCache } from '../utils/cache';
 
 const Library = () => {
