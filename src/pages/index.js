@@ -15,7 +15,6 @@ import {
   IoPlaySkipBack,
   IoPlaySkipForward,
   IoSparkles,
-  IoSparklesOutline,
 } from "react-icons/io5";
 import { HiOutlineShare } from "react-icons/hi";
 import { LuSpeaker } from "react-icons/lu";
@@ -28,7 +27,6 @@ import { autoSuggest, getRoutes, localStorage_currentPlaying, PLAYER_MODE } from
 
 // Components
 import PlayerShimmer from "../Components/PlayerShimmer";
-import LikeSong from "../Components/LikeSong";
 import QueueDrawer from "../Components/QueueDrawer";
 import RoommatesDrawer from "../Components/RoommatesDrawer";
 import PlayerHeader from "../Components/PlayerHeader";
@@ -36,15 +34,10 @@ import JoinRoom from "../Components/modal/JoinRoom";
 import Lyrics from "../Components/player/Lyrics";
 import { getPath } from "../utils/getPath";
 import LikeEntity from "../Components/likes/LikeEntity";
-import { useMusicData } from "../hooks/useMusicData";
 
 /**
  * Main Player View Component.
  * Handles both Solo (Local) and Jam (Multiplayer/Firebase) music playback.
- * 
- * @param {Object} props
- * @param {Function} props.updateParamsId - Callback to sync the URL parameter ID with the parent route.
- * @returns {JSX.Element} The rendered Player interface.
  */
 const Index = ({ updateParamsId }) => {
   // --- Global State ---
@@ -79,8 +72,6 @@ const Index = ({ updateParamsId }) => {
   const roomCode = sessionStorage.getItem("roomCode") || id;
   const isSolo = playerMode === PLAYER_MODE.SOLO;
   const ROUTE = getRoutes(isSolo);
-  
-  const { data: song } = useMusicData("song", currentPlaying?.id)
 
   // --- Local State ---
   const [isExternalDevice, setIsExternalDevice] = useState(false);
@@ -88,45 +79,40 @@ const Index = ({ updateParamsId }) => {
 
   /**
    * Skips to the next track in the queue.
-   * Updates local state in Solo mode, or syncs via Firestore in Jam mode.
+   * Uses Optimistic UI updates for zero-latency switching.
    */
-  const handleForward = async () => {
+  const handleForward = () => {
     try {
       if (!videoIds || !currentPlaying) return;
 
-      // 1. Determine exact index (fixes duplicate loop bug)
-      // If we saved the index previously AND the ID still matches (in case a track was deleted), use it.
-      // Otherwise, fallback to the standard findIndex.
       let index = currentPlaying.queueIndex !== undefined && videoIds[currentPlaying.queueIndex]?.id === currentPlaying.id
           ? currentPlaying.queueIndex 
           : videoIds.findIndex((data) => data.id === currentPlaying.id);
       
-      // Ensure we are not at the end of the queue before forwarding
       if (index !== -1 && index !== videoIds.length - 1) {
-        
-        // 2. Inject `queueIndex` into the next song payload so we never lose our place
         const nextSong = { 
           ...videoIds[index + 1], 
           playedAt: Timestamp.now(),
-          queueIndex: index + 1 // <--- THE FIX
+          queueIndex: index + 1 
         };
 
+        // Optimistic UI Update
+        setCurrentPlaying(nextSong);
+        setId(nextSong.id);
+        setTitle(nextSong.title);
+        setArtist(nextSong.channelName);
+        setPlayedBy(nextSong.playedBy || (isSolo ? "Solo Player" : playedBy));
+        setThumbnail(nextSong.image || nextSong.thumbnails?.[nextSong.thumbnails]?.url || "");
+
+        // Background Sync
         if (isSolo) {
-          setCurrentPlaying(nextSong);
-          setId(nextSong.id);
-          setTitle(nextSong.title);
-          setArtist(nextSong.channelName);
-          setPlayedBy(nextSong.playedBy || "Solo Player");
-          setThumbnail(nextSong.image || nextSong.thumbnail);
           localStorage.setItem(localStorage_currentPlaying, JSON.stringify(nextSong));
         } else {
-          await updateDoc(doc(db, "room", roomCode), {
+          updateDoc(doc(db, "room", roomCode), {
             currentPlaying: nextSong,
-          });
+          }).catch(err => console.error("Firebase sync error:", err));
         }
       }
-      
-      setCurrentTime(0);
     } catch (err) {
       console.error("Failed to skip to next track:", err);
     }
@@ -134,45 +120,44 @@ const Index = ({ updateParamsId }) => {
 
   /**
    * Rewinds to the previous track in the queue.
+   * Uses Optimistic UI updates for zero-latency switching.
    */
-  const handleBack = async () => {
+  const handleBack = () => {
     try {
       if (!videoIds || !currentPlaying) return;
 
-      // 1. Determine exact index (fixes duplicate loop bug)
       let index = currentPlaying.queueIndex !== undefined && videoIds[currentPlaying.queueIndex]?.id === currentPlaying.id 
           ? currentPlaying.queueIndex 
           : videoIds.findIndex((data) => data.id === currentPlaying.id);
       
-      // Ensure we are not at the very first song
       if (index > 0) {
-        
-        // 2. Inject `queueIndex` into the previous song payload
         const prevSong = { 
           ...videoIds[index - 1], 
           playedAt: Timestamp.now(),
-          queueIndex: index - 1 // <--- THE FIX
+          queueIndex: index - 1 
         };
 
+        // Optimistic UI Update
+        setCurrentPlaying(prevSong);
+        setId(prevSong.id);
+        setTitle(prevSong.title);
+        setArtist(prevSong.channelName);
+        setPlayedBy(prevSong.playedBy || (isSolo ? "Solo Player" : playedBy));
+        setThumbnail(prevSong.image || prevSong.thumbnails?.[0]?.url || "");
+        setCurrentTime(0);
+
+        // Background Sync
         if (isSolo) {
-          setCurrentPlaying(prevSong);
-          setId(prevSong.id);
-          setTitle(prevSong.title);
-          setArtist(prevSong.channelName);
-          setPlayedBy(prevSong.playedBy || "Solo Player");
-          setThumbnail(prevSong.image || prevSong.thumbnail);
           localStorage.setItem(localStorage_currentPlaying, JSON.stringify(prevSong));
         } else {
-          await updateDoc(doc(db, "room", roomCode), {
+          updateDoc(doc(db, "room", roomCode), {
             currentPlaying: prevSong,
-          });
+          }).catch(err => console.error("Firebase sync error:", err));
         }
       } else if (onReady) {
-        // Restart the first track if we are already at the beginning
         onReady.seekTo(0);
+        setCurrentTime(0);
       }
-      
-      setCurrentTime(0);
     } catch (err) {
       console.error("Failed to skip to previous track:", err);
     }
@@ -183,7 +168,6 @@ const Index = ({ updateParamsId }) => {
    */
   const handlePause = () => {
     try {
-      // Check if player exists, has the function, AND the iframe is still in the DOM
       if (onReady && typeof onReady.pauseVideo === 'function' && onReady.getIframe()) {
         onReady.pauseVideo();
         setIsPause(true);
@@ -207,16 +191,9 @@ const Index = ({ updateParamsId }) => {
     }
   };
 
-  /**
-   * Temporarily halts progress bar updates while the user is actively dragging the slider.
-   */
   const handleMouseDown = () => setIsSeeking(true);
   const handleMouseUp = () => setIsSeeking(false);
 
-  /**
-   * Calculates the new time position based on click coordinates and updates the player.
-   * @param {React.MouseEvent} event - The click event on the seek bar.
-   */
   const handleSeek = (event) => {
     try {
       const seekBar = seekBarRef?.current ?? event.currentTarget;
@@ -231,42 +208,26 @@ const Index = ({ updateParamsId }) => {
     } catch (err) {
       console.error("Ignored seek: YouTube player already unmounted.", err);
     }
-  };;
+  };
 
-  /**
-   * Prompts the user for microphone permissions to expose detailed Bluetooth/Headset device labels.
-   * By default, browsers hide these labels for privacy until permissions are granted.
-   * @param {React.MouseEvent} e - The click event.
-   */
   const unlockDeviceLabels = async (e) => {
     e.stopPropagation();
     try {
-      // Briefly request audio permission to unlock hardware labels
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      
-      // Immediately stop the mic stream so the red recording dot disappears
       stream.getTracks().forEach((track) => track.stop());
-      
-      // Re-evaluate available devices with unlocked labels
       checkAudioDevices();
     } catch (err) {
       console.warn("Permission denied or no microphone available:", err);
-      // Fallback: manually toggle the UI icon if permission fails
       setIsExternalDevice((prev) => !prev); 
     }
   };
 
-  /**
-   * Polls navigator for audio outputs and checks for external headsets.
-   * Wrapped in useCallback to safely include in useEffect dependency arrays.
-   */
   const checkAudioDevices = useCallback(async () => {
     if (!navigator.mediaDevices?.enumerateDevices) return;
     try {
       const devices = await navigator.mediaDevices.enumerateDevices();
       const audioOutputs = devices.filter((device) => device.kind === "audiooutput");
       
-      // Check labels for keywords indicating an external bluetooth/wired device
       const hasExternal = audioOutputs.some((device) => {
         const label = device.label.toLowerCase();
         setDeviceLabel(device?.label);
@@ -280,16 +241,12 @@ const Index = ({ updateParamsId }) => {
   }, []);
 
   // --- Effects ---
-
-  // Update URL params when leaving/joining
   useEffect(() => {
     updateParamsId(isLeaving ? "" : id);
   }, [id, isLeaving, updateParamsId]);
 
-  // Setup listeners for hardware audio device changes
   useEffect(() => {
     checkAudioDevices();
-
     if (navigator.mediaDevices) {
       navigator.mediaDevices.addEventListener("devicechange", checkAudioDevices);
       return () => {
@@ -299,31 +256,18 @@ const Index = ({ updateParamsId }) => {
   }, [checkAudioDevices]);
 
   useEffect(() => {
-    // Only run this sync logic in Jam Mode when we have a song and a playedAt timestamp
     if (playerMode === PLAYER_MODE.JAM && currentPlaying?.playedAt) {
-      
-      // 1. Convert Firestore Timestamp to standard milliseconds
       const startTimeMs = currentPlaying.playedAt.toMillis 
         ? currentPlaying.playedAt.toMillis() 
         : currentPlaying.playedAt;
         
       const currentTimeMs = Date.now();
-      
-      // 2. Calculate elapsed seconds
       const elapsedSeconds = (currentTimeMs - startTimeMs) / 1000;
-      
-      // 3. Fallback duration (assume 3 minutes if duration isn't explicitly saved)
       const songDuration = duration; 
   
-      // 4. Sync check
       if (elapsedSeconds > 0 && elapsedSeconds < songDuration) {
-        // Seek to the exact second everyone else is on
         setCurrentTime(elapsedSeconds);
-        
-        // If you are using a ref for a player (like react-player or YouTube iframe):
-        // playerRef.current.seekTo(elapsedSeconds, 'seconds');
       } else {
-        // If elapsed time is greater than the song duration, start from 0
         setCurrentTime(0);
       }
     }
@@ -337,19 +281,18 @@ const Index = ({ updateParamsId }) => {
 
   return (
     <div className="bg-black">
-      {/* Conditionally hide JoinRoom modal in Solo Mode */}
       {!isSolo && <JoinRoom codeViaProps={id} />}
 
       <PlayerHeader handlePause={handlePause} />
       
-      {isLoading || !song?.thumbnails.length>0 ? (
+      {isLoading || !thumbnail ? (
         <PlayerShimmer />
       ) : (
         <>
           {/* Album Artwork */}
           <div className="m-3 mt-8 ms-4 me-4">
             <img
-              src={song?.thumbnails[song?.thumbnails.length-1].url}
+              src={thumbnail}
               className="h-56 mx-auto rounded-md object-cover shadow-lg"
               alt="Track thumbnail"
               loading="lazy"
@@ -359,12 +302,14 @@ const Index = ({ updateParamsId }) => {
           {/* Metadata Section */}
           <div className="m-3 mt-5">
             <div className="flex items-center justify-between ms-2 gap-6 overflow-hidden">
-              {/* Marquee for long titles to prevent overflow */}
+              {/* Marquee for long titles */}
               {title?.length >= 19 ? (
-                <Marquee style={{ width: "85%" }} 
-                gradient={true} 
-                gradientColor="black" /* Matches your dark theme */
-                gradientWidth={40}    /* Controls how wide the fade is */>
+                <Marquee 
+                  style={{ width: "85%" }} 
+                  gradient={true} 
+                  gradientColor="black" 
+                  gradientWidth={40}
+                >
                   <h5 className="text-slate-50 bg-black m-0 me-2">
                     <b>{title || "Unknown Song"}</b>
                   </h5>
@@ -375,37 +320,45 @@ const Index = ({ updateParamsId }) => {
                 </h5>
               )}
               
-              <div className="-m-2"><LikeEntity id={currentPlaying?.id} iconSize={38} type={"song"} color="#f1f5f9"  /></div>
+              <div className="-m-2">
+                <LikeEntity id={currentPlaying?.id} iconSize={38} type={"song"} color="#f1f5f9"  />
+              </div>
             </div>
             
             {/* Artist Navigation */}
-{/* Artist Navigation */}
-<div className={`flex items-center justify-start gap-1 ${playedBy === autoSuggest ? "px-2":""}`}>
-{playedBy === autoSuggest ? <IoSparkles color="#1ed760"  /> : null}
-{artist?.length >= 40 ? (
-              <Marquee className="mx-2" style={{ width: "85%" }} gradient={true} gradientColor="black" /* Matches your dark theme */
-              gradientWidth={40}    /* Controls how wide the fade is */>
-                <Link 
-                  to={song?.artist?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', song?.artist?.artistId) : "#"} 
-                  className="text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors"
+            <div className={`flex items-center justify-start gap-1 ${playedBy === autoSuggest ? "px-2":""}`}>
+              {playedBy === autoSuggest ? <IoSparkles color="#1ed760"  /> : null}
+              {artist?.length >= 40 ? (
+                <Marquee 
+                  className="mx-2" 
+                  style={{ width: "85%" }} 
+                  gradient={true} 
+                  gradientColor="black" 
+                  gradientWidth={40}
                 >
-                  {song?.artist?.name || "Unknown Artist"}
+                  <Link 
+                    to={currentPlaying?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', currentPlaying.artistId) : "#"} 
+                    className="text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors"
+                  >
+                    {artist || "Unknown Artist"}
+                  </Link>
+                </Marquee>
+              ) : (
+                <Link 
+                  to={currentPlaying?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', currentPlaying.artistId) : "#"} 
+                  className="flex items-center gap-2 text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors  truncate"
+                >
+                   {artist || "Unknown Artist"}
                 </Link>
-              </Marquee>
-            ) : (
-              <Link 
-                to={song?.artist?.artistId ? getPath(ROUTE.ARTIST, roomCode).replace(':artist', song?.artist?.artistId) : "#"} 
-                className="flex items-center gap-2 text-slate-400 m-2 mt-1 text-sm no-underline hover:text-white transition-colors  truncate"
-              >
-                 {song?.artist?.name || "Unknown Artist"}
-              </Link>
-            )}
-</div>
+              )}
+            </div>
 
             {/* Played By Indicator */}
-          {playerMode === PLAYER_MODE.JAM &&  <p className="m-2 text-xs flex items-center gap-1 text-gray-400">
-              <IoPerson aria-hidden="true" /> {playedBy || "Solo Player"}
-            </p>}
+            {playerMode === PLAYER_MODE.JAM &&  (
+              <p className="m-2 text-xs flex items-center gap-1 text-gray-400">
+                <IoPerson aria-hidden="true" /> {playedBy || "Solo Player"}
+              </p>
+            )}
           </div>
 
           {/* Interactive Seekbar */}
@@ -437,7 +390,6 @@ const Index = ({ updateParamsId }) => {
               </div>
             </>
           ) : (
-            /* Loading State for Seekbar */
             <div className="bg-zinc-700 border-zinc-800 border-2 rounded-full h-1.5 mx-auto w-[90%] relative overflow-hidden">
               <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-zinc-600 via-zinc-500 to-zinc-600 rounded-full"></div>
             </div>
@@ -474,8 +426,6 @@ const Index = ({ updateParamsId }) => {
 
       {/* Auxiliary Controls (Bottom Toolbar) */}
       <div className="flex items-center justify-between ms-3 -mt-5 pb-14">
-        
-        {/* Audio Output Device Indicator */}
         <button 
           onClick={unlockDeviceLabels}
           className="cursor-pointer focus:outline-none p-2 rounded-lg hover:bg-zinc-900/50 transition-colors"
@@ -492,7 +442,6 @@ const Index = ({ updateParamsId }) => {
         </button>
 
         <div className="flex items-end gap-6 float-right m-3">
-          {/* Hide Jam-specific features (Roommates & Share) in Solo Mode */}
           {!isSolo && (
               <RoommatesDrawer />
           )}
@@ -507,7 +456,6 @@ const Index = ({ updateParamsId }) => {
         </div>
       </div>
       
-      {/* Dynamic Lyrics Engine */}
       <Lyrics />
     </div>
   );

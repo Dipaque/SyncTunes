@@ -42,7 +42,7 @@ const SoloView = ({ recentTracks, pinnedSongs = [], isLoading, homeData, handleI
         title: item?.title || item?.name, 
         id: item?.videoId || item?.id, 
         image:item.thumbnails?.[item.thumbnails?.length-1]?.url || item.thumbnail || item?.image, 
-        channelName: item?.artist || item?.artist?.name || item?.channelName , 
+        channelName: item?.artist?.name || item?.channelName || item?.artist , 
         artistId: item?.artist?.artistId || item?.artistId
       }
 
