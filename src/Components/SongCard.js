@@ -111,7 +111,7 @@ const SongCard = ({ image, title, id, channelName, type, setToastDisplay, setToa
   const menuOptions = [
     {
       label: "Add to Liked Song",
-      icon: <div className='-m-2'><LikeEntity id={id} type={"song"} iconSize={25} color='text-gray-400'  /></div>,
+      icon: <div className='-m-2'><LikeEntity id={id} type={"song"} iconSize={25} color='text-gray-400' songInfo={{image, title, id, channelName, artistId}}  /></div>,
       action: () => {return}
     },
     {

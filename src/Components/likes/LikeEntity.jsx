@@ -6,7 +6,7 @@ import apiClient from "../../utils/apiClient";
 import { library_route } from "../../constants";
 
 
-const LikeEntity = ({ id, type, iconSize = 28, color = "white" }) => {
+const LikeEntity = ({ id, type, iconSize = 28, color = "white", songInfo }) => {
   const [liked, setLiked] = useState(false);
   const [animate, setAnimate] = useState(false);
   const userId = Cookies.get("uid");
@@ -59,7 +59,11 @@ const LikeEntity = ({ id, type, iconSize = 28, color = "white" }) => {
         userId,
         id,
         type, // 'artist', 'album', or 'playlist'
-        isLiked: newLikedState
+        isLiked: newLikedState,
+        artistId: songInfo?.artistId, 
+        channelName: songInfo?.channelName,
+        title:songInfo?.title, 
+        image: songInfo?.image
       });
 
     // refetch the liked song to update

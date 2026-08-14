@@ -321,7 +321,7 @@ const Index = ({ updateParamsId }) => {
               )}
               
               <div className="-m-2">
-                <LikeEntity id={currentPlaying?.id} iconSize={38} type={"song"} color="#f1f5f9"  />
+                <LikeEntity id={currentPlaying?.id} iconSize={38} type={"song"} color="#f1f5f9" songInfo={currentPlaying}  />
               </div>
             </div>
             
