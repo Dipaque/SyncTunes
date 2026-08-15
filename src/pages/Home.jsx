@@ -134,17 +134,17 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen bg-black text-white pb-24">
+    <div className="min-h-screen bg-black text-white pt-4 pb-24">
       <CreateRoom />
       <JoinRoom />
 
       {/* Header & Logo */}
-      <div className="flex items-center justify-between p-4 pt-6">
+      {/* <div className="flex items-center justify-between p-4 pt-6">
         <div className="flex items-center gap-2">
           <img src={logo} height={20} width={20} alt="logo" />
           <span className="text-xl font-bold text-gray-100">Sync-Tunes</span>
         </div>
-      </div>
+      </div> */}
 
       {/* Pill Tab Navigation */}
       <div className="flex justify-center px-4 mb-6">

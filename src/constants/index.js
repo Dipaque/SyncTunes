@@ -9,6 +9,7 @@ export const localStorage_playerMode = 'qwerdcewrfuec';
 export const localStorage_soloQueue = 'inqwefineur';
 export const localStorage_currentPlaying = 'indfingwertr';
 export const localStorage_pinSongs = 'rjnsingoiponc';
+export const localStorage_pastSongsLimit = "asdjijbgjbiub";
 export const localStorage_syncPreferredLang = 'inibsdjbgkjb';
 export const localStorage_pinnedView = 'ihinidshinrt';
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import Marquee from "react-fast-marquee";
 
 // Firebase
@@ -33,7 +33,7 @@ import PlayerHeader from "../Components/PlayerHeader";
 import JoinRoom from "../Components/modal/JoinRoom";
 import Lyrics from "../Components/player/Lyrics";
 import { getPath } from "../utils/getPath";
-import LikeEntity from "../Components/likes/LikeEntity";
+import LikeSong from "../Components/LikeSong";
 
 /**
  * Main Player View Component.
@@ -63,6 +63,7 @@ const Index = ({ updateParamsId }) => {
     setId,
     setTitle,
     setArtist,
+    setIsLeaving,
     setPlayedBy,
     setThumbnail,
   } = useStateContext();
@@ -76,6 +77,20 @@ const Index = ({ updateParamsId }) => {
   // --- Local State ---
   const [isExternalDevice, setIsExternalDevice] = useState(false);
   const [deviceLabel, setDeviceLabel] = useState("");
+  const [isMinified, setIsMinified] = useState(false)
+
+  // At the top of your component:
+const navigate = useNavigate();
+
+// The function:
+const handleMinimize = () => {
+  setIsMinified(true); 
+  
+  // Wait exactly 500ms for the slide-down animation to finish
+  setTimeout(() => {
+    navigate(-1); 
+  }, 500); 
+};
 
   /**
    * Skips to the next track in the queue.
@@ -279,11 +294,15 @@ const Index = ({ updateParamsId }) => {
     height: "100%",
   };
 
+  const slideAnimation = `overflow-y-auto overflow-x-hidden transform transition-transform duration-500 ease-in-out ${
+    isMinified ? "translate-y-full bg-transparent" : "translate-y-0"
+  }`
+
   return (
-    <div className="bg-black">
+    <div className={slideAnimation}>
       {!isSolo && <JoinRoom codeViaProps={id} />}
 
-      <PlayerHeader handlePause={handlePause} />
+      <PlayerHeader handlePause={handlePause} handleMinimize={handleMinimize} />
       
       {isLoading || !thumbnail ? (
         <PlayerShimmer />
@@ -320,9 +339,10 @@ const Index = ({ updateParamsId }) => {
                 </h5>
               )}
               
-              <div className="-m-2">
-                <LikeEntity id={currentPlaying?.id} iconSize={38} type={"song"} color="#f1f5f9" songInfo={currentPlaying}  />
-              </div>
+                <LikeSong iconSize={38} type={"song"} color="#f1f5f9"/>
+              {/* <div className=""> */}
+                {/* <LikeEntity id={currentPlaying?.id} iconSize={38} type={"song"} color="#f1f5f9" songInfo={currentPlaying}  /> */}
+              {/* </div> */}
             </div>
             
             {/* Artist Navigation */}

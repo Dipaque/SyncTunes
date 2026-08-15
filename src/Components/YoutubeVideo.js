@@ -10,10 +10,10 @@ import {
   localStorage_autoSuggestLimit,
   localStorage_currentPlaying,
   localStorage_fadeDuration,
+  localStorage_pastSongsLimit,
   localStorage_soloQueue,
   PLAYER_MODE
 } from "../constants";
-import bulkQueue from "../Functions/bulkQueue";
 
 /**
  * YouTubeVideo Component
@@ -61,7 +61,7 @@ const YouTubeVideo = ({ videoIds: propVideoIds }) => {
 
       if (localPlaying && !currentPlaying?.id) {
         setCurrentPlaying(localPlaying);
-        setIsPause(true); // 🐛 FIX: Immediately tell UI that we are paused on reload
+        setIsPause(true);
       }
       if (localQueue && (!activeVideoIds || activeVideoIds.length === 0)) {
         setVideoIds(localQueue);
@@ -138,16 +138,39 @@ const YouTubeVideo = ({ videoIds: propVideoIds }) => {
   
     try {
       if (!isLastSong) {
-        const nextSong = { 
-          ...activeVideoIds[index + 1], 
-          queueIndex: index + 1,
-          playedAt: Timestamp.now() 
-        };
-  
+        // ==========================================
+        // SCENARIO 1: MOVING TO NEXT EXISTING SONG
+        // ==========================================
         if (isSolo) {
+          let nextIndex = index + 1;
+          let updatedQueue = [...activeVideoIds];
+          
+          // APPLY PAST SONG LIMIT
+          const pastSongLimit = parseInt(localStorage.getItem(localStorage_pastSongsLimit)) || 10;
+          if (nextIndex > pastSongLimit) {
+            const amountToTrim = nextIndex - pastSongLimit;
+            updatedQueue = updatedQueue.slice(amountToTrim);
+            nextIndex = pastSongLimit; // Shift index backward
+            
+            setVideoIds(updatedQueue);
+            localStorage.setItem(localStorage_soloQueue, JSON.stringify(updatedQueue));
+          }
+
+          const nextSong = { 
+            ...updatedQueue[nextIndex], 
+            queueIndex: nextIndex,
+            playedAt: Timestamp.now() 
+          };
+
           setCurrentPlaying(nextSong);
           localStorage.setItem(localStorage_currentPlaying, JSON.stringify(nextSong));
         } else {
+          // --- JAM MODE ---
+          const nextSong = { 
+            ...activeVideoIds[index + 1], 
+            queueIndex: index + 1,
+            playedAt: Timestamp.now() 
+          };
           const uniqueVideoIds = getUniqueObjectsById(activeVideoIds);
           await updateDoc(doc(db, "room", roomCode), {
             currentSong: uniqueVideoIds,
@@ -156,6 +179,9 @@ const YouTubeVideo = ({ videoIds: propVideoIds }) => {
         }
   
       } else {
+        // ==========================================
+        // SCENARIO 2: AUTO-SUGGESTING NEW SONGS
+        // ==========================================
         if (isSolo) {
           if (autoSuggest) {
             const { data } = await apiClient.get(`music/song/${currentPlaying.id}/up-next`);
@@ -173,16 +199,28 @@ const YouTubeVideo = ({ videoIds: propVideoIds }) => {
                 playedBy: "Auto Suggest"
               }));
               
+              let updatedQueue = [...activeVideoIds, ...refactoredSongs];
+              let nextIndex = activeVideoIds.length; // The index of the first suggested song
+              
+              // APPLY PAST SONG LIMIT TO NEWLY APPENDED QUEUE
+              const pastSongLimit = parseInt(localStorage.getItem(localStorage_pastSongsLimit)) || 10;
+              if (nextIndex > pastSongLimit) {
+                const amountToTrim = nextIndex - pastSongLimit;
+                updatedQueue = updatedQueue.slice(amountToTrim);
+                nextIndex = pastSongLimit; // Shift index backward
+              }
+
+              // Update Queue States
+              setVideoIds(updatedQueue);
+              localStorage.setItem(localStorage_soloQueue, JSON.stringify(updatedQueue));
+              
+              // Format and Set the New Playing Song
               const firstSuggestedSong = { 
-                ...refactoredSongs[0], 
-                queueIndex: activeVideoIds.length,
+                ...updatedQueue[nextIndex], 
+                queueIndex: nextIndex,
                 playedAt: Timestamp.now() 
               };
   
-              const newQueue = [...activeVideoIds, ...refactoredSongs];
-              setVideoIds(newQueue);
-              localStorage.setItem(localStorage_soloQueue, JSON.stringify(newQueue));
-              
               setCurrentPlaying(firstSuggestedSong);
               localStorage.setItem(localStorage_currentPlaying, JSON.stringify(firstSuggestedSong));
             }
@@ -191,6 +229,7 @@ const YouTubeVideo = ({ videoIds: propVideoIds }) => {
             setCurrentTime(0);
           }
         } else {
+          // --- JAM MODE END OF QUEUE ---
           setIsPause(true);
           setCurrentTime(0);
           

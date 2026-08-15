@@ -76,7 +76,7 @@ const KebabButton = ({ handleExit }) => {
       text: "Add to Queue",
       onClick: () => {
         const trackImg = currentPlaying?.image || thumbnail; 
-        addToQueue(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, "Solo Playing", currentPlaying.artistId, playerMode, setVideoIds, setCurrentPlaying);
+        addToQueue(trackImg, currentPlaying.title, currentPlaying.id, currentPlaying.channelName, videoIds, "Solo Playing", currentPlaying?.artistId, playerMode, setVideoIds, setCurrentPlaying);
         setIsOpen(false); 
       },
       show: true
@@ -127,10 +127,10 @@ const KebabButton = ({ handleExit }) => {
       onClick: () => {
         setIsOpen(false);
         if (currentPlaying?.artistId) {
-          nav(`/artists/${currentPlaying.artistId}`); 
+          nav(`/artists/${currentPlaying?.artistId}`); 
         }
       },
-      show: currentPlaying.artistId ? true : false
+      show: currentPlaying?.artistId ? true : false
     },
   ];
 

@@ -20,11 +20,10 @@ import {
   localStorage_autoSuggest,
   localStorage_autoSuggestLimit,
   localStorage_fadeDuration,
+  localStorage_pastSongsLimit,
   localStorage_syncPreferredLang,
 } from "../../constants";
 
-// Add this to your constants file, or use the raw string "sync_pastSongsLimit"
-const localStorage_pastSongsLimit = "sync_pastSongsLimit";
 
 const Settings = () => {
 

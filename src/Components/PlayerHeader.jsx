@@ -15,10 +15,10 @@ import LeaveRoom from "./modal/LeaveRoom";
 import LikedUsers from "./LikedUsers";
 import { useNavigate } from "react-router-dom";
 import KebabButton from "./kebab_btn/KebabButton";
-import { IoCheckmark, IoCopyOutline } from "react-icons/io5";
+import { IoCheckmark, IoChevronDown, IoCopyOutline } from "react-icons/io5";
 import { getRoutes, PLAYER_MODE } from "../constants";
 
-const PlayerHeader = ({ handlePause }) => {
+const PlayerHeader = ({ handlePause, handleMinimize }) => {
   const [currentSong, setCurrentSong] = useState([]);
   const [isCopied, setIsCopied] = useState(false)
   const nav = useNavigate();
@@ -41,7 +41,7 @@ const PlayerHeader = ({ handlePause }) => {
   useEffect(() => {
     const getData = () => {
       try{
-        if (roomCode) {
+        if (roomCode && playerMode===PLAYER_MODE.JAM) {
           const filteredUsersQuery = query(
             collection(db, "room"),
             where("roomCode", "==", roomCode)
@@ -63,7 +63,7 @@ const PlayerHeader = ({ handlePause }) => {
       }
     };
     getData();
-  }, [roomCode]);
+  }, [roomCode, playerMode]);
 
   const requestPermission = () => {
     // Check if the browser supports the Notification API
@@ -148,12 +148,7 @@ const PlayerHeader = ({ handlePause }) => {
   return (
     <>
       <div className="flex items-center justify-between mb-3 p-3">
-        <div className="flex items-center gap-2 ">
-          <img src={logo} height={15} width={15} alt="logo" />
-          <span className="text-lg font-semibold text-gray-300">
-            Sync-Tunes
-          </span>
-        </div>
+      <IoChevronDown size={23} color="white" className="cursor-pointer hover:opacity-75 transition-opacity" onClick={handleMinimize} />
         <KebabButton handleExit={() => setIsLeaving(true)} />
       </div>
       <div className="w-screen h-full bg-black p-3 pt-12" id="top">

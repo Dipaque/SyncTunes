@@ -107,7 +107,7 @@ const MinifiedPlayer = () => {
 
   return (
     <div 
-    className="fixed bottom-16 left-1/2 -translate-x-1/2 rounded-md animate-controller bg-zinc-900/50 backdrop-blur-md  w-[95vw] max-w-xl z-50 shadow-xl"      onClick={handleNavigate}
+    className="fixed bottom-16 left-1/2 -translate-x-1/2 rounded-md animate-controller bg-zinc-900/50 backdrop-blur-md  w-[95vw] max-w-xl z-50 shadow-xl animate-[slideUp_0.4s_ease-out_forwards]"      onClick={handleNavigate}
     >
       <div className="p-3 pt-2 flex justify-between items-center gap-2 px-2">
         
@@ -141,7 +141,7 @@ const MinifiedPlayer = () => {
             )}
           </div>
 
-          <LikeEntity type={"song"} color={"#f1f5f9"} iconSize={27} id={songId} />
+          <LikeSong iconSize={27} type={"song"} color="#f1f5f9"/>
           
           {isPause ? (
             <div
